@@ -1,0 +1,21 @@
+<mat-toolbar class="mat-elevation-z6 topToolbar" color="primary">
+  <div #left>
+    <button mat-button class="title" (click)="redirect()">
+      <mat-icon>home</mat-icon>
+      {{(cookie.isLoggedIn() ? ' ' + title : '')}}</button>
+    <ng-container #navButtonWrapper *ngIf="cookie.isLoggedIn()">
+      <button mat-button [routerLink]="'saved-track-list'">Saved Tracks</button>
+    </ng-container>
+  </div>
+
+  <div #right>
+    <button mat-button *ngIf="cookie.getCookie('isLoggedIn') === 'true'"
+            [matMenuTriggerFor]="profileMenu">{{getUserName()}}</button>
+    <mat-menu #profileMenu="matMenu">
+      <button mat-menu-item (click)="logout()" matTooltip="Logout">Logout</button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
+
+
+<router-outlet class="outlet"></router-outlet>

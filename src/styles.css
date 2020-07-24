@@ -1,1 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+
+
+html,
+body {
+  height: calc(100vh - 64px);
+  width: 100%;
+  overflow: auto;
+}
+
+body{
+  margin: 0;
+  flex-direction: column;
+  position: absolute;
+  top: 64px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-family: Roboto, 'lucida grande',verdana,helvetica,arial,sans-serif;
+
+}
+
+.wrapper {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  align-content: center;
+}
