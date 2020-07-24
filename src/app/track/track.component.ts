@@ -19,8 +19,8 @@ export class TrackComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.api.getApi().getTrack(this.trackId).then(value => this.track = value).catch(this.api.handleError);
-    this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => this.trackAudioFeatures = value).catch(this.api.handleError);
+    this.api.getApi().getTrack(this.trackId).then(value => this.track = value);
+    this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => this.trackAudioFeatures = value);
   }
 
 }

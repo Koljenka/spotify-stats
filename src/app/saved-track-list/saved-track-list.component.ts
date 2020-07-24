@@ -43,7 +43,7 @@ export class SavedTrackListComponent implements OnInit {
         this.getSavedTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
       }
 
-    }).catch(this.api.handleError);
+    });
   }
 
   onRowClick(trackId: string): void {

@@ -17,4 +17,12 @@ export class TokenService {
   static set refreshToken(value) {
     localStorage.setItem('refreshToken', value);
   }
+
+  static get expiresAt(): number {
+    return parseInt(localStorage.getItem('expiresAt'), 10);
+  }
+
+  static set expiresAt(value) {
+    localStorage.setItem('expiresAt', String(value));
+  }
 }

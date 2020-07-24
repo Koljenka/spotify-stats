@@ -28,6 +28,7 @@ export class CallbackComponent implements OnInit {
   }
 
   onFulFilled(response): void {
+    TokenService.expiresAt = Date.now() + 2940000;
     TokenService.accessToken = response.access_token;
     TokenService.refreshToken = response.refresh_token;
     this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');

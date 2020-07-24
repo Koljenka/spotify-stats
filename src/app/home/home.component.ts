@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     if (this.cookie.isLoggedIn()) {
       this.api.getApi().getUserPlaylists(this.api.userId).then(value => {
         this.playlists = value.items;
-      }).catch(this.api.handleError);
+      });
     }
   }
 

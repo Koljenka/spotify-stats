@@ -35,7 +35,7 @@ export class OverviewComponent implements OnInit {
       this.requestedUsername = true;
       this.api.getApi().getMe().then(value => {
         this.username = value.display_name;
-      }).catch(this.api.handleError);
+      });
     }
   }
 

@@ -5,6 +5,7 @@ import {Base64} from 'js-base64';
 
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {interval, Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,16 @@ export class ApiConnectionService {
     return APP_SETTINGS.clientName;
   }
 
+  interval: Observable<number>;
+
   private constructor(private http: HttpClient) {
+    this.checkToken();
+    if (this.interval === null || this.interval === undefined) {
+      this.interval = interval(600000);
+      this.interval.subscribe(() => {
+        this.checkToken();
+      });
+    }
   }
 
   private api: SpotifyWebApi.SpotifyWebApiJs = null;
@@ -51,17 +61,15 @@ export class ApiConnectionService {
     if (this.api == null) {
       this.api = new SpotifyWebApi();
       this.api.setAccessToken(TokenService.accessToken);
-      this.api.getMe().then(value => this.userId = value.id).catch(this.handleError);
+      this.api.getMe().then(value => this.userId = value.id);
     }
 
     return this.api;
   }
 
-  handleError(reason: any): void {
-    if (reason.status === 401) {
+  private checkToken(): void {
+    if (Date.now() >= TokenService.expiresAt) {
       this.requestRefreshToken();
-    } else {
-      console.log(reason.message);
     }
   }
 
@@ -70,8 +78,14 @@ export class ApiConnectionService {
       headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
         .append('Authorization', 'Basic ' + Base64.encode(this.clientId + ':' + this.clientSecret))
     };
-    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' + TokenService.refreshToken, options).subscribe(value => {
-      console.log(value);
+    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
+      TokenService.refreshToken, options).toPromise().then(response => {
+      TokenService.expiresAt = Date.now() + 2940000;
+      // @ts-ignore
+      TokenService.accessToken = response.access_token;
+      // @ts-ignore
+      TokenService.refreshToken = response.refresh_token;
+      console.log('Refreshed Access-Token.');
     });
   }
 

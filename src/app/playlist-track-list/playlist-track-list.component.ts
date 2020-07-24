@@ -42,7 +42,7 @@ export class PlaylistTrackListComponent implements OnInit {
         const parts = value.next.split(/=|&|\?/);
         this.getSimpleTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
       }
-    }).catch(this.api.handleError);
+    });
   }
 
   getFullTracks(tracks: Array<PlaylistTrackObject>): void {
@@ -60,7 +60,7 @@ export class PlaylistTrackListComponent implements OnInit {
       this.dataSource._updateChangeSubscription();
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-    }).catch(this.api.handleError);
+    });
   }
 
   onRowClick(trackId: string): void {
