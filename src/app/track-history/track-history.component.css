@@ -1,0 +1,35 @@
+table{
+  width: 100%;
+  text-align: left;
+}
+.tableContainer{
+  height: 100%;
+  overflow: auto;
+}
+.trContent:hover{
+  background-color: #dddddd;
+}
+.trContent{
+  cursor: pointer;
+}
+
+
+input {
+  width: 100%;
+}
+
+mat-form-field {
+  width: 95%;
+  margin-top: 10px;
+  z-index: 1000;
+}
+
+mat-paginator {
+  z-index: 1000;
+}
+
+mat-spinner {
+  top: calc(50% - 50px);
+  margin: auto;
+
+}

@@ -1,23 +1,27 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatTableDataSource} from '@angular/material/table';
-import {MatPaginator} from '@angular/material/paginator';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
-import {ApiConnectionService} from '../api-connection.service';
+import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
+import {TokenService} from '../token.service';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
-  selector: 'app-track-list',
-  templateUrl: './saved-track-list.component.html',
-  styleUrls: ['./saved-track-list.component.css']
+  selector: 'app-track-history',
+  templateUrl: './track-history.component.html',
+  styleUrls: ['./track-history.component.css']
 })
-export class SavedTrackListComponent implements OnInit {
-  displayedColumns: string[] = ['title', 'album', 'artist', 'length', 'added_at'];
+export class TrackHistoryComponent implements OnInit {
+
+  displayedColumns: string[] = ['title', 'album', 'artist', 'length', 'played_at'];
   savedTracks: SavedTrackObject[] = [];
   dataSource: MatTableDataSource<SavedTrackObject> = new MatTableDataSource<SavedTrackObject>();
+  didLoadFirstContent = false;
 
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private router: Router) {
+  constructor(private http: HttpClient, private api: ApiConnectionService, private route: ActivatedRoute, private router: Router) {
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -26,22 +30,37 @@ export class SavedTrackListComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataSource.paginator = this.paginator;
+
     this.dataSource.sort = this.sort;
-    this.getSavedTracks(0, 50);
+    this.getPlaybackHistory();
   }
 
-  getSavedTracks(offset: number, limit: number): void {
-    this.api.getApi().getMySavedTracks({offset, limit}).then(value => {
-      this.savedTracks.push(...value.items);
+  getPlaybackHistory(): void {
+    this.http.get('https://kolkie.de/spotify-playback-api/', {params: {access_token: TokenService.accessToken}}).subscribe(value => {
+      const playbackHistory = value as PlaybackHistory[];
+      playbackHistory.reverse();
+      this.savedTracks.push(...playbackHistory.map(item => {
+        return {added_at: item.played_at * 1000, track: {id: item.trackid}} as unknown as SavedTrackObject;
+      }));
+      for (let i = 0; i <= Math.ceil(this.savedTracks.length / 50); i++) {
+        const trackIds = this.savedTracks.map(value2 => value2.track.id).slice(i * 50, (i + 1) * 50);
+        if (trackIds.length > 0) {
+          this.getTracks(trackIds);
+        }
+      }
+    });
+  }
+
+  getTracks(ids: string[]): void {
+    this.api.getApi().getTracks(ids).then(value => {
+      value.tracks.forEach(value1 => {
+        this.savedTracks.filter(track => track.track.id === value1.id).forEach(track2 => track2.track = value1);
+      });
+      this.didLoadFirstContent = true;
       this.dataSource.data = this.savedTracks;
       this.dataSource._updateChangeSubscription();
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-      if (value.next != null) {
-        const parts = value.next.split(/=|&|\?/);
-        this.getSavedTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
-      }
-
     });
   }
 
@@ -54,11 +73,11 @@ export class SavedTrackListComponent implements OnInit {
   }
 
   getFormattedDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(parseInt(dateString, 10)).toLocaleDateString('de-DE', {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric'
-    }) + ', ' + new Date(dateString).toLocaleTimeString();
+    }) + ', ' + new Date(parseInt(dateString, 10)).toLocaleTimeString();
   }
 
   getFormattedDuration(duration: number): string {
@@ -108,3 +127,7 @@ export class SavedTrackListComponent implements OnInit {
   }
 }
 
+export interface PlaybackHistory {
+  trackid: string;
+  played_at: number;
+}

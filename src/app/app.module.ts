@@ -14,16 +14,18 @@ import {LocationStrategy, PathLocationStrategy} from '@angular/common';
 import {OverviewComponent} from './overview/overview.component';
 import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './callback/callback.component';
-import { TrackComponent } from './track/track.component';
-import { SavedTrackListComponent } from './saved-track-list/saved-track-list.component';
+import {TrackComponent} from './track/track.component';
+import {SavedTrackListComponent} from './saved-track-list/saved-track-list.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSortModule} from '@angular/material/sort';
 import {MatRippleModule} from '@angular/material/core';
-import { PlaylistTrackListComponent } from './playlist-track-list/playlist-track-list.component';
+import {PlaylistTrackListComponent} from './playlist-track-list/playlist-track-list.component';
 import {MatDividerModule} from '@angular/material/divider';
+import { TrackHistoryComponent } from './track-history/track-history.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,8 @@ import {MatDividerModule} from '@angular/material/divider';
     CallbackComponent,
     TrackComponent,
     SavedTrackListComponent,
-    PlaylistTrackListComponent
+    PlaylistTrackListComponent,
+    TrackHistoryComponent
   ],
   imports: [
     BrowserModule,
@@ -51,6 +54,7 @@ import {MatDividerModule} from '@angular/material/divider';
     MatSortModule,
     MatRippleModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
     BrowserAnimationsModule,
   ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}],

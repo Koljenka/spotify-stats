@@ -8,3 +8,9 @@ h1 {
   margin: auto;
   max-width: 50%;
 }
+
+mat-spinner {
+  top: calc(50% - 50px);
+  margin: auto;
+
+}

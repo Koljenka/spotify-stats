@@ -16,27 +16,14 @@ export class OverviewComponent implements OnInit {
   username = '';
   requestedUsername = false;
 
-  constructor(private api: ApiConnectionService, public router: Router, public cookie: CookieService, private dataSharingService: DataSharingService) {
-
+  constructor(private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
   }
 
   ngOnInit(): void {
   }
 
   getUserName(): string {
-    if (this.username === '') {
-      this.updateUsername();
-    }
-    return this.username;
-  }
-
-  updateUsername(): void {
-    if (this.cookie.isLoggedIn() && !this.requestedUsername) {
-      this.requestedUsername = true;
-      this.api.getApi().getMe().then(value => {
-        this.username = value.display_name;
-      });
-    }
+    return this.api.userId;
   }
 
   redirect(): void {

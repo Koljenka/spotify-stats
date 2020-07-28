@@ -5,6 +5,7 @@
       {{(cookie.isLoggedIn() ? ' ' + title : '')}}</button>
     <ng-container #navButtonWrapper *ngIf="cookie.isLoggedIn()">
       <button mat-button [routerLink]="'saved-track-list'">Saved Tracks</button>
+      <button mat-button [routerLink]="'track-history'">Track History</button>
     </ng-container>
   </div>
 
