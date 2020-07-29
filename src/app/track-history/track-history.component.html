@@ -1,6 +1,6 @@
 <div class="wrapper">
 
-  <div class="tableContainer">
+  <div class="tableContainer" [ngStyle]="{'display': (didLoadFirstContent ? 'block' : 'none')}">
     <mat-form-field>
       <mat-label>
         <mat-icon>search</mat-icon>
@@ -8,10 +8,7 @@
       </mat-label>
       <input autocomplete="off" name="search" (input)="onSearchChanged($event)" matInput>
     </mat-form-field>
-    <ng-container *ngIf="!didLoadFirstContent">
-      <mat-spinner></mat-spinner>
-    </ng-container>
-    <table  mat-table matSort (matSortChange)="sortData($event)" [dataSource]="dataSource">
+    <table mat-table matSort (matSortChange)="sortData($event)" [dataSource]="dataSource">
 
       <ng-container #title matColumnDef="title">
         <th mat-header-cell mat-sort-header="title" *matHeaderCellDef>Title</th>
@@ -35,7 +32,7 @@
       </ng-container>
 
       <ng-container matColumnDef="played_at">
-        <th mat-header-cell mat-sort-header="played_at" *matHeaderCellDef>Added at</th>
+        <th mat-header-cell mat-sort-header="played_at" *matHeaderCellDef>Played at</th>
         <td mat-cell *matCellDef="let track"
             (click)="onRowClick(track.track.id)"> {{getFormattedDate(track.added_at)}}</td>
       </ng-container>
@@ -46,5 +43,7 @@
     <mat-paginator [pageSize]="15" [pageSizeOptions]="[10,15,25,50,100]" showFirstLastButtons></mat-paginator>
   </div>
 
-
+  <ng-container *ngIf="!didLoadFirstContent">
+    <mat-spinner></mat-spinner>
+  </ng-container>
 </div>
