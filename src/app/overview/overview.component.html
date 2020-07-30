@@ -17,7 +17,7 @@
     <mat-menu #profileMenu="matMenu">
       <button mat-menu-item (click)="logout()" matTooltip="Logout">Logout</button>
     </mat-menu>
-    <button mat-icon-button *ngIf="!breakpointObserver.isMatched('(min-width: 650px)')" [mat-menu-trigger-for]="hamburgerMenu">
+    <button mat-icon-button *ngIf="cookie.isLoggedIn() && !breakpointObserver.isMatched('(min-width: 650px)')" [mat-menu-trigger-for]="hamburgerMenu">
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #hamburgerMenu="matMenu">
