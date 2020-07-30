@@ -3,7 +3,16 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  APP_SETTINGS: {
+    clientId: '7dc889b5812346ab848cadbe75a9d90f',
+    clientSecret: '945d302ea7f24ca78caa5b55655cb862',
+    clientName: 'Spotify Stats',
+    redirectUri: 'http://localhost:4200/callback',
+    authUrl: 'https://accounts.spotify.com/authorize',
+    tokenUrl: 'https://accounts.spotify.com/api/token',
+    apiBasePath: 'https://api.spotify.com/v1'
+  }
 };
 
 /*

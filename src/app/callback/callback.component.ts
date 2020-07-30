@@ -4,7 +4,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {CookieService} from '../cookie.service';
 import {TokenService} from '../token.service';
 import {ApiConnectionService} from '../api-connection.service';
-import {APP_SETTINGS} from '../settings';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-callback',
@@ -23,7 +23,7 @@ export class CallbackComponent implements OnInit {
 
   authorize(): void {
     this.http.post('https://accounts.spotify.com/api/token?client_id=7dc889b5812346ab848cadbe75a9d90f&client_secret=945d302ea7f24ca78caa5b55655cb862&grant_type=authorization_code&code=' +
-      this.code + '&redirect_uri=' + APP_SETTINGS.redirectUri, '', this.options).toPromise()
+      this.code + '&redirect_uri=' + environment.APP_SETTINGS.redirectUri, '', this.options).toPromise()
       .then((response) => this.onFulFilled(response))
       .catch(console.log);
   }

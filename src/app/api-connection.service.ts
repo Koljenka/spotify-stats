@@ -1,11 +1,11 @@
 import {TokenService} from './token.service';
-import {APP_SETTINGS} from './settings';
 import SpotifyWebApi from 'spotify-web-api-js';
 import {Base64} from 'js-base64';
 
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {interval, Observable} from 'rxjs';
+import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,31 +14,31 @@ export class ApiConnectionService {
 
 
   get tokenUrl(): string {
-    return APP_SETTINGS.tokenUrl;
+    return environment.APP_SETTINGS.tokenUrl;
   }
 
   get authUrl(): string {
-    return APP_SETTINGS.authUrl;
+    return environment.APP_SETTINGS.authUrl;
   }
 
   get apiBasePath(): string {
-    return APP_SETTINGS.apiBasePath;
+    return environment.APP_SETTINGS.apiBasePath;
   }
 
   get redirectUrl(): string {
-    return APP_SETTINGS.redirectUri;
+    return environment.APP_SETTINGS.redirectUri;
   }
 
   get clientId(): string {
-    return APP_SETTINGS.clientId;
+    return environment.APP_SETTINGS.clientId;
   }
 
   get clientSecret(): string {
-    return APP_SETTINGS.clientSecret;
+    return environment.APP_SETTINGS.clientSecret;
   }
 
   get clientName(): string {
-    return APP_SETTINGS.clientName;
+    return environment.APP_SETTINGS.clientName;
   }
 
   interval: Observable<number>;
