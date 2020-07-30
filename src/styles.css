@@ -21,6 +21,26 @@ body{
 
 }
 
+.mat-header-cell {
+  padding: 5px;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 18vw !important;
+  max-width: 18vw;
+}
+
+.mat-cell {
+  padding: 5px;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 18vw !important;
+  max-width: 18vw;
+}
+
 .wrapper {
   height: 100%;
   width: 100%;

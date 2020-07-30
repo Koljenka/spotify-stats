@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {MatTableDataSource} from '@angular/material/table';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {MatPaginator} from '@angular/material/paginator';
-import {MatSort, MatSortable, Sort} from '@angular/material/sort';
+import {MatSort, Sort} from '@angular/material/sort';
 import {HttpClient} from '@angular/common/http';
 import {DataSharingService} from '../data-sharing.service';
 

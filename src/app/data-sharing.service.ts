@@ -12,6 +12,7 @@ import {ApiConnectionService} from './api-connection.service';
 export class DataSharingService {
 
   private savedTracks: SavedTrackObject[] = [];
+  private historyLength = 0;
   private playbackHistorySource = new BehaviorSubject(new Array<SavedTrackObject>());
 
   get playbackHistory(): Observable<SavedTrackObject[]> {
@@ -22,6 +23,18 @@ export class DataSharingService {
     return this.playbackHistorySource.asObservable();
   }
 
+  get historyLoadingProgress(): number {
+    if (this.historyLength === 0) {
+      return 0;
+    } else {
+      return this.savedTracks.length / this.historyLength;
+    }
+  }
+
+  get didFinishLoadingHistory(): boolean {
+    return this.historyLoadingProgress === 1;
+  }
+
   constructor(private http: HttpClient, private api: ApiConnectionService) {
   }
 
@@ -29,7 +42,7 @@ export class DataSharingService {
   loadPlaybackHistory(): void {
     this.http.get('https://kolkie.de/spotify-playback-api/', {params: {access_token: TokenService.accessToken}}).subscribe(value => {
       const playbackHistory = value as PlaybackHistory[];
-      playbackHistory.reverse();
+      this.historyLength = playbackHistory.length;
       for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {
         const trackIds = playbackHistory.slice(i * 50, (i + 1) * 50);
         if (trackIds.length > 0) {
@@ -38,6 +51,7 @@ export class DataSharingService {
       }
     });
   }
+
 
   private getTracks(ids: PlaybackHistory[]): void {
     this.api.getApi().getTracks(ids.map(i => i.trackid)).then(value => {

@@ -10,7 +10,6 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {AppRoutingModule} from './app-routing.module';
 import {LocationStrategy, PathLocationStrategy} from '@angular/common';
-
 import {OverviewComponent} from './overview/overview.component';
 import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './callback/callback.component';
@@ -24,8 +23,11 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatRippleModule} from '@angular/material/core';
 import {PlaylistTrackListComponent} from './playlist-track-list/playlist-track-list.component';
 import {MatDividerModule} from '@angular/material/divider';
-import { TrackHistoryComponent } from './track-history/track-history.component';
+import {TrackHistoryComponent} from './track-history/track-history.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {NgxEchartsModule} from 'ngx-echarts';
+import {HistoryStatsComponent} from './history-stats/history-stats.component';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [
@@ -35,13 +37,15 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     TrackComponent,
     SavedTrackListComponent,
     PlaylistTrackListComponent,
-    TrackHistoryComponent
+    TrackHistoryComponent,
+    HistoryStatsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     MatButtonModule,
+    MatGridListModule,
     MatToolbarModule,
     MatTooltipModule,
     MatMenuModule,
@@ -55,6 +59,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatRippleModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
     BrowserAnimationsModule,
   ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}],

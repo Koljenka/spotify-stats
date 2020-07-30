@@ -83,9 +83,6 @@ export class ApiConnectionService {
       TokenService.expiresAt = Date.now() + 2940000;
       // @ts-ignore
       TokenService.accessToken = response.access_token;
-      // @ts-ignore
-      TokenService.refreshToken = response.refresh_token;
-      console.log('Refreshed Access-Token.');
     });
   }
 
