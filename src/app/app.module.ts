@@ -28,6 +28,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {HistoryStatsComponent} from './history-stats/history-stats.component';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {LayoutModule} from '@angular/cdk/layout';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
   ],
   imports: [
     BrowserModule,
+    LayoutModule,
     AppRoutingModule,
     HttpClientModule,
     MatButtonModule,

@@ -1,8 +1,16 @@
 .button {
   top: calc(50% - 125px);
-  height: 250px;
-  width: 500px;
-  font-size: 3em;
+  height: 37.5vw;
+  width: 75vw;
+  font-size: 10vw;
+}
+
+@media (min-width: 600px) {
+  .button {
+    height: 250px;
+    width: 500px;
+    font-size: 5em;
+  }
 }
 
 .main-content {

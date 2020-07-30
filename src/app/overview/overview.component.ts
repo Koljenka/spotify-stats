@@ -4,6 +4,7 @@ import {CookieService} from '../cookie.service';
 import {ApiConnectionService} from '../api-connection.service';
 import {DataSharingService} from '../data-sharing.service';
 import {TokenService} from '../token.service';
+import {BreakpointObserver} from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-overview',
@@ -11,12 +12,11 @@ import {TokenService} from '../token.service';
   styleUrls: ['./overview.component.css']
 })
 export class OverviewComponent implements OnInit {
-
   title = 'Spotify Stats';
   username = '';
   requestedUsername = false;
 
-  constructor(private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
+  constructor(public breakpointObserver: BreakpointObserver, private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
   }
 
   ngOnInit(): void {

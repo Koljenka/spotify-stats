@@ -2,8 +2,9 @@
   <div #left>
     <button mat-button class="title" (click)="redirect()">
       <mat-icon>home</mat-icon>
-      {{(cookie.isLoggedIn() ? ' ' + title : '')}}</button>
-    <ng-container #navButtonWrapper *ngIf="cookie.isLoggedIn()">
+      Home
+    </button>
+    <ng-container #navButtonWrapper *ngIf="cookie.isLoggedIn() && breakpointObserver.isMatched('(min-width: 650px)')">
       <button mat-button [routerLink]="'saved-track-list'">Saved Tracks</button>
       <button mat-button [routerLink]="'track-history'">Track History</button>
       <button mat-button [routerLink]="'history-stats'">History Statistics</button>
@@ -11,12 +12,22 @@
   </div>
 
   <div #right>
-    <button mat-button *ngIf="cookie.getCookie('isLoggedIn') === 'true'"
+    <button mat-button *ngIf="cookie.isLoggedIn() && breakpointObserver.isMatched('(min-width: 650px)')"
             [matMenuTriggerFor]="profileMenu">{{getUserName()}}</button>
     <mat-menu #profileMenu="matMenu">
       <button mat-menu-item (click)="logout()" matTooltip="Logout">Logout</button>
     </mat-menu>
+    <button mat-icon-button *ngIf="!breakpointObserver.isMatched('(min-width: 650px)')" [mat-menu-trigger-for]="hamburgerMenu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #hamburgerMenu="matMenu">
+      <button mat-menu-item [routerLink]="'saved-track-list'">Saved Tracks</button>
+      <button mat-menu-item [routerLink]="'track-history'">Track History</button>
+      <button mat-menu-item [routerLink]="'history-stats'">History Statistics</button>
+      <button mat-menu-item (click)="logout()" matTooltip="Logout">Logout</button>
+    </mat-menu>
   </div>
+
 </mat-toolbar>
 
 
