@@ -31,6 +31,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {LayoutModule} from '@angular/cdk/layout';
 import {NgxAudioPlayerModule} from 'ngx-audio-player';
 import {MatListModule} from '@angular/material/list';
+import {LoginGuard} from './login.guard';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,7 @@ import {MatListModule} from '@angular/material/list';
     BrowserAnimationsModule,
     MatListModule,
   ],
-  providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}],
+  providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard],
   bootstrap: [OverviewComponent]
 })
 export class AppModule {

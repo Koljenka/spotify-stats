@@ -7,16 +7,17 @@ import {SavedTrackListComponent} from './saved-track-list/saved-track-list.compo
 import {PlaylistTrackListComponent} from './playlist-track-list/playlist-track-list.component';
 import {TrackHistoryComponent} from './track-history/track-history.component';
 import {HistoryStatsComponent} from './history-stats/history-stats.component';
+import {LoginGuard} from './login.guard';
 
 const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
   {path: 'callback', component: CallbackComponent},
-  {path: 'track/:trackId', component: TrackComponent},
-  {path: 'track-history', component: TrackHistoryComponent},
-  {path: 'saved-track-list', component: SavedTrackListComponent},
-  {path: 'history-stats', component: HistoryStatsComponent},
-  {path: 'playlist-track-list/:playlistId', component: PlaylistTrackListComponent},
+  {path: 'track/:trackId', component: TrackComponent, canActivate: [LoginGuard]},
+  {path: 'track-history', component: TrackHistoryComponent, canActivate: [LoginGuard]},
+  {path: 'saved-track-list', component: SavedTrackListComponent, canActivate: [LoginGuard]},
+  {path: 'history-stats', component: HistoryStatsComponent, canActivate: [LoginGuard]},
+  {path: 'playlist-track-list/:playlistId', component: PlaylistTrackListComponent, canActivate: [LoginGuard]},
   {path: '**', redirectTo: '/home', pathMatch: 'full'},
 ];
 

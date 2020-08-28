@@ -25,4 +25,16 @@ export class TokenService {
   static set expiresAt(value) {
     localStorage.setItem('expiresAt', String(value));
   }
+
+  static get redirect(): string {
+    return localStorage.getItem('redirect');
+  }
+
+  static set redirect(value) {
+    if (value === null || value === undefined) {
+      localStorage.removeItem('redirect');
+    } else {
+      localStorage.setItem('redirect', value);
+    }
+  }
 }

@@ -5,6 +5,7 @@ import {CookieService} from '../cookie.service';
 import {TokenService} from '../token.service';
 import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
+import {DataSharingService} from '../data-sharing.service';
 
 @Component({
   selector: 'app-callback',
@@ -15,9 +16,11 @@ export class CallbackComponent implements OnInit {
   code: string;
   private options = {headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')};
 
-  constructor(private api: ApiConnectionService, private activatedRoute: ActivatedRoute, public http: HttpClient, public router: Router, public cookie: CookieService) {
+  constructor(private api: ApiConnectionService, private activatedRoute: ActivatedRoute, public http: HttpClient,
+              public router: Router, public cookie: CookieService, private dataSharing: DataSharingService) {
     this.activatedRoute.queryParams.subscribe(params => {
       this.code = params.code;
+      this.authorize();
     });
   }
 
@@ -34,12 +37,19 @@ export class CallbackComponent implements OnInit {
     TokenService.refreshToken = response.refresh_token;
     this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');
     this.api.getApi();
-    this.router.navigate(['/home']);
+
+    if (TokenService.redirect !== null && TokenService.redirect !== undefined) {
+      const redirect = TokenService.redirect;
+      TokenService.redirect = null;
+      this.router.navigate([redirect]);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
-
   ngOnInit(): void {
-    this.authorize();
   }
 
 }
+
+
