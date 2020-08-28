@@ -2,10 +2,11 @@ import {TokenService} from './token.service';
 import SpotifyWebApi from 'spotify-web-api-js';
 import {Base64} from 'js-base64';
 
-import {Injectable} from '@angular/core';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {interval, Observable} from 'rxjs';
 import {environment} from '../environments/environment';
+import {isPlatformBrowser} from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -43,13 +44,15 @@ export class ApiConnectionService {
 
   interval: Observable<number>;
 
-  private constructor(private http: HttpClient) {
-    this.checkToken();
-    if (this.interval === null || this.interval === undefined) {
-      this.interval = interval(600000);
-      this.interval.subscribe(() => {
-        this.checkToken();
-      });
+  private constructor(@Inject(PLATFORM_ID) private platformId: object, private http: HttpClient) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkToken();
+      if (this.interval === null || this.interval === undefined) {
+        this.interval = interval(600000);
+        this.interval.subscribe(() => {
+          this.checkToken();
+        });
+      }
     }
   }
 

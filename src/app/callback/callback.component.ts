@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, PLATFORM_ID} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {CookieService} from '../cookie.service';
 import {TokenService} from '../token.service';
 import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
+import {isPlatformBrowser} from '@angular/common';
 
 @Component({
   selector: 'app-callback',
@@ -15,7 +16,7 @@ export class CallbackComponent implements OnInit {
   code: string;
   private options = {headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')};
 
-  constructor(private api: ApiConnectionService, private activatedRoute: ActivatedRoute, public http: HttpClient, public router: Router, public cookie: CookieService) {
+  constructor(@Inject(PLATFORM_ID) private platformId: object, private api: ApiConnectionService, private activatedRoute: ActivatedRoute, public http: HttpClient, public router: Router, public cookie: CookieService) {
     this.activatedRoute.queryParams.subscribe(params => {
       this.code = params.code;
     });
@@ -29,11 +30,13 @@ export class CallbackComponent implements OnInit {
   }
 
   onFulFilled(response): void {
-    TokenService.expiresAt = Date.now() + 2940000;
-    TokenService.accessToken = response.access_token;
-    TokenService.refreshToken = response.refresh_token;
-    this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');
-    this.api.getApi();
+    if (isPlatformBrowser(this.platformId)) {
+      TokenService.expiresAt = Date.now() + 2940000;
+      TokenService.accessToken = response.access_token;
+      TokenService.refreshToken = response.refresh_token;
+      this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');
+      this.api.getApi();
+    }
     this.router.navigate(['/home']);
   }
 

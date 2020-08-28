@@ -1,15 +1,16 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
+import {isPlatformBrowser} from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CookieService {
 
-  constructor() {
+  constructor(@Inject(PLATFORM_ID) private platformId: object) {
   }
 
   public isLoggedIn(): boolean {
-    return this.getCookie('isLoggedIn') === 'true';
+    return (isPlatformBrowser(this.platformId) && this.getCookie('isLoggedIn') === 'true');
   }
 
   public getCookie(name: string): string {

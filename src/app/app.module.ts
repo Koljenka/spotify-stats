@@ -31,6 +31,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {LayoutModule} from '@angular/cdk/layout';
 import {NgxAudioPlayerModule} from 'ngx-audio-player';
 import {MatListModule} from '@angular/material/list';
+import {PrebootModule} from 'preboot';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,7 @@ import {MatListModule} from '@angular/material/list';
     HistoryStatsComponent
   ],
   imports: [
-    BrowserModule,
+    BrowserModule.withServerTransition({ appId: 'serverApp' }),
     LayoutModule,
     AppRoutingModule,
     HttpClientModule,
