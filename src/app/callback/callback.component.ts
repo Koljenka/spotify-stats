@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {CookieService} from '../cookie.service';
-import {TokenService} from '../token.service';
+import {StorageService} from '../storage.service';
 import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
 import {DataSharingService} from '../data-sharing.service';
@@ -32,15 +32,15 @@ export class CallbackComponent implements OnInit {
   }
 
   onFulFilled(response): void {
-    TokenService.expiresAt = Date.now() + 2940000;
-    TokenService.accessToken = response.access_token;
-    TokenService.refreshToken = response.refresh_token;
+    StorageService.expiresAt = Date.now() + 2940000;
+    StorageService.accessToken = response.access_token;
+    StorageService.refreshToken = response.refresh_token;
     this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');
     this.api.getApi();
 
-    if (TokenService.redirect !== null && TokenService.redirect !== undefined) {
-      const redirect = TokenService.redirect;
-      TokenService.redirect = null;
+    if (StorageService.redirect !== null && StorageService.redirect !== undefined) {
+      const redirect = StorageService.redirect;
+      StorageService.redirect = null;
       this.router.navigate([redirect]);
     } else {
       this.router.navigate(['/home']);

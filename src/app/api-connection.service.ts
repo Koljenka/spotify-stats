@@ -1,4 +1,4 @@
-import {TokenService} from './token.service';
+import {StorageService} from './storage.service';
 import SpotifyWebApi from 'spotify-web-api-js';
 import {Base64} from 'js-base64';
 
@@ -60,7 +60,7 @@ export class ApiConnectionService {
   getApi(): SpotifyWebApi.SpotifyWebApiJs {
     if (this.api == null) {
       this.api = new SpotifyWebApi();
-      this.api.setAccessToken(TokenService.accessToken);
+      this.api.setAccessToken(StorageService.accessToken);
       this.api.getMe().then(value => this.userId = value.id);
     }
 
@@ -68,7 +68,7 @@ export class ApiConnectionService {
   }
 
   private checkToken(): void {
-    if (Date.now() >= TokenService.expiresAt) {
+    if (Date.now() >= StorageService.expiresAt) {
       this.requestRefreshToken();
     }
   }
@@ -79,10 +79,10 @@ export class ApiConnectionService {
         .append('Authorization', 'Basic ' + Base64.encode(this.clientId + ':' + this.clientSecret))
     };
     this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
-      TokenService.refreshToken, options).toPromise().then(response => {
-      TokenService.expiresAt = Date.now() + 2940000;
+      StorageService.refreshToken, options).toPromise().then(response => {
+      StorageService.expiresAt = Date.now() + 2940000;
       // @ts-ignore
-      TokenService.accessToken = response.access_token;
+      StorageService.accessToken = response.access_token;
     });
   }
 

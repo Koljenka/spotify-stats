@@ -7,4 +7,6 @@ mat-toolbar{
   z-index: 2;
 }
 
-
+.home-icon {
+  margin: 0 3px 4px 0;
+}

@@ -1,4 +1,4 @@
-export class TokenService {
+export class StorageService {
   private constructor() {
   }
 
@@ -36,5 +36,13 @@ export class TokenService {
     } else {
       localStorage.setItem('redirect', value);
     }
+  }
+
+  static get theme(): string {
+    return (localStorage.getItem('theme') === null) ? 'indigo-pink.css' : localStorage.getItem('theme');
+  }
+
+  static set theme(value) {
+    localStorage.setItem('theme', value);
   }
 }

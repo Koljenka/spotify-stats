@@ -1,7 +1,7 @@
 <mat-toolbar class="mat-elevation-z6 topToolbar" color="primary">
   <div #left>
     <button mat-button class="title" (click)="redirect()">
-      <mat-icon>home</mat-icon>
+      <mat-icon class="home-icon">home</mat-icon>
       Home
     </button>
     <ng-container #navButtonWrapper *ngIf="cookie.isLoggedIn() && breakpointObserver.isMatched('(min-width: 650px)')">
@@ -12,6 +12,11 @@
   </div>
 
   <div #right>
+    <app-menu
+      [options]="options"
+      [theme]="selectedTheme"
+      (themeChange)="themeChangeHandler($event)">
+    </app-menu>
     <button mat-button *ngIf="cookie.isLoggedIn() && breakpointObserver.isMatched('(min-width: 650px)')"
             [matMenuTriggerFor]="profileMenu">{{getUserName()}}</button>
     <mat-menu #profileMenu="matMenu">

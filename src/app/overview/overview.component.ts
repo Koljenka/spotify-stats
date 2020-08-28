@@ -2,9 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {CookieService} from '../cookie.service';
 import {ApiConnectionService} from '../api-connection.service';
-import {DataSharingService} from '../data-sharing.service';
-import {TokenService} from '../token.service';
+import options from '../../assets/options.json';
+import {StorageService} from '../storage.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
+import {Option} from '../option.model';
+import {StyleManagerService} from '../style-manager.service';
 
 @Component({
   selector: 'app-overview',
@@ -15,11 +17,22 @@ export class OverviewComponent implements OnInit {
   title = 'Spotify Stats';
   username = '';
   requestedUsername = false;
+  options: Array<Option> = options;
+  selectedTheme: Option;
+  private readonly stylesBasePath = `../../assets/`;
 
-  constructor(public breakpointObserver: BreakpointObserver, private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
+  constructor(private readonly styleManager: StyleManagerService, public breakpointObserver: BreakpointObserver,
+              private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
   }
 
   ngOnInit(): void {
+    this.styleManager.setStyle(this.stylesBasePath + StorageService.theme + '.css');
+  }
+
+  themeChangeHandler(themeToSet: Option): void {
+    this.selectedTheme = themeToSet;
+    StorageService.theme = themeToSet.value;
+    this.styleManager.setStyle(`${this.stylesBasePath}${themeToSet.value}.css`);
   }
 
   getUserName(): string {
@@ -31,7 +44,7 @@ export class OverviewComponent implements OnInit {
   }
 
   logout(): void {
-    TokenService.refreshToken = TokenService.accessToken = '';
+    StorageService.refreshToken = StorageService.accessToken = '';
     this.cookie.deleteCookie('isLoggedIn');
     this.redirect();
   }

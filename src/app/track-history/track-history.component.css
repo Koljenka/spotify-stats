@@ -1,15 +1,14 @@
-table{
+table {
   width: 100%;
   text-align: left;
 }
-.tableContainer{
+
+.tableContainer {
   height: 100%;
   overflow: auto;
 }
-.trContent:hover{
-  background-color: #dddddd;
-}
-.trContent{
+
+.trContent {
   cursor: pointer;
 }
 

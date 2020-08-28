@@ -6,9 +6,6 @@ table{
   height: 100%;
   overflow: auto;
 }
-.trContent:hover{
-  background-color: #dddddd;
-}
 .trContent{
   cursor: pointer;
 }

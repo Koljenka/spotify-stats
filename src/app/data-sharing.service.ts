@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import SavedTrackObject = SpotifyApi.SavedTrackObject;
-import {TokenService} from './token.service';
+import {StorageService} from './storage.service';
 import {PlaybackHistory} from './track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from './api-connection.service';
+import SavedTrackObject = SpotifyApi.SavedTrackObject;
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +40,7 @@ export class DataSharingService {
 
 
   loadPlaybackHistory(): void {
-    this.http.get('https://kolkie.de/spotify-playback-api/', {params: {access_token: TokenService.accessToken}}).subscribe(value => {
+    this.http.get('https://kolkie.de/spotify-playback-api/', {params: {access_token: StorageService.accessToken}}).subscribe(value => {
       const playbackHistory = value as PlaybackHistory[];
       this.historyLength = playbackHistory.length;
       for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {

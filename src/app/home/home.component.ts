@@ -4,8 +4,6 @@ import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
-import {DataSharingService} from '../data-sharing.service';
-import {TokenService} from '../token.service';
 
 
 @Component({

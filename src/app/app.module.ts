@@ -32,6 +32,8 @@ import {LayoutModule} from '@angular/cdk/layout';
 import {NgxAudioPlayerModule} from 'ngx-audio-player';
 import {MatListModule} from '@angular/material/list';
 import {LoginGuard} from './login.guard';
+import { MenuComponent } from './menu/menu.component';
+import {StyleManagerService} from './style-manager.service';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,8 @@ import {LoginGuard} from './login.guard';
     SavedTrackListComponent,
     PlaylistTrackListComponent,
     TrackHistoryComponent,
-    HistoryStatsComponent
+    HistoryStatsComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,
@@ -69,7 +72,7 @@ import {LoginGuard} from './login.guard';
     BrowserAnimationsModule,
     MatListModule,
   ],
-  providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard],
+  providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard, StyleManagerService],
   bootstrap: [OverviewComponent]
 })
 export class AppModule {
