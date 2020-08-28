@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {DataSharingService} from '../data-sharing.service';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 
@@ -9,26 +9,20 @@ import SavedTrackObject = SpotifyApi.SavedTrackObject;
 })
 export class HistoryStatsComponent implements OnInit {
   playbackHistory: SavedTrackObject[];
-  tiles: Tile[] = [
-    {text: 'One', cols: 1, rows: 1},
-    {text: 'Two', cols: 3, rows: 2},
-    {text: 'Three', cols: 1, rows: 1},
-    {text: 'Four', cols: 1, rows: 1},
-    {text: 'Five', cols: 3, rows: 2},
-    {text: 'Six', cols: 1, rows: 1},
+  didLoadTracks = false;
 
-  ];
   constructor(public dataSharing: DataSharingService) {
   }
 
   ngOnInit(): void {
-    this.dataSharing.playbackHistory.subscribe(value => this.playbackHistory = value);
+    this.dataSharing.playbackHistory.subscribe(value => {
+      this.playbackHistory = value;
+      this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
+    });
   }
 
-}
+  getTotalsPlays(): number {
+    return this.playbackHistory.length;
+  }
 
-export interface Tile {
-  cols: number;
-  rows: number;
-  text: string;
 }

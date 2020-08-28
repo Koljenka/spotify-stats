@@ -1,10 +1,98 @@
 <div class="wrapper">
-    <ng-container
-      *ngFor="let tile of tiles">
-      <mat-card>
+  <ng-container *ngIf="didLoadTracks">
+    <mat-card>
         <mat-card-title>
-          {{tile.text}}
+          Playback Statistics
         </mat-card-title>
-      </mat-card>
-    </ng-container>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon inline matListIcon>music_note</mat-icon>
+            Total: {{getTotalsPlays()}}
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>graphic_eq</mat-icon>
+            Mode:
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>speed</mat-icon>
+            Tempo:
+          </mat-list-item>
+        </mat-list>
+        <mat-divider [vertical]="true"></mat-divider>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon inline matListIcon>music_note</mat-icon>
+            Total: {{getTotalsPlays()}}
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>graphic_eq</mat-icon>
+            Mode:
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>speed</mat-icon>
+            Tempo:
+          </mat-list-item>
+        </mat-list>
+        <mat-divider [vertical]="true"></mat-divider>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon inline matListIcon>music_note</mat-icon>
+            Total: {{getTotalsPlays()}}
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>graphic_eq</mat-icon>
+            Mode:
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>speed</mat-icon>
+            Tempo:
+          </mat-list-item>
+        </mat-list>
+        <mat-divider [vertical]="true"></mat-divider>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon inline matListIcon>music_note</mat-icon>
+            Total: {{getTotalsPlays()}}
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>graphic_eq</mat-icon>
+            Mode:
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon inline matListIcon>speed</mat-icon>
+            Tempo:
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>
+        Two
+      </mat-card-title>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>
+        Three
+      </mat-card-title>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>
+        Four
+      </mat-card-title>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>
+        Five
+      </mat-card-title>
+    </mat-card>
+    <mat-card>
+      <mat-card-title>
+        Six
+      </mat-card-title>
+    </mat-card>
+  </ng-container>
+  <ng-container *ngIf="!didLoadTracks">
+    <mat-spinner></mat-spinner>
+  </ng-container>
 </div>

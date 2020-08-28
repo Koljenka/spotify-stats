@@ -6,11 +6,83 @@ img {
 
 h1 {
   margin: auto;
-  max-width: 50%;
+  max-width: 75%;
 }
 
 mat-spinner {
   top: calc(50% - 50px);
   margin: auto;
 
+}
+
+#buttons {
+  margin: auto;
+  width: 300px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+mat-list {
+  width: 235px;
+}
+
+audio {
+  margin-bottom: 10px;
+}
+
+audio:focus {
+  outline: none;
+}
+
+mat-card {
+  max-width: 90%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 5px 15px 5px 15px;
+}
+
+.mat-divider-vertical {
+  height: 176px;
+  width: 0px !important;
+  position: inherit !important;
+}
+
+.mat-card .mat-divider-horizontal {
+  position: inherit;
+}
+
+#featuresCard {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#cardContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-content: flex-start;
+}
+
+.small-card {
+  width: 350px;
+  padding: 10px;
+}
+
+.info-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: lightgray;
+}
+
+@media (max-width: 800px) {
+  mat-card {
+    width: 350px;
+    padding: 10px;
+  }
+
+  #featuresCard {
+    justify-content: center;
+  }
 }

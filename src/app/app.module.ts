@@ -29,6 +29,8 @@ import {NgxEchartsModule} from 'ngx-echarts';
 import {HistoryStatsComponent} from './history-stats/history-stats.component';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {LayoutModule} from '@angular/cdk/layout';
+import {NgxAudioPlayerModule} from 'ngx-audio-player';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,9 @@ import {LayoutModule} from '@angular/cdk/layout';
     MatDividerModule,
     MatProgressSpinnerModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
+    NgxAudioPlayerModule,
     BrowserAnimationsModule,
+    MatListModule,
   ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}],
   bootstrap: [OverviewComponent]

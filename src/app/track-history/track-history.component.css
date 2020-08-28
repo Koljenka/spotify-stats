@@ -31,5 +31,4 @@ mat-paginator {
 mat-spinner {
   top: calc(50% - 50px);
   margin: auto;
-
 }
