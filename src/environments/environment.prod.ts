@@ -7,6 +7,7 @@ export const environment = {
     redirectUri: 'https://kolkie.de/spotify-stats/callback',
     authUrl: 'https://accounts.spotify.com/authorize',
     tokenUrl: 'https://accounts.spotify.com/api/token',
-    apiBasePath: 'https://api.spotify.com/v1'
+    apiBasePath: 'https://api.spotify.com/v1',
+    assetsBasePath: 'https://kolkie.de/spotify-stats/assets/'
   }
 };

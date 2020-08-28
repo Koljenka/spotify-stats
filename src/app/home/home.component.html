@@ -1,5 +1,5 @@
 <div class="wrapper">
-  <button mat-flat-button color="primary" *ngIf="!cookie.isLoggedIn()" (click)="authorize()" class="button">Login</button>
+  <button mat-raised-button color="accent" *ngIf="!cookie.isLoggedIn()" (click)="authorize()" class="button">Login</button>
   <div *ngIf="cookie.isLoggedIn()" class="main-content">
     <mat-card matRipple *ngFor="let playlist of playlists" (click)="onCardClick(playlist)">
       <img mat-card-image [src]="playlist.images[0].url" width="300px" height="300px" alt="Album Cover">

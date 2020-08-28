@@ -7,6 +7,7 @@ import {StorageService} from '../storage.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-overview',
@@ -19,20 +20,19 @@ export class OverviewComponent implements OnInit {
   requestedUsername = false;
   options: Array<Option> = options;
   selectedTheme: Option;
-  private readonly stylesBasePath = `../../assets/`;
 
   constructor(private readonly styleManager: StyleManagerService, public breakpointObserver: BreakpointObserver,
               private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
   }
 
   ngOnInit(): void {
-    this.styleManager.setStyle(this.stylesBasePath + StorageService.theme + '.css');
+    this.styleManager.setStyle(environment.APP_SETTINGS.assetsBasePath + StorageService.theme + '.css');
   }
 
   themeChangeHandler(themeToSet: Option): void {
     this.selectedTheme = themeToSet;
     StorageService.theme = themeToSet.value;
-    this.styleManager.setStyle(`${this.stylesBasePath}${themeToSet.value}.css`);
+    this.styleManager.setStyle(`${environment.APP_SETTINGS.assetsBasePath}${themeToSet.value}.css`);
   }
 
   getUserName(): string {

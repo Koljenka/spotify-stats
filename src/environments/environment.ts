@@ -11,7 +11,8 @@ export const environment = {
     redirectUri: 'http://localhost:4200/callback',
     authUrl: 'https://accounts.spotify.com/authorize',
     tokenUrl: 'https://accounts.spotify.com/api/token',
-    apiBasePath: 'https://api.spotify.com/v1'
+    apiBasePath: 'https://api.spotify.com/v1',
+    assetsBasePath: 'http://localhost:4200/assets/'
   }
 };
 
