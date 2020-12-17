@@ -1,6 +1,6 @@
 {
   "name": "spotify-stats",
-  "version": "0.0.0",
+  "version": "0.5.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -12,25 +12,23 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^11.0.5",
-    "@angular/cdk": "^11.0.0",
+    "@angular/cdk": "^11.0.3",
     "@angular/common": "^11.0.5",
     "@angular/compiler": "^11.0.5",
     "@angular/core": "^11.0.5",
     "@angular/forms": "^11.0.5",
-    "@angular/material": "^11.0.0",
+    "@angular/material": "^11.0.3",
     "@angular/platform-browser": "^11.0.5",
     "@angular/platform-browser-dynamic": "^11.0.5",
     "@angular/router": "^11.0.5",
-    "angular-oauth2-oidc": "^10.0.3",
-    "angular-spotify": "^1.5.1",
     "echarts": "^4.9.0",
     "js-base64": "^3.6.0",
-    "ngx-audio-player": "^10.1.0",
     "ngx-echarts": "^5.2.2",
+    "resize-observer-polyfill": "^1.5.1",
     "rxjs": "~6.5.5",
     "rxjs-compat": "^6.6.3",
     "spotify-web-api-js": "^1.5.1",
-    "tslib": "^2.0.0",
+    "tslib": "^1.10.0",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {

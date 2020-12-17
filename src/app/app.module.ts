@@ -29,7 +29,6 @@ import {NgxEchartsModule} from 'ngx-echarts';
 import {HistoryStatsComponent} from './history-stats/history-stats.component';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {LayoutModule} from '@angular/cdk/layout';
-import {NgxAudioPlayerModule} from 'ngx-audio-player';
 import {MatListModule} from '@angular/material/list';
 import {LoginGuard} from './login.guard';
 import { MenuComponent } from './menu/menu.component';
@@ -69,7 +68,6 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         MatDividerModule,
         MatProgressSpinnerModule,
         NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
-        NgxAudioPlayerModule,
         BrowserAnimationsModule,
         MatListModule,
         MatProgressBarModule,
