@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { TrackHistoryComponent } from './track-history.component';
 
@@ -6,7 +6,7 @@ describe('TrackHistoryComponent', () => {
   let component: TrackHistoryComponent;
   let fixture: ComponentFixture<TrackHistoryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TrackHistoryComponent ]
     })
