@@ -55,15 +55,18 @@ export class DataSharingService {
 
   private getTracks(ids: PlaybackHistory[]): void {
     this.api.getApi().getTracks(ids.map(i => i.trackid)).then(value => {
-      value.tracks.forEach(value1 => {
-        ids.filter(phO => phO.trackid === value1.id).forEach(value2 => {
-          if (this.savedTracks.find(value3 => value3.added_at === (value2.played_at * 1000) + '') === undefined) {
-            this.savedTracks.push({added_at: (value2.played_at * 1000) + '', track: value1});
-          }
-        });
+      ids.forEach(historyTrack => {
+        const track = value.tracks.find(tr => tr.id === historyTrack.trackid);
+        this.savedTracks.push({added_at: (historyTrack.played_at * 1000) + '', track});
       });
       this.savedTracks.sort((a, b) => (parseInt(a.added_at, 10) - parseInt(b.added_at, 10)) * -1);
       this.playbackHistorySource.next(this.savedTracks);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        setTimeout(() => {
+          this.getTracks(ids);
+        }, 1000);
+      }
     });
   }
 }

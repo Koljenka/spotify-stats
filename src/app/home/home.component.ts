@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
+import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 
 
 @Component({
@@ -23,11 +24,28 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.cookie.isLoggedIn()) {
-      this.api.getApi().getUserPlaylists(this.api.userId).then(value => {
-        this.playlists = value.items;
-      });
+      if (this.api.userId == null) {
+        this.api.getApi().getMe().then(user => {
+          this.api.getApi().getUserPlaylists(user.id, {limit: 50}).then(value => {
+            this.playlists = value.items;
+          });
+        });
+      } else {
+        this.api.getApi().getUserPlaylists(this.api.userId, {limit: 50}).then(value => {
+          this.playlists = value.items;
+        });
+      }
     }
   }
+
+  getImageForPlaylist(playlist: PlaylistObjectSimplified): string {
+    if (playlist.images.length > 0) {
+      return playlist.images[0].url;
+    } else {
+      return '/assets/placeholder.png';
+    }
+  }
+
 
   authorize(): void {
     const scopes = 'ugc-image-upload%20user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20streaming%20app-remote-control%20user-read-email' +

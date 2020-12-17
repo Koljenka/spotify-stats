@@ -34,6 +34,7 @@ import {MatListModule} from '@angular/material/list';
 import {LoginGuard} from './login.guard';
 import { MenuComponent } from './menu/menu.component';
 import {StyleManagerService} from './style-manager.service';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -47,31 +48,32 @@ import {StyleManagerService} from './style-manager.service';
     HistoryStatsComponent,
     MenuComponent
   ],
-  imports: [
-    BrowserModule,
-    LayoutModule,
-    AppRoutingModule,
-    HttpClientModule,
-    MatButtonModule,
-    MatGridListModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatMenuModule,
-    MatIconModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSortModule,
-    MatRippleModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
-    NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
-    NgxAudioPlayerModule,
-    BrowserAnimationsModule,
-    MatListModule,
-  ],
+    imports: [
+        BrowserModule,
+        LayoutModule,
+        AppRoutingModule,
+        HttpClientModule,
+        MatButtonModule,
+        MatGridListModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatMenuModule,
+        MatIconModule,
+        MatCardModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSortModule,
+        MatRippleModule,
+        MatDividerModule,
+        MatProgressSpinnerModule,
+        NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
+        NgxAudioPlayerModule,
+        BrowserAnimationsModule,
+        MatListModule,
+        MatProgressBarModule,
+    ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard, StyleManagerService],
   bootstrap: [OverviewComponent]
 })

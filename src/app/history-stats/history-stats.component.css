@@ -17,9 +17,10 @@ mat-card {
   }
 }
 
-mat-spinner {
+mat-progress-bar {
   top: calc(50% - 50px);
   margin: auto;
+  width: 50%;
 }
 
 

@@ -93,6 +93,6 @@
     </mat-card>
   </ng-container>
   <ng-container *ngIf="!didLoadTracks">
-    <mat-spinner></mat-spinner>
+    <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
   </ng-container>
 </div>

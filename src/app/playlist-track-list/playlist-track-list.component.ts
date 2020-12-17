@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatPaginator} from '@angular/material/paginator';
@@ -7,40 +7,93 @@ import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import {MatTableDataSource} from '@angular/material/table';
 import UserObjectPublic = SpotifyApi.UserObjectPublic;
+import {Location} from '@angular/common';
 
+// noinspection DuplicatedCode
 @Component({
   selector: 'app-track-list',
   templateUrl: './playlist-track-list.component.html',
   styleUrls: ['./playlist-track-list.component.css']
 })
-export class PlaylistTrackListComponent implements OnInit {
+export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['title', 'album', 'artist', 'length', 'added_at', 'added_by'];
   tracks: { added_at: string, added_by: UserObjectPublic, track: TrackObjectFull }[] = [];
   dataSource: MatTableDataSource<{ added_at: string, added_by: UserObjectPublic, track: TrackObjectFull }> =
     new MatTableDataSource<{ added_at: string, added_by: UserObjectPublic, track: TrackObjectFull }>();
   playlistId: string;
   json = JSON;
+  private s = '';
+  private p = '';
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private router: Router) {
+  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private router: Router, private location: Location,
+              private cdRef: ChangeDetectorRef) {
     this.playlistId = this.route.snapshot.params.playlistId;
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
-  @Input() search: string;
+  @Input() search = '';
 
   ngOnInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.getSimpleTracks(0, 50);
+    this.s = this.route.snapshot.queryParams.s;
+    this.p = this.route.snapshot.queryParams.p;
+    this.getSimpleTracks(0, 50).then(() => {
+      this.recreatePageFromQuery(this.p, this.s);
+    });
   }
 
-  getSimpleTracks(offset: number, limit: number): void {
-    this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
+  ngAfterViewInit(): void{
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+
+    this.paginator.page.subscribe(next => {
+      if (next.pageIndex + '' !== this.p) {
+        let s = this.s;
+        if (s === '') {
+          s = null;
+        }
+        this.updateQuery(next.pageIndex + '', s);
+      }
+    });
+  }
+
+
+  recreatePageFromQuery(page: string, search: string): void {
+    if (search !== null && search !== undefined && search.length > 0) {
+      this.search = search;
+      this.cdRef.detectChanges();
+      this.filterData(search);
+    }
+    if (page !== null && page !== undefined && page.length > 0) {
+      this.paginator.pageIndex = parseInt(page, 10);
+      this.dataSource.paginator.page.next({
+        pageIndex: parseInt(page, 10),
+        pageSize: this.dataSource.paginator.pageSize,
+        length: this.dataSource.paginator.length
+      });
+    }
+
+  }
+
+  updateQuery(page: string, search: string): void {
+    const url = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: {s: search, p: page}
+    }).toString();
+    this.s = search;
+    this.p = page;
+    this.location.go(url);
+  }
+
+  async getSimpleTracks(offset: number, limit: number): Promise<void> {
+    await this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
       this.getFullTracks(value.items);
+      this.recreatePageFromQuery(this.p, this.s);
       if (value.next != null) {
         const parts = value.next.split(/=|&|\?/);
-        this.getSimpleTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
+        return this.getSimpleTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
+      } else {
+        return Promise.resolve();
       }
     });
   }
@@ -49,11 +102,8 @@ export class PlaylistTrackListComponent implements OnInit {
     this.api.getApi().getTracks(tracks.map(value => value.track.id)).then(value => {
       const customTracks: { added_at: string, added_by: UserObjectPublic, track: TrackObjectFull }[] = [];
       tracks.forEach(playListTrack => {
-        value.tracks.forEach(fullTrack => {
-          if (playListTrack.track.id === fullTrack.id) {
-            customTracks.push({added_at: playListTrack.added_at, added_by: playListTrack.added_by, track: fullTrack});
-          }
-        });
+        const track = value.tracks.find(tr => tr.id === playListTrack.track.id);
+        customTracks.push({added_at: playListTrack.added_at, added_by: playListTrack.added_by, track});
       });
       this.tracks.push(...customTracks);
       this.dataSource.data = this.tracks;
@@ -87,9 +137,16 @@ export class PlaylistTrackListComponent implements OnInit {
   onSearchChanged(e: Event): void {
     // @ts-ignore
     const searchString = e.target.value.trim().toLowerCase();
+    this.filterData(searchString);
+  }
+
+  filterData(searchString: string): void {
     if (searchString === '') {
       this.dataSource.data = this.tracks;
+      this.updateQuery(this.p, null);
     } else {
+      this.updateQuery(this.p, searchString);
+
       this.dataSource.data = this.tracks.filter(value => {
         return value.track.name.toLowerCase().includes(searchString) ||
           value.track.album.name.toLowerCase().includes(searchString) ||
