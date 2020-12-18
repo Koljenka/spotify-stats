@@ -6,6 +6,7 @@ import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import ArtistObjectSimplified = SpotifyApi.ArtistObjectSimplified;
 import {DomSanitizer, Meta, Title} from '@angular/platform-browser';
 import {KeyHelper} from '../key-helper';
+import {StyleManagerService} from '../style-manager.service';
 
 @Component({
   selector: 'app-track-view',
@@ -19,7 +20,8 @@ export class TrackComponent implements OnInit {
   didLoadTrack = false;
   didLoadAudioFeatures = false;
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute, public sanitizer: DomSanitizer, private titleService: Title, private meta: Meta) {
+  constructor(private api: ApiConnectionService, private route: ActivatedRoute, public sanitizer: DomSanitizer,
+              private titleService: Title, private meta: Meta, private readonly styleService: StyleManagerService) {
     this.trackId = this.route.snapshot.params.trackId;
   }
 
@@ -41,6 +43,7 @@ export class TrackComponent implements OnInit {
       this.trackAudioFeatures = value;
       this.didLoadAudioFeatures = true;
     });
+    this.styleService.isDarkStyleActive();
   }
 
   public getKey(value: number): string {
@@ -51,8 +54,15 @@ export class TrackComponent implements OnInit {
     return value === 1 ? 'Major' : 'Minor';
   }
 
+  public getTabImgSrc(key: number, mode: number): string {
+    return KeyHelper.getTabForKeyAndMode(key, mode);
+  }
+
   public isSmallScreen(): boolean {
     return window.screen.width < 800;
   }
 
+  public getSvgStyle(): string {
+    return this.styleService.isDarkStyleActive() ? 'filter: invert(var(--value, 100%)); height: 200px; width: 200px;' : 'height: 200px; width: 200px;';
+  }
 }

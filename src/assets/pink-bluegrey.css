@@ -2006,11 +2006,11 @@ mat-row, mat-header-row, mat-footer-row, th.mat-header-cell, td.mat-cell, td.mat
 }
 
 .mat-progress-bar-background {
-  fill: #e91e63
+  fill: #c5cae9
 }
 
 .mat-progress-bar-buffer {
-  background-color: #e91e63
+  background-color: #c5cae9
 }
 
 .mat-progress-bar-fill::after {

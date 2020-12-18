@@ -7,6 +7,7 @@ import {ChangeDetectorRef} from '@angular/core';
 import {ApiConnectionService} from '../api-connection.service';
 import {Location} from '@angular/common';
 import {MatSort, Sort} from '@angular/material/sort';
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-track-list',
@@ -22,7 +23,7 @@ export class SavedTrackListComponent implements OnInit, AfterViewInit {
 
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, private router: Router, private location: Location,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef, private titleService: Title) {
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -30,6 +31,7 @@ export class SavedTrackListComponent implements OnInit, AfterViewInit {
   @Input() search = '';
 
   ngOnInit(): void {
+    this.titleService.setTitle('My Library - SpotifyStats');
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
     this.getSavedTracks(0, 50).then(() => {
@@ -76,7 +78,7 @@ export class SavedTrackListComponent implements OnInit, AfterViewInit {
     }).toString();
     this.s = search;
     this.p = page;
-    this.location.go(url);
+    this.location.replaceState(url);
   }
 
   async getSavedTracks(offset: number, limit: number): Promise<void> {

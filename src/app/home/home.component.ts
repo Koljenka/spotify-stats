@@ -5,6 +5,7 @@ import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
 import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
+import {Title} from '@angular/platform-browser';
 
 
 @Component({
@@ -18,11 +19,12 @@ export class HomeComponent implements OnInit {
   playlists: SpotifyApi.PlaylistObjectSimplified[];
 
 
-  constructor(private route: ActivatedRoute, private api: ApiConnectionService,
+  constructor(private route: ActivatedRoute, private api: ApiConnectionService,  private titleService: Title,
               public http: HttpClient, public cookie: CookieService, private router: Router) {
   }
 
   ngOnInit(): void {
+    this.titleService.setTitle('Home - SpotifyStats');
     if (this.cookie.isLoggedIn()) {
       if (this.api.userId == null) {
         this.api.getApi().getMe().then(user => {

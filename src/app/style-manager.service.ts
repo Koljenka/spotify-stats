@@ -21,6 +21,11 @@ export class StyleManagerService {
       document.head.removeChild(existingLinkElement);
     }
   }
+
+  isDarkStyleActive(): boolean {
+    const currentTheme = getLinkElementForKey('theme').getAttribute('href').match(/(?<=assets\/).*/)[0]
+    return currentTheme === 'pink-bluegrey.css' || currentTheme === 'purple-green.css';
+  }
 }
 
 function getLinkElementForKey(key: string): Element | HTMLLinkElement | null {
@@ -32,6 +37,8 @@ function getExistingLinkElementByKey(key: string): Element | null {
     `link[rel="stylesheet"].${getClassNameForKey(key)}`
   );
 }
+
+
 
 function createLinkElementWithKey(key: string): HTMLLinkElement {
   const linkEl = document.createElement('link');

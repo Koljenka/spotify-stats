@@ -8,6 +8,7 @@ import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import {MatTableDataSource} from '@angular/material/table';
 import UserObjectPublic = SpotifyApi.UserObjectPublic;
 import {Location} from '@angular/common';
+import {Title} from '@angular/platform-browser';
 
 // noinspection DuplicatedCode
 @Component({
@@ -26,7 +27,7 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   private p = '';
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, private router: Router, private location: Location,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef,  private titleService: Title) {
     this.playlistId = this.route.snapshot.params.playlistId;
   }
 
@@ -37,6 +38,9 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
+    this.api.getApi().getPlaylist(this.playlistId).then(value => {
+      this.titleService.setTitle(value.name + ' - SpotifyStats');
+    });
     this.getSimpleTracks(0, 50).then(() => {
       this.recreatePageFromQuery(this.p, this.s);
     });
@@ -82,7 +86,7 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
     }).toString();
     this.s = search;
     this.p = page;
-    this.location.go(url);
+    this.location.replaceState(url);
   }
 
   async getSimpleTracks(offset: number, limit: number): Promise<void> {

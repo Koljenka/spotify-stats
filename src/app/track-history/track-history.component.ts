@@ -8,6 +8,7 @@ import {MatSort, Sort} from '@angular/material/sort';
 import {HttpClient} from '@angular/common/http';
 import {DataSharingService} from '../data-sharing.service';
 import {Location} from '@angular/common';
+import {Title} from '@angular/platform-browser';
 
 // noinspection DuplicatedCode
 @Component({
@@ -27,7 +28,7 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(private dataSharing: DataSharingService, private http: HttpClient, private api: ApiConnectionService,
               private route: ActivatedRoute, private router: Router, private location: Location,
-              private cdRef: ChangeDetectorRef) {
+              private cdRef: ChangeDetectorRef, private titleService: Title) {
   }
 
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
@@ -35,6 +36,7 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() search = '';
 
   ngOnInit(): void {
+    this.titleService.setTitle('Playback History - SpotifyStats');
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
     this.dataSharing.playbackHistory.subscribe(history => {
@@ -96,7 +98,7 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     }).toString();
     this.s = search;
     this.p = page;
-    this.location.go(url);
+    this.location.replaceState(url);
   }
 
   onRowClick(trackId: string): void {
