@@ -1,0 +1,29 @@
+mat-card {
+  max-width: 300px;
+  margin: 5px;
+
+  cursor: pointer;
+  text-align: center;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+mat-card img {
+  width: 300px;
+  height: 300px;
+}
+
+mat-icon {
+  color: darkgray;
+  vertical-align: middle;
+  font-size: 14px;
+  height: 14px;
+  width: 14px;
+  margin-right: 4px;
+}

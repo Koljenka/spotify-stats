@@ -12,29 +12,34 @@
 
       <ng-container #title matColumnDef="title">
         <th mat-header-cell mat-sort-header="title" *matHeaderCellDef>Title</th>
-        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id)"> {{track.track.name}}</td>
+        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id, track.contextUri)"> {{track.track.name}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="contextUri">
+        <th mat-header-cell mat-sort-header="contextUri" *matHeaderCellDef>Context</th>
+        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id, track.contextUri)"> {{getContextType(track.contextUri)}}</td>
       </ng-container>
 
       <ng-container matColumnDef="album">
         <th mat-header-cell mat-sort-header="album" *matHeaderCellDef>Album</th>
-        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id)"> {{track.track.album.name}}</td>
+        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id, track.contextUri)"> {{track.track.album.name}}</td>
       </ng-container>
 
       <ng-container matColumnDef="artist">
         <th mat-header-cell mat-sort-header="artist" *matHeaderCellDef>Artist</th>
-        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id)"> {{getArtists(track)}}</td>
+        <td mat-cell *matCellDef="let track" (click)="onRowClick(track.track.id, track.contextUri)"> {{getArtists(track)}}</td>
       </ng-container>
 
       <ng-container matColumnDef="length">
         <th mat-header-cell mat-sort-header="length" *matHeaderCellDef>Length</th>
         <td mat-cell *matCellDef="let track"
-            (click)="onRowClick(track.track.id)"> {{getFormattedDuration(track.track.duration_ms)}}</td>
+            (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDuration(track.track.duration_ms)}}</td>
       </ng-container>
 
       <ng-container matColumnDef="played_at">
         <th mat-header-cell mat-sort-header="played_at" *matHeaderCellDef>Played at</th>
         <td mat-cell *matCellDef="let track"
-            (click)="onRowClick(track.track.id)"> {{getFormattedDate(track.added_at)}}</td>
+            (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDate(track.added_at)}}</td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

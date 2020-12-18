@@ -6,6 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
 import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 import {Title} from '@angular/platform-browser';
+import {StorageService} from '../storage.service';
 
 
 @Component({
@@ -15,11 +16,10 @@ import {Title} from '@angular/platform-browser';
 })
 export class HomeComponent implements OnInit {
 
-  username = '';
   playlists: SpotifyApi.PlaylistObjectSimplified[];
 
 
-  constructor(private route: ActivatedRoute, private api: ApiConnectionService,  private titleService: Title,
+  constructor(private route: ActivatedRoute, private api: ApiConnectionService, private titleService: Title,
               public http: HttpClient, public cookie: CookieService, private router: Router) {
   }
 
@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
     this.titleService.setTitle('Home - SpotifyStats');
     if (this.cookie.isLoggedIn()) {
       if (this.api.userId == null) {
+        this.getTopSongs();
         this.api.getApi().getMe().then(user => {
           this.api.getApi().getUserPlaylists(user.id, {limit: 50}).then(value => {
             this.playlists = value.items;
@@ -40,12 +41,9 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  getImageForPlaylist(playlist: PlaylistObjectSimplified): string {
-    if (playlist.images.length > 0) {
-      return playlist.images[0].url;
-    } else {
-      return '/assets/placeholder.png';
-    }
+  getTopSongs(): void {
+    this.http.post('https://kolkie.de/spotify-playback-api/top', {access_token: StorageService.accessToken}).subscribe(value => {
+    });
   }
 
 
@@ -55,9 +53,5 @@ export class HomeComponent implements OnInit {
       'user-top-read%20user-read-playback-position%20user-read-recently-played%20user-follow-read%20user-follow-modify';
     window.location.href = 'https://accounts.spotify.com/authorize?response_type=code&redirect_uri=' +
       environment.APP_SETTINGS.redirectUri + '&client_id=7dc889b5812346ab848cadbe75a9d90f&scope=' + scopes;
-  }
-
-  onCardClick(playlist: SpotifyApi.PlaylistObjectSimplified): void {
-    this.router.navigate(['playlist-track-list', playlist.id]);
   }
 }

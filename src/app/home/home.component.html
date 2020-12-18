@@ -2,15 +2,6 @@
   <button mat-raised-button color="accent" *ngIf="!cookie.isLoggedIn()" (click)="authorize()" class="button">Login
   </button>
   <div *ngIf="cookie.isLoggedIn()" class="main-content">
-    <mat-card matRipple *ngFor="let playlist of playlists" (click)="onCardClick(playlist)">
-      <img mat-card-image [src]="getImageForPlaylist(playlist)" width="300px" height="300px" alt="Album Cover">
-      <mat-card-footer>
-        <mat-card-title>{{playlist.name}}</mat-card-title>
-        <mat-card-subtitle>
-          <mat-icon *ngIf="!playlist.public" matTooltip="Private">public_off</mat-icon>
-          <mat-icon matTooltip="Collaborative" *ngIf="playlist.collaborative">group</mat-icon>
-          {{playlist.owner.id}}</mat-card-subtitle>
-      </mat-card-footer>
-    </mat-card>
+    <app-playlist-card *ngFor="let playlist of playlists" [playlist]="playlist"></app-playlist-card>
   </div>
 </div>

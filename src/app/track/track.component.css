@@ -51,6 +51,9 @@ mat-card {
 .mat-card .mat-divider-horizontal {
   position: inherit;
 }
+.context-card{
+  display: block;
+}
 
 #featuresCard {
   display: flex;

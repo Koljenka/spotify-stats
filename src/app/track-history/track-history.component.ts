@@ -18,9 +18,9 @@ import {Title} from '@angular/platform-browser';
 })
 export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  displayedColumns: string[] = ['title', 'album', 'artist', 'length', 'played_at'];
-  savedTracks: SavedTrackObject[] = [];
-  dataSource: MatTableDataSource<SavedTrackObject> = new MatTableDataSource<SavedTrackObject>();
+  displayedColumns: string[] = ['title', 'contextUri', 'album', 'artist', 'length', 'played_at'];
+  savedTracks: PlayHistoryObjectFull[] = [];
+  dataSource: MatTableDataSource<PlayHistoryObjectFull> = new MatTableDataSource<PlayHistoryObjectFull>();
   didLoadFirstContent = false;
   private s = '';
   private p = '';
@@ -39,21 +39,29 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.titleService.setTitle('Playback History - SpotifyStats');
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
-    this.dataSharing.playbackHistory.subscribe(history => {
-      this.savedTracks = history;
+    if (this.dataSharing.didFinishLoadingHistory) {
+      this.savedTracks = this.dataSharing.getPlaybackHistoryPart(0, 200);
       this.dataSource.data = this.savedTracks;
-
       this.didLoadFirstContent = this.savedTracks.length > 0;
-      let timeout;
-      if (this.dataSharing.didFinishLoadingHistory) {
-        timeout = 100;
-      } else {
-        timeout = 0;
-      }
       setTimeout(() => {
         this.recreatePageFromQuery(this.p, this.s);
-      }, timeout);
-    });
+      }, 100);
+    } else {
+      this.dataSharing.playbackHistory.subscribe(history => {
+        this.savedTracks = history;
+        this.dataSource.data = this.savedTracks;
+        this.didLoadFirstContent = this.savedTracks.length > 0;
+        let timeout;
+        if (this.dataSharing.didFinishLoadingHistory) {
+          timeout = 100;
+        } else {
+          timeout = 0;
+        }
+        setTimeout(() => {
+          this.recreatePageFromQuery(this.p, this.s);
+        }, timeout);
+      });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -101,8 +109,12 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.location.replaceState(url);
   }
 
-  onRowClick(trackId: string): void {
-    this.router.navigate(['track', trackId]);
+  onRowClick(trackId: string, contextUri: string): void {
+    const commands = ['track', trackId];
+    if (contextUri != null) {
+      commands.push(contextUri);
+    }
+    this.router.navigate(commands);
   }
 
   getArtists(track: SavedTrackObject): string {
@@ -172,9 +184,22 @@ export class TrackHistoryComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.paginator.firstPage();
   }
+
+  public getContextType(contextUri: string): string {
+    if (contextUri == null) {
+      return 'Single';
+    }
+    const contextType = contextUri.match(/(?<=spotify:)\w*/)[0];
+    return contextType[0].toUpperCase() + contextType.slice(1);
+  }
 }
 
 export interface PlaybackHistory {
   trackid: string;
   played_at: number;
+  contexturi: string;
+}
+
+export interface PlayHistoryObjectFull extends SavedTrackObject {
+  contextUri: string;
 }

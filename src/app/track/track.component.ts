@@ -7,6 +7,11 @@ import ArtistObjectSimplified = SpotifyApi.ArtistObjectSimplified;
 import {DomSanitizer, Meta, Title} from '@angular/platform-browser';
 import {KeyHelper} from '../key-helper';
 import {StyleManagerService} from '../style-manager.service';
+import {HttpClient} from '@angular/common/http';
+import {StorageService} from '../storage.service';
+import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
+import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
+import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 
 @Component({
   selector: 'app-track-view',
@@ -17,12 +22,18 @@ export class TrackComponent implements OnInit {
   track: TrackObjectFull;
   trackAudioFeatures: AudioFeaturesObject;
   trackId: string;
+  contextUri: string;
   didLoadTrack = false;
   didLoadAudioFeatures = false;
+  didLoadContext = false;
+  contextType = '';
+  context: PlaylistObjectFull | AlbumObjectFull;
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, public sanitizer: DomSanitizer,
-              private titleService: Title, private meta: Meta, private readonly styleService: StyleManagerService) {
+              private titleService: Title, private meta: Meta, private readonly styleService: StyleManagerService,
+              private http: HttpClient) {
     this.trackId = this.route.snapshot.params.trackId;
+    this.contextUri = this.route.snapshot.params.contextUri;
   }
 
   public getArtists(artists: ArtistObjectSimplified[]): string {
@@ -43,7 +54,35 @@ export class TrackComponent implements OnInit {
       this.trackAudioFeatures = value;
       this.didLoadAudioFeatures = true;
     });
-    this.styleService.isDarkStyleActive();
+    if (this.contextUri != null) {
+      this.resolveContextUri().then(value => {
+        this.context = value;
+        this.didLoadContext = true;
+      }).catch(console.log);
+    }
+  }
+
+  getContextsOfTrack(): void {
+    this.http.post('https://kolkie.de/spotify-playback-api/contextOfTrack', {
+      access_token: StorageService.accessToken,
+      track_id: this.trackId
+    }).subscribe(value => {
+      console.log(value);
+    });
+  }
+
+  async resolveContextUri(): Promise<PlaylistObjectFull | AlbumObjectFull> {
+    const contextType = this.contextUri.match(/(?<=spotify:)\w*/)[0];
+    const contextId = this.contextUri.match(/(?<=spotify:\w*:).*/)[0];
+    this.contextType = contextType;
+    if (contextType === 'playlist') {
+      return this.api.getApi().getPlaylist(contextId);
+    } else if (contextType === 'album') {
+      return this.api.getApi().getAlbum(contextId);
+    } else {
+      return Promise.reject(`Context ${contextType} is not supported`);
+    }
+
   }
 
   public getKey(value: number): string {
