@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import AlbumObjectSimplified = SpotifyApi.AlbumObjectSimplified;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-album-card',
@@ -22,7 +23,7 @@ export class AlbumCardComponent implements OnInit {
     if (this.album.images.length > 0) {
       return this.album.images[0].url;
     } else {
-      return '/assets/placeholder.png';
+      return environment.APP_SETTINGS.assetsBasePath + 'placeholder.png';
     }
   }
 

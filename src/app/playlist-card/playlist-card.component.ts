@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import PlaylistBaseObject = SpotifyApi.PlaylistBaseObject;
 import {Router} from '@angular/router';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-playlist-card',
@@ -21,7 +22,7 @@ export class PlaylistCardComponent implements OnInit {
     if (this.playlist.images.length > 0) {
       return this.playlist.images[0].url;
     } else {
-      return '/assets/placeholder.png';
+      return environment.APP_SETTINGS.assetsBasePath + 'placeholder.png';
     }
   }
 

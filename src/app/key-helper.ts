@@ -1,3 +1,5 @@
+import {environment} from '../environments/environment';
+
 export class KeyHelper {
 
   static getKey(keyNumber): string {
@@ -32,7 +34,7 @@ export class KeyHelper {
   }
 
   static getTabForKeyAndMode(keyNumber: number, mode: number): string {
-    const prefix = '/assets/keys/';
+    const prefix = environment.APP_SETTINGS.assetsBasePath + 'keys/';
     switch (keyNumber) {
       case 0:
         return prefix + (mode ? 'CM_Am.svg' : 'EfM_Cm.svg');
