@@ -1,6 +1,6 @@
 import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
-import {DataSharingService} from '../data-sharing.service';
+import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -100,10 +100,10 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.location.replaceState(url);
   }
 
-  onRowClick(trackId: string, contextUri: string): void {
+  onRowClick(trackId: string, context: ContextObjectFull): void {
     const commands = ['track', trackId];
-    if (contextUri != null) {
-      commands.push(contextUri);
+    if (context?.contextUri != null) {
+      commands.push(context?.contextUri);
     }
     this.router.navigate(commands);
   }
@@ -183,15 +183,30 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.paginator.firstPage();
   }
 
-  getContextType(contextUri: string): string {
-    if (contextUri == null) {
+  getContextType(context: ContextObjectFull): string {
+    if (context.content == null) {
       return 'Single';
     }
-    const contextType = contextUri.match(/(?<=spotify:)\w*/)[0];
-    return contextType[0].toUpperCase() + contextType.slice(1);
+    return context.content.name;
+  }
+
+  getContextIcon(context: ContextObjectFull): string {
+    switch (context.contextType) {
+      case 'album':
+        return 'album';
+      case 'artist':
+        return 'person';
+      case 'playlist':
+        return 'music_note';
+      case null:
+      default:
+        return 'play_circle_outline';
+    }
   }
 
   public setTitle(title: string): void {
     this.titleService.setTitle(title);
   }
+
+
 }

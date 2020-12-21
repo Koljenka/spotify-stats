@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
-import {DataSharingService} from '../data-sharing.service';
+import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject, Observable} from 'rxjs';
 
@@ -39,5 +39,5 @@ export interface PlaybackHistory {
 }
 
 export interface PlayHistoryObjectFull extends SavedTrackObject {
-  contextUri: string;
+  context: ContextObjectFull;
 }
