@@ -61,6 +61,6 @@
   </table>
   <mat-paginator [pageSize]="15" [pageSizeOptions]="[10,15,25,50,100]" showFirstLastButtons></mat-paginator>
 </div>
-<ng-container *ngIf="!didLoadFirstContent">
+<ng-container *ngIf="!didLoadFirstContent && showSpinner">
   <mat-spinner></mat-spinner>
 </ng-container>

@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {DataSharingService} from '../data-sharing.service';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {Title} from '@angular/platform-browser';
+import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 
 @Component({
   selector: 'app-history-stats',
@@ -9,7 +10,7 @@ import {Title} from '@angular/platform-browser';
   styleUrls: ['./history-stats.component.css']
 })
 export class HistoryStatsComponent implements OnInit {
-  playbackHistory: SavedTrackObject[];
+  playbackHistory: PlayHistoryObjectFull[];
   didLoadTracks = false;
 
   constructor(public dataSharing: DataSharingService, private titleService: Title) {

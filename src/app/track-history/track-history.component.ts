@@ -11,7 +11,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 })
 export class TrackHistoryComponent implements OnInit, AfterViewInit {
   private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
-
+  didLoadTracks = false;
 
   @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
 
@@ -27,6 +27,7 @@ export class TrackHistoryComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSharing.playbackHistory.toPromise().then(() => {
       this.playbackHistorySource.next(this.dataSharing.getSavedTracks());
+      this.didLoadTracks = true;
       this.playbackHistorySource.complete();
     });
   }

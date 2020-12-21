@@ -92,7 +92,8 @@
       </mat-card-title>
     </mat-card>
   </ng-container>
-  <ng-container *ngIf="!didLoadTracks">
+  <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
-  </ng-container>
+    <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.0-0'}}%</sub>
+  </div>
 </div>

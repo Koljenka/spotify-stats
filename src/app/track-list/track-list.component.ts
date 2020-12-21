@@ -21,6 +21,7 @@ import {Observable} from 'rxjs';
 export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() displayedColumns: string[];
+  @Input() showSpinner = true;
   data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[]>();
 
   trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[] = [];

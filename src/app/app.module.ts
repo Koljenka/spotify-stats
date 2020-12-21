@@ -9,7 +9,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {AppRoutingModule} from './app-routing.module';
-import {LocationStrategy, PathLocationStrategy} from '@angular/common';
+import {CommonModule, LocationStrategy, PathLocationStrategy} from '@angular/common';
 import {OverviewComponent} from './overview/overview.component';
 import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './callback/callback.component';
@@ -31,12 +31,12 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {LayoutModule} from '@angular/cdk/layout';
 import {MatListModule} from '@angular/material/list';
 import {LoginGuard} from './login.guard';
-import { MenuComponent } from './menu/menu.component';
+import {MenuComponent} from './menu/menu.component';
 import {StyleManagerService} from './style-manager.service';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import { PlaylistCardComponent } from './playlist-card/playlist-card.component';
-import { AlbumCardComponent } from './album-card/album-card.component';
-import { TrackListComponent } from './track-list/track-list.component';
+import {PlaylistCardComponent} from './playlist-card/playlist-card.component';
+import {AlbumCardComponent} from './album-card/album-card.component';
+import {TrackListComponent} from './track-list/track-list.component';
 
 @NgModule({
   declarations: [
@@ -53,31 +53,32 @@ import { TrackListComponent } from './track-list/track-list.component';
     AlbumCardComponent,
     TrackListComponent
   ],
-    imports: [
-        BrowserModule,
-        LayoutModule,
-        AppRoutingModule,
-        HttpClientModule,
-        MatButtonModule,
-        MatGridListModule,
-        MatToolbarModule,
-        MatTooltipModule,
-        MatMenuModule,
-        MatIconModule,
-        MatCardModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSortModule,
-        MatRippleModule,
-        MatDividerModule,
-        MatProgressSpinnerModule,
-        NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
-        BrowserAnimationsModule,
-        MatListModule,
-        MatProgressBarModule,
-    ],
+  imports: [
+    BrowserModule,
+    LayoutModule,
+    CommonModule,
+    AppRoutingModule,
+    HttpClientModule,
+    MatButtonModule,
+    MatGridListModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatIconModule,
+    MatCardModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSortModule,
+    MatRippleModule,
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
+    BrowserAnimationsModule,
+    MatListModule,
+    MatProgressBarModule,
+  ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard, StyleManagerService],
   bootstrap: [OverviewComponent]
 })

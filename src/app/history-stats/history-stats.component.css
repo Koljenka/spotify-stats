@@ -17,11 +17,18 @@ mat-card {
   }
 }
 
-mat-progress-bar {
+.progress-bar-container{
   top: calc(50% - 50px);
   margin: auto;
   width: 50%;
+  position: relative;
 }
+
+.progress-text {
+  right: 0;
+  position: absolute;
+}
+
 
 
 .mat-card-content {
