@@ -36,6 +36,7 @@ import {StyleManagerService} from './style-manager.service';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { PlaylistCardComponent } from './playlist-card/playlist-card.component';
 import { AlbumCardComponent } from './album-card/album-card.component';
+import { TrackListComponent } from './track-list/track-list.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { AlbumCardComponent } from './album-card/album-card.component';
     HistoryStatsComponent,
     MenuComponent,
     PlaylistCardComponent,
-    AlbumCardComponent
+    AlbumCardComponent,
+    TrackListComponent
   ],
     imports: [
         BrowserModule,
