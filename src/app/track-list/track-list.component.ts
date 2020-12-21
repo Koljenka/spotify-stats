@@ -11,6 +11,7 @@ import {MatSort, Sort} from '@angular/material/sort';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-track-list',
@@ -20,12 +21,12 @@ import SavedTrackObject = SpotifyApi.SavedTrackObject;
 export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() displayedColumns: string[];
+  data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[]>();
 
   trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[] = [];
   dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull> =
     new MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull>();
   didLoadFirstContent = false;
-  didFinishLoading = false;
   private s = '';
   private p = '';
 
@@ -45,8 +46,18 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.data.toPromise().then(value => {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      this.trackList = value;
+      this.dataSource.data = this.trackList;
+      this.didLoadFirstContent = this.trackList.length > 0;
+
+      setTimeout(() => {
+        this.recreatePageFromQuery(this.p, this.s);
+
+      }, 50);
+    });
     this.paginator.page.subscribe(next => {
       if (next.pageIndex + '' !== this.p) {
         let s = this.s;
@@ -60,18 +71,6 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.didLoadFirstContent = false;
-  }
-
-  private updateListData(): void {
-    this.dataSource.data = this.trackList;
-    this.didLoadFirstContent = this.trackList.length > 0;
-    if (this.didFinishLoading) {
-      setTimeout(() => {
-        this.recreatePageFromQuery(this.p, this.s);
-      }, 100);
-    } else {
-      this.recreatePageFromQuery(this.p, this.s);
-    }
   }
 
   private recreatePageFromQuery(page: string, search: string): void {
@@ -114,12 +113,13 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     return track.track.artists.map(value => value.name).join(', ');
   }
 
-  getFormattedDate(dateString: string): string {
-    return new Date(parseInt(dateString, 10)).toLocaleDateString('de-DE', {
+  getFormattedDate(dateString: string, isNumber: boolean): string {
+    const date = isNumber ? parseInt(dateString, 10) : dateString;
+    return new Date(date).toLocaleDateString('de-DE', {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric'
-    }) + ', ' + new Date(parseInt(dateString, 10)).toLocaleTimeString();
+    }) + ', ' + new Date(date).toLocaleTimeString();
   }
 
   getFormattedDuration(duration: number): string {
@@ -191,16 +191,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     return contextType[0].toUpperCase() + contextType.slice(1);
   }
 
-  public setListData(data: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[]): void {
-    this.trackList = data;
-    this.updateListData();
-  }
-
   public setTitle(title: string): void {
     this.titleService.setTitle(title);
-  }
-
-  public setDidFinishLoading(value: boolean): void {
-    this.didFinishLoading = value;
   }
 }

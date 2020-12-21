@@ -4,7 +4,6 @@ import {StorageService} from './storage.service';
 import {PlaybackHistory, PlayHistoryObjectFull} from './track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from './api-connection.service';
-import SavedTrackObject = SpotifyApi.SavedTrackObject;
 
 @Injectable({
   providedIn: 'root'
@@ -13,18 +12,17 @@ export class DataSharingService {
 
   private savedTracks: PlayHistoryObjectFull[] = [];
   private historyLength = 0;
+  private didStartLoading = false;
   private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
 
   get playbackHistory(): Observable<PlayHistoryObjectFull[]> {
-    if (this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
-      this.playbackHistorySource.value.length <= 0) {
+    if ((this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
+      this.playbackHistorySource.value.length <= 0) && !this.didStartLoading) {
+      this.didStartLoading = true;
       this.loadPlaybackHistory();
     }
-    return this.playbackHistorySource.asObservable();
-  }
 
-  getPlaybackHistoryPart(from: number, to: number): PlayHistoryObjectFull[] {
-    return this.savedTracks.slice(from, to);
+    return this.playbackHistorySource.asObservable();
   }
 
   get historyLoadingProgress(): number {
@@ -37,6 +35,10 @@ export class DataSharingService {
 
   get didFinishLoadingHistory(): boolean {
     return this.historyLoadingProgress === 1;
+  }
+
+  public getSavedTracks(): PlayHistoryObjectFull[] {
+    return this.savedTracks;
   }
 
   constructor(private http: HttpClient, private api: ApiConnectionService) {
@@ -59,12 +61,16 @@ export class DataSharingService {
 
   private getTracks(ids: PlaybackHistory[]): void {
     this.api.getApi().getTracks(ids.map(i => i.trackid)).then(value => {
+      const playbackHistoryTracks: PlayHistoryObjectFull[] = [];
       ids.forEach(historyTrack => {
         const track = value.tracks.find(tr => tr.id === historyTrack.trackid);
         this.savedTracks.push({added_at: (historyTrack.played_at * 1000) + '', track, contextUri: historyTrack.contexturi});
+        playbackHistoryTracks.push({added_at: (historyTrack.played_at * 1000) + '', track, contextUri: historyTrack.contexturi});
       });
-      this.savedTracks.sort((a, b) => (parseInt(a.added_at, 10) - parseInt(b.added_at, 10)) * -1);
-      this.playbackHistorySource.next(this.savedTracks);
+      this.playbackHistorySource.next(playbackHistoryTracks);
+      if (this.didFinishLoadingHistory) {
+        this.playbackHistorySource.complete();
+      }
     }).catch(reason => {
       if (reason.status === 429) {
         setTimeout(() => {

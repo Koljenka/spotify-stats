@@ -41,13 +41,13 @@
     <ng-container matColumnDef="played_at">
       <th mat-header-cell mat-sort-header="played_at" *matHeaderCellDef>Played at</th>
       <td mat-cell *matCellDef="let track"
-          (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDate(track.added_at)}}</td>
+          (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDate(track.added_at, true)}}</td>
     </ng-container>
 
     <ng-container matColumnDef="added_at">
       <th mat-header-cell mat-sort-header="added_at" *matHeaderCellDef>Added at</th>
       <td mat-cell *matCellDef="let track"
-          (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDate(track.added_at)}}</td>
+          (click)="onRowClick(track.track.id, track.contextUri)"> {{getFormattedDate(track.added_at, false)}}</td>
     </ng-container>
 
     <ng-container matColumnDef="added_by">

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {DataSharingService} from '../data-sharing.service';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {Title} from '@angular/platform-browser';
@@ -17,10 +17,15 @@ export class HistoryStatsComponent implements OnInit {
 
   ngOnInit(): void {
     this.titleService.setTitle('History Statistics - SpotifyStats');
-    this.dataSharing.playbackHistory.subscribe(value => {
-      this.playbackHistory = value;
-      this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
-    });
+    if (this.dataSharing.didFinishLoadingHistory) {
+      this.playbackHistory = this.dataSharing.getSavedTracks();
+      this.didLoadTracks = true;
+    } else {
+      this.dataSharing.playbackHistory.subscribe(value => {
+        this.playbackHistory = value;
+        this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
+      });
+    }
   }
 
   getTotalsPlays(): number {
