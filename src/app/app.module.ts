@@ -37,6 +37,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {PlaylistCardComponent} from './playlist-card/playlist-card.component';
 import {AlbumCardComponent} from './album-card/album-card.component';
 import {TrackListComponent} from './track-list/track-list.component';
+import { AlbumTrackListComponent } from './album-track-list/album-track-list.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import {TrackListComponent} from './track-list/track-list.component';
     MenuComponent,
     PlaylistCardComponent,
     AlbumCardComponent,
-    TrackListComponent
+    TrackListComponent,
+    AlbumTrackListComponent
   ],
   imports: [
     BrowserModule,

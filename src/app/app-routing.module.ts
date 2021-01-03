@@ -8,6 +8,7 @@ import {PlaylistTrackListComponent} from './playlist-track-list/playlist-track-l
 import {TrackHistoryComponent} from './track-history/track-history.component';
 import {HistoryStatsComponent} from './history-stats/history-stats.component';
 import {LoginGuard} from './login.guard';
+import {AlbumTrackListComponent} from './album-track-list/album-track-list.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
@@ -19,6 +20,7 @@ const routes: Routes = [
   {path: 'saved-track-list', component: SavedTrackListComponent, canActivate: [LoginGuard]},
   {path: 'history-stats', component: HistoryStatsComponent, canActivate: [LoginGuard]},
   {path: 'playlist-track-list/:playlistId', component: PlaylistTrackListComponent, canActivate: [LoginGuard]},
+  {path: 'album-track-list/:albumId', component: AlbumTrackListComponent, canActivate: [LoginGuard]},
   {path: '**', redirectTo: '/home', pathMatch: 'full'},
 ];
 

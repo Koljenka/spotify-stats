@@ -19,7 +19,7 @@ export class AlbumCardComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  getImageForPlaylist(): string {
+  getImageForAlbum(): string {
     if (this.album.images.length > 0) {
       return this.album.images[0].url;
     } else {
@@ -28,6 +28,6 @@ export class AlbumCardComponent implements OnInit {
   }
 
   onCardClick(): void {
-    this.router.navigate(['playlist-track-list', this.album.id]);
+    this.router.navigate(['album-track-list', this.album.id]);
   }
 }

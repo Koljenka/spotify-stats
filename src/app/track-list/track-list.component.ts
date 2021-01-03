@@ -12,6 +12,7 @@ import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {Observable} from 'rxjs';
+import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 
 @Component({
   selector: 'app-track-list',
@@ -22,11 +23,11 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() displayedColumns: string[];
   @Input() showSpinner = true;
-  data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[]>();
+  data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>();
 
-  trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull)[] = [];
-  dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull> =
-    new MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull>();
+  trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull| AlbumTrackObject)[] = [];
+  dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject> =
+    new MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject>();
   didLoadFirstContent = false;
   private s = '';
   private p = '';
@@ -109,7 +110,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(commands);
   }
 
-  getArtists(track: SavedTrackObject | PlaylistTrackObject | PlayHistoryObjectFull): string {
+  getArtists(track: SavedTrackObject | PlaylistTrackObject | PlayHistoryObjectFull | AlbumTrackObject): string {
     // @ts-ignore
     return track.track.artists.map(value => value.name).join(', ');
   }
@@ -178,6 +179,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataSource.data.sort((a, b) => (a.track.duration_ms > b.track.duration_ms) ? factor : -factor);
         break;
       case 'played_at':
+        // @ts-ignore
         this.dataSource.data.sort((a, b) => (parseInt(a.added_at, 10) - parseInt(b.added_at, 10)) * factor);
         break;
     }
