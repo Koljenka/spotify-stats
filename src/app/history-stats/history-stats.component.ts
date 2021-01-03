@@ -1,12 +1,10 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {DataSharingService} from '../data-sharing.service';
-import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {Title} from '@angular/platform-browser';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {StorageService} from '../storage.service';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
-import SingleTrackResponse = SpotifyApi.SingleTrackResponse;
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 
 @Component({
