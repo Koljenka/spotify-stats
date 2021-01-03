@@ -61,7 +61,7 @@ mat-card {
 .lyrics-card {
   display: block;
   max-width: 75%;
-  margin: auto;
+  margin: 10px auto;
   width: fit-content;
 }
 

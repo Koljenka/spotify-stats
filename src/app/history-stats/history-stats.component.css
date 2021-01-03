@@ -5,19 +5,68 @@
   align-content: flex-start;
 }
 
-mat-card {
-  width: calc(100% - 50px);
-  margin-top: 5px;
-  margin-bottom: 5px;
+.top-lists {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.top-column {
+  border: 2px solid;
+  width: 60vw;
+  height: 120vw;
+  margin-bottom: 20px;
+}
+
+.top-card {
+  width: 60vw;
+  height: 60vw;
+  position: relative;
+}
+
+.top-card > .image {
+  background-size: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.top-meta {
+  padding-left: 5px;
+  text-align: left;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.top-meta > h1 {
+  margin: 0;
+}
+
+.top-meta > h2 {
+  margin: 0;
+  font-weight: lighter;
+}
+
+.top-meta > h4 {
+  font-weight: lighter;
 }
 
 @media (min-width: 1000px) {
-  mat-card {
-    width: calc(50% - 50px);
+  .top-column {
+    border: 2px solid;
+    width: 25vw;
+    height: 50vw;
+  }
+
+  .top-card {
+    width: 25vw;
+    height: 25vw;
+    position: relative;
   }
 }
 
-.progress-bar-container{
+.progress-bar-container {
   top: calc(50% - 50px);
   margin: auto;
   width: 50%;
@@ -27,13 +76,5 @@ mat-card {
 .progress-text {
   right: 0;
   position: absolute;
-}
-
-
-
-.mat-card-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 

@@ -27,7 +27,6 @@ export class HomeComponent implements OnInit {
     this.titleService.setTitle('Home - SpotifyStats');
     if (this.cookie.isLoggedIn()) {
       if (this.api.userId == null) {
-        this.getTopSongs();
         this.api.getApi().getMe().then(user => {
           this.api.getApi().getUserPlaylists(user.id, {limit: 50}).then(value => {
             this.playlists = value.items;
@@ -41,10 +40,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  getTopSongs(): void {
-    this.http.post('https://kolkie.de/spotify-playback-api/top', {access_token: StorageService.accessToken}).subscribe(value => {
-    });
-  }
 
 
   authorize(): void {

@@ -1,96 +1,20 @@
 <div class="wrapper">
   <ng-container *ngIf="didLoadTracks">
-    <mat-card>
-        <mat-card-title>
-          Playback Statistics
-        </mat-card-title>
-      <mat-card-content>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>music_note</mat-icon>
-            Total: {{getTotalsPlays()}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>graphic_eq</mat-icon>
-            Mode:
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>speed</mat-icon>
-            Tempo:
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="true"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>music_note</mat-icon>
-            Total: {{getTotalsPlays()}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>graphic_eq</mat-icon>
-            Mode:
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>speed</mat-icon>
-            Tempo:
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="true"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>music_note</mat-icon>
-            Total: {{getTotalsPlays()}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>graphic_eq</mat-icon>
-            Mode:
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>speed</mat-icon>
-            Tempo:
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="true"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>music_note</mat-icon>
-            Total: {{getTotalsPlays()}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>graphic_eq</mat-icon>
-            Mode:
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>speed</mat-icon>
-            Tempo:
-          </mat-list-item>
-        </mat-list>
-      </mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>
-        Two
-      </mat-card-title>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>
-        Three
-      </mat-card-title>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>
-        Four
-      </mat-card-title>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>
-        Five
-      </mat-card-title>
-    </mat-card>
-    <mat-card>
-      <mat-card-title>
-        Six
-      </mat-card-title>
-    </mat-card>
+    <div class="top-lists">
+      <div class="top-column" #topArtists>Top Artists</div>
+      <div class="top-column" #topAlbums>Top Albums</div>
+      <div class="top-column" #topSongs>
+        <div class="top-card" *ngIf="topTrack != null">
+          <div class="image"
+               style="background-image: linear-gradient( rgba(101, 136, 144,0), rgba(101, 136, 144,1) ), url({{topTrack.track.album.images[0].url}});"></div>
+          <div class="top-meta">
+            <h1><b>{{topTrack.track.name}}</b></h1>
+            <h2>{{topTrack.track.artists[0].name}}</h2>
+            <h4>Played {{topTrack.timesPlayed}} times</h4>
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-container>
   <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
