@@ -51,8 +51,18 @@ mat-card {
 .mat-card .mat-divider-horizontal {
   position: inherit;
 }
-.context-card{
+
+.context-card {
   display: block;
+  width: 350px;
+  padding: 10px;
+}
+
+.lyrics-card {
+  display: block;
+  max-width: 75%;
+  margin: auto;
+  width: fit-content;
 }
 
 #featuresCard {

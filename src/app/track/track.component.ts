@@ -9,7 +9,6 @@ import {KeyHelper} from '../key-helper';
 import {StyleManagerService} from '../style-manager.service';
 import {HttpClient} from '@angular/common/http';
 import {StorageService} from '../storage.service';
-import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 
@@ -28,6 +27,7 @@ export class TrackComponent implements OnInit {
   didLoadContext = false;
   contextType = '';
   context: PlaylistObjectFull | AlbumObjectFull;
+  lyrics: string;
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, public sanitizer: DomSanitizer,
               private titleService: Title, private meta: Meta, private readonly styleService: StyleManagerService,
@@ -48,7 +48,17 @@ export class TrackComponent implements OnInit {
       this.meta.updateTag({property: 'og:description', content: this.track.name + ' by ' + this.track.artists[0].name});
       this.meta.updateTag({property: 'og:image', content: this.track.album.images[0].url});
       this.meta.updateTag({property: 'og:title', content: this.track.name + ' - SpotifyStats'});
-
+      this.http.get('https://api.happi.dev/v1/music?limit=1&apikey=9b41f9znvgFEpXr8UVmCQdtPNzHXrEBfxC6gEFChaoD8FedRoma6vyzA&type=track&q='
+        + value.artists[0].name + ' ' + value.name).subscribe(val => {
+        // @ts-ignore
+        if (val.length > 0) {
+          // @ts-ignore
+          this.http.get(val.result[0].api_lyrics + '?apikey=9b41f9znvgFEpXr8UVmCQdtPNzHXrEBfxC6gEFChaoD8FedRoma6vyzA').subscribe(lyrics => {
+            // @ts-ignore
+            this.lyrics = lyrics.result.lyrics;
+          });
+        }
+      });
     });
     this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => {
       this.trackAudioFeatures = value;

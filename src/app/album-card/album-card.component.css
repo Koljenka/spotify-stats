@@ -1,6 +1,8 @@
-mat-card {
-  max-width: 300px;
-  margin: 5px;
+.main-card {
+  width: 300px;
+  padding-left: 0;
+  padding-right: 0;
+  margin: auto;
 
   cursor: pointer;
   text-align: center;

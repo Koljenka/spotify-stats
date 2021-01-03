@@ -8,94 +8,104 @@
     </h3>
 
   </ng-container>
-  <div id="cardContainer" *ngIf="didLoadAudioFeatures && didLoadTrack">
-    <mat-card class="small-card">
-      <mat-card-content>
-        <audio preload="metadata" *ngIf="track.preview_url !== null" controls
-               [src]="sanitizer.bypassSecurityTrustUrl(track.preview_url)"></audio>
-        <div id="buttons"><a mat-raised-button color="accent" [href]="sanitizer.bypassSecurityTrustUrl(track.uri)">Open
-          in
-          Spotify</a>
-          <a mat-stroked-button target="_blank"
-             [href]="sanitizer.bypassSecurityTrustUrl(track.external_urls.spotify)">Open
-            in Browser</a></div>
-      </mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-content id="featuresCard">
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>music_note</mat-icon>
-            Key:&nbsp;<code>{{getKey(trackAudioFeatures.key)}}</code>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>graphic_eq</mat-icon>
-            Mode: {{getMode(trackAudioFeatures.mode)}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>speed</mat-icon>
-            Tempo: {{trackAudioFeatures.tempo | number:'1.0-0'}} bpm
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="!isSmallScreen()"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon>emoji_people</mat-icon>
-            Danceability: {{trackAudioFeatures.danceability | percent}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>flash_on</mat-icon>
-            Energy: {{trackAudioFeatures.energy | percent}}
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>mood</mat-icon>
-            Happiness: {{trackAudioFeatures.valence | percent}}
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="!isSmallScreen()"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <mat-icon inline matListIcon fontSet="fa" fontIcon="fa-guitar"></mat-icon>
-            <p>Acousticness<sup>
-              <mat-icon
-                matTooltip="A confidence measure from 0% to 100% of whether the track is acoustic. 100% represents high confidence the track is acoustic."
-                class="info-icon">info
-              </mat-icon>
-            </sup>: {{trackAudioFeatures.acousticness | percent}}</p>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>mic_off</mat-icon>
-            <p>Instrumentalness<sup>
-              <mat-icon
-                matTooltip="Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”. The closer the instrumentalness value is to 100%, the greater likelihood the track contains no vocal content. Values above 50% are intended to represent instrumental tracks, but confidence is higher as the value approaches 100%."
-                class="info-icon">info
-              </mat-icon>
-            </sup>: {{trackAudioFeatures.instrumentalness | percent}}</p>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon inline matListIcon>question_answer</mat-icon>
-            <p>Speechiness<sup>
-              <mat-icon
-                matTooltip="Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 100% the attribute value. Values above 66% describe tracks that are probably made entirely of spoken words. Values between 33% and 66% describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 33% most likely represent music and other non-speech-like tracks."
-                class="info-icon">info
-              </mat-icon>
-            </sup>: {{trackAudioFeatures.speechiness | percent}}</p>
-          </mat-list-item>
-        </mat-list>
-      </mat-card-content>
-    </mat-card>
-    <mat-card class="small-card">
-      <mat-card-content>
-        <img style="{{getSvgStyle()}}" [src]="getTabImgSrc(trackAudioFeatures.key, trackAudioFeatures.mode)">
-      </mat-card-content>
-    </mat-card>
-    <mat-card *ngIf="didLoadContext" class="context-card">
-      <mat-card-title>
-        Listened to in:
+  <div>
+    <div id="cardContainer" *ngIf="didLoadAudioFeatures && didLoadTrack">
+      <mat-card class="small-card">
+        <mat-card-content>
+          <audio preload="metadata" *ngIf="track.preview_url !== null" controls
+                 [src]="sanitizer.bypassSecurityTrustUrl(track.preview_url)"></audio>
+          <div id="buttons"><a mat-raised-button color="accent" [href]="sanitizer.bypassSecurityTrustUrl(track.uri)">Open
+            in
+            Spotify</a>
+            <a mat-stroked-button target="_blank"
+               [href]="sanitizer.bypassSecurityTrustUrl(track.external_urls.spotify)">Open
+              in Browser</a></div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-content id="featuresCard">
+          <mat-list>
+            <mat-list-item>
+              <mat-icon inline matListIcon>music_note</mat-icon>
+              Key:&nbsp;<code>{{getKey(trackAudioFeatures.key)}}</code>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>graphic_eq</mat-icon>
+              Mode: {{getMode(trackAudioFeatures.mode)}}
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>speed</mat-icon>
+              Tempo: {{trackAudioFeatures.tempo | number:'1.0-0'}} bpm
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [vertical]="!isSmallScreen()"></mat-divider>
+          <mat-list>
+            <mat-list-item>
+              <mat-icon inline matListIcon>emoji_people</mat-icon>
+              Danceability: {{trackAudioFeatures.danceability | percent}}
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>flash_on</mat-icon>
+              Energy: {{trackAudioFeatures.energy | percent}}
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>mood</mat-icon>
+              Happiness: {{trackAudioFeatures.valence | percent}}
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [vertical]="!isSmallScreen()"></mat-divider>
+          <mat-list>
+            <mat-list-item>
+              <mat-icon inline matListIcon fontSet="fa" fontIcon="fa-guitar"></mat-icon>
+              <p>Acousticness<sup>
+                <mat-icon
+                  matTooltip="A confidence measure from 0% to 100% of whether the track is acoustic. 100% represents high confidence the track is acoustic."
+                  class="info-icon">info
+                </mat-icon>
+              </sup>: {{trackAudioFeatures.acousticness | percent}}</p>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>mic_off</mat-icon>
+              <p>Instrumentalness<sup>
+                <mat-icon
+                  matTooltip="Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”. The closer the instrumentalness value is to 100%, the greater likelihood the track contains no vocal content. Values above 50% are intended to represent instrumental tracks, but confidence is higher as the value approaches 100%."
+                  class="info-icon">info
+                </mat-icon>
+              </sup>: {{trackAudioFeatures.instrumentalness | percent}}</p>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon inline matListIcon>question_answer</mat-icon>
+              <p>Speechiness<sup>
+                <mat-icon
+                  matTooltip="Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 100% the attribute value. Values above 66% describe tracks that are probably made entirely of spoken words. Values between 33% and 66% describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 33% most likely represent music and other non-speech-like tracks."
+                  class="info-icon">info
+                </mat-icon>
+              </sup>: {{trackAudioFeatures.speechiness | percent}}</p>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="small-card">
+        <mat-card-content>
+          <img style="{{getSvgStyle()}}" [src]="getTabImgSrc(trackAudioFeatures.key, trackAudioFeatures.mode)">
+        </mat-card-content>
+      </mat-card>
+      <mat-card *ngIf="didLoadContext" class="context-card">
+        <mat-card-title>
+          Listened to in:
+        </mat-card-title>
+        <mat-card-content>
+          <app-playlist-card *ngIf="contextType === 'playlist'" [playlist]="context"></app-playlist-card>
+          <app-album-card *ngIf="contextType === 'album'" [album]="context"></app-album-card>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <mat-card class="lyrics-card" *ngIf="lyrics != null">
+      <mat-card-title style="margin-bottom: 25px">
+        Lyrics
       </mat-card-title>
       <mat-card-content>
-        <app-playlist-card *ngIf="contextType === 'playlist'" [playlist]="context"></app-playlist-card>
-        <app-album-card *ngIf="contextType === 'album'" [album]="context"></app-album-card>
+        <pre>{{lyrics}}</pre>
       </mat-card-content>
     </mat-card>
   </div>
