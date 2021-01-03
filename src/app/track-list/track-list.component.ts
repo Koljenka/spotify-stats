@@ -23,6 +23,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() displayedColumns: string[];
   @Input() showSpinner = true;
+  @Input() initialSort = 'played_at';
   data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>();
 
   trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull| AlbumTrackObject)[] = [];

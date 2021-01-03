@@ -6,7 +6,7 @@
     </mat-label>
     <input autocomplete="off" name="search" (input)="onSearchChanged($event)" [value]="search" matInput>
   </mat-form-field>
-  <table mat-table matSort (matSortChange)="sortData($event)" [dataSource]="dataSource">
+  <table mat-table matSort [matSortActive]="initialSort" matSortDirection="desc" (matSortChange)="sortData($event)" [dataSource]="dataSource">
 
     <ng-container #title matColumnDef="title">
       <th mat-header-cell mat-sort-header="title" *matHeaderCellDef>Title</th>
