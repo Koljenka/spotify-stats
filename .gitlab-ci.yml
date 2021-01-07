@@ -12,6 +12,6 @@ build_angular:
 
 build_image:
   stage: build
-  only: [tag]
+  only: [tags]
   script:
     - docker build -t spotify-stats:$CI_COMMIT_TAG docker
