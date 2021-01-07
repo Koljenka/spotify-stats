@@ -11,6 +11,7 @@ import {HttpClient} from '@angular/common/http';
 import {StorageService} from '../storage.service';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-track-view',
@@ -73,7 +74,7 @@ export class TrackComponent implements OnInit {
   }
 
   getContextsOfTrack(): void {
-    this.http.post('https://kolkie.de/spotify-playback-api/contextOfTrack', {
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/contextOfTrack', {
       access_token: StorageService.accessToken,
       track_id: this.trackId
     }).subscribe(value => {

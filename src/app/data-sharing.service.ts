@@ -8,6 +8,7 @@ import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ContextObjectType = SpotifyApi.ContextObjectType;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
+import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -51,19 +52,20 @@ export class DataSharingService {
 
 
   loadPlaybackHistory(): void {
-    this.http.post('https://kolkie.de/spotify-playback-api/history', {access_token: StorageService.accessToken}).subscribe(value => {
-      const playbackHistory = value as PlaybackHistory[];
-      this.getContexts(playbackHistory).then(contexts => {
-        this.contexts = contexts;
-        this.historyLength = playbackHistory.length;
-        for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {
-          const trackIds = playbackHistory.slice(i * 50, (i + 1) * 50);
-          if (trackIds.length > 0) {
-            this.getTracks(trackIds);
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
+      .subscribe(value => {
+        const playbackHistory = value as PlaybackHistory[];
+        this.getContexts(playbackHistory).then(contexts => {
+          this.contexts = contexts;
+          this.historyLength = playbackHistory.length;
+          for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {
+            const trackIds = playbackHistory.slice(i * 50, (i + 1) * 50);
+            if (trackIds.length > 0) {
+              this.getTracks(trackIds);
+            }
           }
-        }
+        });
       });
-    });
   }
 
 

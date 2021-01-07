@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {DataSharingService} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
@@ -6,6 +6,7 @@ import {StorageService} from '../storage.service';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-history-stats',
@@ -37,11 +38,12 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   getTopSongs(): void {
-    this.http.post('https://kolkie.de/spotify-playback-api/top', {access_token: StorageService.accessToken}).subscribe(value => {
-      this.api.getApi().getTrack(value[0].trackid).then(topTrack => {
-        this.topTrack = {track: topTrack, timesPlayed: value[0].c};
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/top', {access_token: StorageService.accessToken})
+      .subscribe(value => {
+        this.api.getApi().getTrack(value[0].trackid).then(topTrack => {
+          this.topTrack = {track: topTrack, timesPlayed: value[0].c};
+        });
       });
-    });
   }
 
   getTotalsPlays(): number {

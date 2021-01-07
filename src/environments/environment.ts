@@ -12,7 +12,8 @@ export const environment = {
     authUrl: 'https://accounts.spotify.com/authorize',
     tokenUrl: 'https://accounts.spotify.com/api/token',
     apiBasePath: 'https://api.spotify.com/v1',
-    assetsBasePath: 'http://localhost:4200/assets/'
+    assetsBasePath: 'http://localhost:4200/assets/',
+    playbackApiBasePath: 'https://kolkie.de/spotify-playback-api'
   }
 };
 
