@@ -1,3 +1,5 @@
+image: kojenka/spotify-stats-runner:latest
+
 stages:
   - build
   - deploy
@@ -5,6 +7,7 @@ stages:
 build_angular:
   stage: build
   script:
+    - npm install
     - npm run docker
 
 build_image:
