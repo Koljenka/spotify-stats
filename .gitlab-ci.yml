@@ -2,6 +2,7 @@ image: kojenka/spotify-stats-runner:latest
 
 stages:
   - build
+  - staging
   - deploy
 
 build_angular:
@@ -9,9 +10,15 @@ build_angular:
   script:
     - npm install
     - npm run docker
+  artifacts:
+    paths:
+      - ./docker
 
 build_image:
-  stage: build
+  stage: staging
   only: [tags]
   script:
     - docker build -t spotify-stats:$CI_COMMIT_TAG docker
+  needs:
+    - job: build_angular
+      artifacts: true
