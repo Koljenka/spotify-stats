@@ -8,6 +8,7 @@ import {BreakpointObserver} from '@angular/cdk/layout';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
 import {environment} from '../../environments/environment';
+import { version } from '../../../package.json';
 
 @Component({
   selector: 'app-overview',
@@ -16,6 +17,7 @@ import {environment} from '../../environments/environment';
 })
 export class OverviewComponent implements OnInit {
   title = 'Spotify Stats';
+  version: string = version;
   username = '';
   requestedUsername = false;
   options: Array<Option> = options;
