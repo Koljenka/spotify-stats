@@ -1,4 +1,4 @@
-image: kojenka/spotify-stats-runner:latest
+image: node:14.5.0
 
 stages:
   - build
@@ -19,7 +19,6 @@ build_image:
   stage: staging
   only: [tags]
   script:
-    - service docker start
     - docker build -t spotify-stats:$CI_COMMIT_TAG docker
   needs:
     - job: build_angular
