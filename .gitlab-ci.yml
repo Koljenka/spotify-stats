@@ -15,6 +15,7 @@ build_angular:
       - ./docker
 
 build_image:
+  image: docker:dind
   stage: staging
   only: [tags]
   script:
