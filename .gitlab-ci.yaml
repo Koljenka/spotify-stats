@@ -1,0 +1,19 @@
+stages:
+  - build
+  - deploy
+
+build_angular:
+  stage: build
+  script:
+    - npm run docker
+  artifacts:
+    - docker
+
+build_image:
+  stage: build
+  only: tag
+  script:
+    - docker build -t spotify-stats:$CI_COMMIT_TAG docker
+  needs:
+    - job: build_angular
+      artifacts: true
