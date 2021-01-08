@@ -7,8 +7,9 @@ stages:
 
 build_angular:
   stage: build
-  script:
+  before_script:
     - npm install
+  script:
     - npm run docker
   artifacts:
     paths:
@@ -17,6 +18,8 @@ build_angular:
 lint:
   stage: lint
   allow_failure: true
+  before_script:
+    - npm install
   script:
     - npm run lint
 
