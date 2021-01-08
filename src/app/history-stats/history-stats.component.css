@@ -6,6 +6,7 @@
 }
 
 .top-lists {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
@@ -13,26 +14,37 @@
 }
 
 .top-column {
-  border: 2px solid;
   width: 60vw;
   height: 120vw;
-  margin-bottom: 20px;
+  margin-bottom: 6vw;
 }
 
 .top-card {
+  padding: 0;
   width: 60vw;
   height: 60vw;
   position: relative;
+  cursor: pointer;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .top-card > .image {
   background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   width: 100%;
   height: 100%;
 }
 
 .top-meta {
-  padding-left: 5px;
+  padding-left: 10px;
   text-align: left;
   position: absolute;
   left: 0;
@@ -52,17 +64,120 @@
   font-weight: lighter;
 }
 
+.list-item {
+  padding: 0;
+  width: 100%;
+  margin-top: 2vw;
+  height: 13vw;
+  position: relative;
+  text-align: left;
+  cursor: pointer;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.list-item-image {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 13vw;
+  width: 13vw;
+}
+
+.runner-up-meta {
+  position: absolute;
+  left: calc(13vw + 10px);
+  top: calc((13vw - 52px) / 2);
+  max-width: calc(40vw - 10px);
+}
+
+#topArtistsColumn .runner-up-meta {
+  top: calc((13vw - 28px) / 2);
+}
+
+#topContextColumn .runner-up-meta {
+  top: calc((13vw - 28px) / 2);
+}
+
+#topArtistsColumn .list-item-image {
+  height: 11vw;
+  width: 11vw;
+  border-radius: 11vw;
+  margin: 1vw;
+}
+
+.runner-up-meta > h3 {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.runner-up-meta > h4 {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: lighter;
+}
+
+.list-item > h5 {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  margin: 0;
+  font-weight: normal;
+}
+
 @media (min-width: 1000px) {
   .top-column {
-    border: 2px solid;
-    width: 25vw;
-    height: 50vw;
+    width: 20vw;
+    height: 40vw;
+    margin-bottom: 20px;
   }
 
   .top-card {
-    width: 25vw;
-    height: 25vw;
-    position: relative;
+    width: 20vw;
+    height: 20vw;
+  }
+
+  .list-item {
+    margin-top: 1vw;
+    height: 4vw;
+  }
+
+  .list-item-image {
+    height: 4vw;
+    width: 4vw;
+  }
+
+  .runner-up-meta {
+    left: calc(4vw + 10px);
+    top: calc((4vw - 52px) / 2);
+    max-width: calc(16vw - 10px);
+  }
+
+  #topArtistsColumn .runner-up-meta {
+    top: calc((4vw - 28px) / 2);
+  }
+
+  #topContextColumn .runner-up-meta {
+    top: calc((4vw - 28px) / 2);
+  }
+
+  #topArtistsColumn .list-item-image {
+    height: 3vw;
+    width: 3vw;
+    border-radius: 3vw;
+    margin: 0.5vw;
+
   }
 }
 
