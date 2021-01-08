@@ -23,7 +23,7 @@ export class StyleManagerService {
   }
 
   isDarkStyleActive(): boolean {
-    const currentTheme = getLinkElementForKey('theme').getAttribute('href').match(/(?<=assets\/).*/)[0]
+    const currentTheme = getLinkElementForKey('theme').getAttribute('href').match(/(?<=assets\/).*/)[0];
     return currentTheme === 'pink-bluegrey.css' || currentTheme === 'purple-green.css';
   }
 }
@@ -37,7 +37,6 @@ function getExistingLinkElementByKey(key: string): Element | null {
     `link[rel="stylesheet"].${getClassNameForKey(key)}`
   );
 }
-
 
 
 function createLinkElementWithKey(key: string): HTMLLinkElement {
