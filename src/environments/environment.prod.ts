@@ -9,6 +9,7 @@ export const environment = {
     tokenUrl: 'https://accounts.spotify.com/api/token',
     apiBasePath: 'https://api.spotify.com/v1',
     assetsBasePath: 'https://kolkie.de/spotify-stats/assets/',
-    playbackApiBasePath: 'https://kolkie.de/spotify-playback-api'
+    playbackApiBasePath: 'https://kolkie.de/spotify-playback-api',
+    avgColorApiBasePath: 'https://kolkie.de/avg-color-api'
   }
 };

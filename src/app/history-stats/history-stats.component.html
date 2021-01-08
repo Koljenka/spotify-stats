@@ -6,7 +6,8 @@
       <div class="top-column" #topSongs>
         <div class="top-card" *ngIf="topTrack != null">
           <div class="image"
-               style="background-image: linear-gradient( rgba(101, 136, 144,0), rgba(101, 136, 144,1) ), url({{topTrack.track.album.images[0].url}});"></div>
+               style="background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
+               rgba({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 1) ), url({{topTrack.track.album.images[0].url}});"></div>
           <div class="top-meta">
             <h1><b>{{topTrack.track.name}}</b></h1>
             <h2>{{topTrack.track.artists[0].name}}</h2>

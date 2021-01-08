@@ -17,6 +17,7 @@ export class HistoryStatsComponent implements OnInit {
   playbackHistory: PlayHistoryObjectFull[];
   didLoadTracks = false;
   topTrack: CountedTrackObject;
+  topTrackAvgColor: { r: number, g: number, b: number };
 
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
@@ -42,8 +43,16 @@ export class HistoryStatsComponent implements OnInit {
       .subscribe(value => {
         this.api.getApi().getTrack(value[0].trackid).then(topTrack => {
           this.topTrack = {track: topTrack, timesPlayed: value[0].c};
+          this.getTopTrackAvgColor();
         });
       });
+  }
+
+  getTopTrackAvgColor(): void {
+    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '?img=' + this.topTrack.track.album.images[0].url).subscribe(value => {
+      // @ts-ignore
+      this.topTrackAvgColor = value;
+    });
   }
 
   getTotalsPlays(): number {
