@@ -166,7 +166,6 @@ export class HistoryStatsComponent implements OnInit {
   getTotalsPlays(): number {
     return this.playbackHistory.length;
   }
-
 }
 
 export interface CountedTrackObject {

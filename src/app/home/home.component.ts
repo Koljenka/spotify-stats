@@ -4,9 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
-import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 import {Title} from '@angular/platform-browser';
-import {StorageService} from '../storage.service';
 
 
 @Component({
@@ -17,7 +15,6 @@ import {StorageService} from '../storage.service';
 export class HomeComponent implements OnInit {
 
   playlists: SpotifyApi.PlaylistObjectSimplified[];
-
 
   constructor(private route: ActivatedRoute, private api: ApiConnectionService, private titleService: Title,
               public http: HttpClient, public cookie: CookieService, private router: Router) {
@@ -39,8 +36,6 @@ export class HomeComponent implements OnInit {
       }
     }
   }
-
-
 
   authorize(): void {
     const scopes = 'ugc-image-upload%20user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20streaming%20app-remote-control%20user-read-email' +

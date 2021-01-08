@@ -1,9 +1,9 @@
 {
   "name": "spotify-stats",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --disableHostCheck",
+    "start": "ng serve",
     "build": "ng build",
     "prod": "ng build --prod --base-href /spotify-stats/",
     "docker": "ng build --prod --base-href /spotify-stats/ --output-path ./docker/dist/spotify-stats",

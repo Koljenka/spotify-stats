@@ -1,5 +1,6 @@
 <div class="wrapper">
-  <button mat-raised-button color="accent" *ngIf="!cookie.isLoggedIn()" (click)="authorize()" class="button">Login
+  <button mat-raised-button color="accent" *ngIf="!cookie.isLoggedIn()" (click)="authorize()" class="button">
+    Login
   </button>
   <div *ngIf="cookie.isLoggedIn()" class="main-content">
     <app-playlist-card *ngFor="let playlist of playlists" [playlist]="playlist"></app-playlist-card>
