@@ -28,7 +28,7 @@
         <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor != null">
           <mat-card mat-ripple [routerLink]="['/album-track-list', topAlbums[0].album.id]" class="top-card">
             <div class="image"
-                 style="background-image: linear-gradient( rgba( {{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 0),
+                 style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 0),
                rgba({{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 1) ), url({{topAlbums[0].album.images[0].url}});"></div>
             <div class="top-meta">
               <h1><b>{{topAlbums[0].album.name}}</b></h1>
@@ -53,7 +53,7 @@
         <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor != null">
           <mat-card mat-ripple [routerLink]="['/track', topTracks[0].track.id]" class="top-card">
             <div class="image"
-                 style="background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
+                 style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
                rgba({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 1) ), url({{topTracks[0].track.album.images[0].url}});"></div>
             <div class="top-meta">
               <h1><b>{{topTracks[0].track.name}}</b></h1>
@@ -77,7 +77,7 @@
         <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor != null">
           <mat-card mat-ripple [routerLink]="getContextRouterLink(topContexts[0].context)" class="top-card">
             <div class="image"
-                 style="background-image: linear-gradient( rgba( {{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 0),
+                 style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 0),
                rgba({{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 1) ), url({{topContexts[0].context.content.images[0].url}});"></div>
             <div class="top-meta">
               <h1><b>{{topContexts[0].context.content.name}}</b></h1>
@@ -98,6 +98,7 @@
         </ng-container>
       </div>
     </div>
+    <mat-divider></mat-divider>
   </ng-container>
   <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>

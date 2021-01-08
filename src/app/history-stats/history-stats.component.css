@@ -1,8 +1,5 @@
 .wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-content: flex-start;
+  display: block;
 }
 
 .top-lists {
@@ -44,6 +41,7 @@
 }
 
 .top-meta {
+  color: white;
   padding-left: 10px;
   text-align: left;
   position: absolute;
@@ -134,6 +132,11 @@
   bottom: 5px;
   margin: 0;
   font-weight: normal;
+}
+
+mat-divider {
+  width: 98vw;
+  border-top-width: 2px;
 }
 
 @media (min-width: 1000px) {
