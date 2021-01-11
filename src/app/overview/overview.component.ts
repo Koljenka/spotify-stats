@@ -9,6 +9,9 @@ import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
 import {environment} from '../../environments/environment';
 import {version} from '../../../package.json';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Base64} from 'js-base64';
+import {interval, Observable} from 'rxjs';
 
 @Component({
   selector: 'app-overview',
@@ -24,7 +27,11 @@ export class OverviewComponent implements OnInit {
   selectedTheme: Option;
 
   constructor(private readonly styleManager: StyleManagerService, public breakpointObserver: BreakpointObserver,
-              private api: ApiConnectionService, public router: Router, public cookie: CookieService) {
+              private api: ApiConnectionService, public router: Router, public cookie: CookieService, private http: HttpClient) {
+    this.checkToken();
+    setInterval(() => {
+      this.checkToken();
+    }, 60000);
   }
 
   ngOnInit(): void {
@@ -54,6 +61,25 @@ export class OverviewComponent implements OnInit {
     StorageService.refreshToken = StorageService.accessToken = '';
     this.cookie.deleteCookie('isLoggedIn');
     this.redirect();
+  }
+
+  private checkToken(): void {
+    if (Date.now() >= StorageService.expiresAt) {
+      this.requestRefreshToken();
+    }
+  }
+
+  private requestRefreshToken(): void {
+    const opt = {
+      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+        .append('Authorization', 'Basic ' + Base64.encode(this.api.clientId + ':' + this.api.clientSecret))
+    };
+    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
+      StorageService.refreshToken, opt).toPromise().then(response => {
+      StorageService.expiresAt = Date.now() + 2400000;
+      // @ts-ignore
+      StorageService.accessToken = response.access_token;
+    });
   }
 
 

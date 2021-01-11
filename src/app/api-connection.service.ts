@@ -41,16 +41,8 @@ export class ApiConnectionService {
     return environment.APP_SETTINGS.clientName;
   }
 
-  interval: Observable<number>;
-
   private constructor(private http: HttpClient) {
-    this.checkToken();
-    if (this.interval === null || this.interval === undefined) {
-      this.interval = interval(600000);
-      this.interval.subscribe(() => {
-        this.checkToken();
-      });
-    }
+
   }
 
   private api: SpotifyWebApi.SpotifyWebApiJs = null;
@@ -67,24 +59,7 @@ export class ApiConnectionService {
     return this.api;
   }
 
-  private checkToken(): void {
-    if (Date.now() >= StorageService.expiresAt) {
-      this.requestRefreshToken();
-    }
-  }
 
-  private requestRefreshToken(): void {
-    const options = {
-      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-        .append('Authorization', 'Basic ' + Base64.encode(this.clientId + ':' + this.clientSecret))
-    };
-    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
-      StorageService.refreshToken, options).toPromise().then(response => {
-      StorageService.expiresAt = Date.now() + 2940000;
-      // @ts-ignore
-      StorageService.accessToken = response.access_token;
-    });
-  }
 
 
 }
