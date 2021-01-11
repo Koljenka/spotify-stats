@@ -25,6 +25,8 @@ app-overview {
 app-overview > .ng-star-inserted {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  height: 100%;
+  width: 100%;
 }
 
 .mat-header-cell {
