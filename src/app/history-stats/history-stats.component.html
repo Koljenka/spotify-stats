@@ -12,7 +12,7 @@
               <h4>Played {{topArtists[0].timesPlayed}} times</h4>
             </div>
           </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topArtists.slice(1)"
+          <mat-card mat-ripple *ngFor="let runnerUp of topArtists.slice(1); trackBy:trackByFunction"
                     [routerLink]="['/album-track-list', runnerUp.artist.id]"
                     class="list-item">
             <div style="background-image: url({{runnerUp.artist.images[0].url}})" class="list-item-image"></div>
@@ -36,7 +36,7 @@
               <h4>Played {{topAlbums[0].timesPlayed}} times</h4>
             </div>
           </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topAlbums.slice(1)"
+          <mat-card mat-ripple *ngFor="let runnerUp of topAlbums.slice(1); trackBy:trackByFunction"
                     [routerLink]="['/album-track-list', runnerUp.album.id]"
                     class="list-item">
             <div style="background-image: url({{runnerUp.album.images[0].url}})" class="list-item-image"></div>
@@ -61,7 +61,8 @@
               <h4>Played {{topTracks[0].timesPlayed}} times</h4>
             </div>
           </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topTracks.slice(1)" [routerLink]="['/track', runnerUp.track.id]"
+          <mat-card mat-ripple *ngFor="let runnerUp of topTracks.slice(1); trackBy:trackByFunction"
+                    [routerLink]="['/track', runnerUp.track.id]"
                     class="list-item">
             <div style="background-image: url({{runnerUp.track.album.images[0].url}})" class="list-item-image"></div>
             <div class="runner-up-meta">
@@ -84,7 +85,7 @@
               <h4>Played {{topContexts[0].timesPlayed}} times</h4>
             </div>
           </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topContexts.slice(1)"
+          <mat-card mat-ripple *ngFor="let runnerUp of topContexts.slice(1); trackBy:trackByFunction"
                     [routerLink]="getContextRouterLink(runnerUp.context)"
                     class="list-item">
             <div style="background-image: url({{runnerUp.context.content.images[0].url}})"

@@ -11,15 +11,15 @@
 }
 
 .top-column {
-  width: 60vw;
-  height: 120vw;
-  margin-bottom: 6vw;
+  width: 75vw;
+  height: 150vw;
+  margin-bottom: 10vw;
 }
 
 .top-card {
   padding: 0;
-  width: 60vw;
-  height: 60vw;
+  width: 75vw;
+  height: 75vw;
   position: relative;
   cursor: pointer;
 
@@ -66,7 +66,7 @@
   padding: 0;
   width: 100%;
   margin-top: 2vw;
-  height: 13vw;
+  height: 17vw;
   position: relative;
   text-align: left;
   cursor: pointer;
@@ -84,30 +84,31 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  height: 13vw;
-  width: 13vw;
+  height: 17vw;
+  width: 17vw;
 }
 
 .runner-up-meta {
   position: absolute;
-  left: calc(13vw + 10px);
-  top: calc((13vw - 52px) / 2);
-  max-width: calc(40vw - 10px);
+  left: calc(17vw + 10px);
+  top: calc((17vw - 52px) / 2);
+  max-width: calc(55vw - 10px);
 }
 
 #topArtistsColumn .runner-up-meta {
-  top: calc((13vw - 28px) / 2);
+  top: calc((17vw - 28px) / 2);
 }
 
 #topContextColumn .runner-up-meta {
-  top: calc((13vw - 28px) / 2);
+  top: calc((17vw - 28px) / 2);
 }
 
 #topArtistsColumn .list-item-image {
-  height: 11vw;
-  width: 11vw;
-  border-radius: 11vw;
+  height: 15vw;
+  width: 15vw;
+  border-radius: 15vw;
   margin: 1vw;
+  background-size: cover;
 }
 
 .runner-up-meta > h3 {

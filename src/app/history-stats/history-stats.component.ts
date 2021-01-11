@@ -166,6 +166,20 @@ export class HistoryStatsComponent implements OnInit {
   getTotalsPlays(): number {
     return this.playbackHistory.length;
   }
+
+  // tslint:disable-next-line:typedef
+  trackByFunction(index, item) {
+    if ('artist' in item) {
+      return item.artist.id;
+    } else if ('album' in item) {
+      return item.album.id;
+    } else if ('track' in item) {
+      return item.track.id;
+    } else if ('context' in item) {
+      return item.context.contextUri;
+    }
+    return index;
+  }
 }
 
 export interface CountedTrackObject {
