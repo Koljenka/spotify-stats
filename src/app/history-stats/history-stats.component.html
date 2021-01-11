@@ -102,6 +102,6 @@
   </ng-container>
   <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
-    <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.0-0'}}%</sub>
+    <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.2-2'}}%</sub>
   </div>
 </div>
