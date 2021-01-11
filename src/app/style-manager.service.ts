@@ -8,8 +8,9 @@ export class StyleManagerService {
   /**
    * Set the stylesheet with the specified key.
    */
-  setStyle(href: string): void {
+  setStyle(href: string, themeColor: string): void {
     getLinkElementForKey('theme').setAttribute('href', href);
+    setThemeColorMetaValue(themeColor);
   }
 
   /**
@@ -45,6 +46,11 @@ function createLinkElementWithKey(key: string): HTMLLinkElement {
   linkEl.classList.add(getClassNameForKey(key));
   document.head.appendChild(linkEl);
   return linkEl;
+}
+
+function setThemeColorMetaValue(color: string): void {
+  const metaEl = document.head.querySelector(`meta[name="theme-color"]`);
+  metaEl.setAttribute('content', color);
 }
 
 function getClassNameForKey(key: string): string {

@@ -28,13 +28,18 @@ export class OverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.styleManager.setStyle(environment.APP_SETTINGS.assetsBasePath + StorageService.theme + '.css');
+    let theme = options.find(val => val.value = StorageService.theme);
+    if (theme == null) {
+      theme = options[0];
+    }
+    this.selectedTheme = theme;
+    this.styleManager.setStyle(environment.APP_SETTINGS.assetsBasePath + StorageService.theme + '.css', theme.headingColor);
   }
 
   themeChangeHandler(themeToSet: Option): void {
     this.selectedTheme = themeToSet;
     StorageService.theme = themeToSet.value;
-    this.styleManager.setStyle(`${environment.APP_SETTINGS.assetsBasePath}${themeToSet.value}.css`);
+    this.styleManager.setStyle(`${environment.APP_SETTINGS.assetsBasePath}${themeToSet.value}.css`, themeToSet.headingColor);
   }
 
   getUserName(): string {
