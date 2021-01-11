@@ -100,7 +100,6 @@ export class DataSharingService {
     const playlists: string[] = [];
     const albums: string[] = [];
     const artists: string[] = [];
-    const contexts: ContextObjectFull[] = [];
     const promises = [];
     historyTracks.forEach(historyTrack => {
       if (historyTrack.contexturi?.match(/(?<=spotify:playlist:)\w*/) && !playlists.includes(historyTrack.contexturi)) {
@@ -114,34 +113,48 @@ export class DataSharingService {
     });
     for (const playlistUri of playlists) {
       const playlistId = playlistUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
-      promises.push(
-        this.api.getApi().getPlaylist(playlistId).then(playlist => {
-          contexts.push({contextType: 'playlist', contextUri: playlistUri, content: playlist});
-          this.loadedContexts = contexts.length;
-        }).catch(console.log));
+      promises.push(this.getPlaylist(playlistId, playlistUri));
     }
     for (const albumUri of albums) {
       const albumId = albumUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
-      promises.push(
-        this.api.getApi().getAlbum(albumId).then(album => {
-          contexts.push({contextType: 'album', contextUri: albumUri, content: album});
-          this.loadedContexts = contexts.length;
-        }).catch(console.log));
+      promises.push(this.getAlbum(albumId, albumUri));
     }
     for (const artistUri of artists) {
       const artistId = artistUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
-      promises.push(
-        this.api.getApi().getArtist(artistId).then(artist => {
-          contexts.push({contextType: 'artist', contextUri: artistUri, content: artist});
-          this.loadedContexts = contexts.length;
-        }).catch(console.log));
+      promises.push(this.getArtist(artistId, artistUri));
     }
 
     return Promise.all(promises).then(() => {
-      return Promise.resolve(contexts);
+      return Promise.resolve(this.contexts);
     });
   }
 
+  private getArtist(artistId: string, artistUri: string): Promise<void> {
+    return this.api.getApi().getArtist(artistId).then(artist => {
+      this.contexts.push({contextType: 'artist', contextUri: artistUri, content: artist});
+      this.loadedContexts = this.contexts.length;
+    }).catch(() => {
+      return this.getArtist(artistId, artistUri);
+    });
+  }
+
+  private getAlbum(albumId: string, albumUri: string): Promise<void> {
+    return this.api.getApi().getAlbum(albumId).then(album => {
+      this.contexts.push({contextType: 'album', contextUri: albumUri, content: album});
+      this.loadedContexts = this.contexts.length;
+    }).catch(() => {
+      return this.getAlbum(albumId, albumUri);
+    });
+  }
+
+  private getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
+    return this.api.getApi().getPlaylist(playlistId).then(playlist => {
+      this.contexts.push({contextType: 'playlist', contextUri: playlistUri, content: playlist});
+      this.loadedContexts = this.contexts.length;
+    }).catch(() => {
+      return this.getPlaylist(playlistId, playlistUri);
+    });
+  }
 }
 
 export interface ContextObjectFull {
