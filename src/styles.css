@@ -61,4 +61,10 @@ app-overview > .ng-star-inserted {
     height: calc(100vh - 56px);
     top: 56px;
   }
+
+  app-overview > .ng-star-inserted {
+    overflow-y: visible;
+    height: 100%;
+    width: 100%;
+  }
 }
