@@ -35,7 +35,7 @@ export class CallbackComponent implements OnInit {
     StorageService.expiresAt = Date.now() + 2400000;
     StorageService.accessToken = response.access_token;
     StorageService.refreshToken = response.refresh_token;
-    this.cookie.setCookie('isLoggedIn', 'true', 1 / 12, '');
+    this.cookie.setCookie('isLoggedIn', 'true', 365, '');
     this.api.getApi();
 
     if (StorageService.redirect !== null && StorageService.redirect !== undefined) {
