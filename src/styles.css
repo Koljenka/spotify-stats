@@ -7,12 +7,11 @@
 
 html,
 body {
-  height: calc(100vh - 64px);
-  width: 100%;
-  overflow: auto;
+  margin: 0;
 }
 
-body{
+app-overview {
+  display: flex;
   margin: 0;
   flex-direction: column;
   position: absolute;
@@ -20,8 +19,12 @@ body{
   bottom: 0;
   left: 0;
   right: 0;
-  font-family: Roboto, 'lucida grande',verdana,helvetica,arial,sans-serif;
+  font-family: Roboto, 'lucida grande', verdana, helvetica, arial, sans-serif;
+}
 
+app-overview > .ng-star-inserted {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mat-header-cell {

@@ -39,7 +39,12 @@ export class StorageService {
   }
 
   static get theme(): string {
-    return (localStorage.getItem('theme') === null) ? 'indigo-pink' : localStorage.getItem('theme');
+    if (localStorage.getItem('theme') === null) {
+      localStorage.setItem('theme', 'indigo-pink');
+      return 'indigo-pink';
+    } else {
+      return localStorage.getItem('theme');
+    }
   }
 
   static set theme(value) {
