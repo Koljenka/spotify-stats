@@ -57,7 +57,7 @@ app-overview > .ng-star-inserted {
 }
 
 @media (max-width: 599px) {
-  body {
+  app-overview {
     height: calc(100vh - 56px);
     top: 56px;
   }
