@@ -4,11 +4,11 @@ import {StorageService} from './storage.service';
 import {PlaybackHistory, PlayHistoryObjectFull} from './track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from './api-connection.service';
+import {environment} from '../environments/environment';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ContextObjectType = SpotifyApi.ContextObjectType;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
-import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,8 @@ export class DataSharingService {
   private historyLength = 0;
   private didStartLoading = false;
   private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
+  private totalContextCount = 0;
+  private loadedContexts = 0;
 
   get playbackHistory(): Observable<PlayHistoryObjectFull[]> {
     if ((this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
@@ -32,10 +34,10 @@ export class DataSharingService {
   }
 
   get historyLoadingProgress(): number {
-    if (this.historyLength === 0) {
+    if (this.historyLength + this.loadedContexts === 0) {
       return 0;
     } else {
-      return this.savedTracks.length / this.historyLength;
+      return (this.savedTracks.length + this.loadedContexts) / (this.historyLength + this.totalContextCount);
     }
   }
 
@@ -55,9 +57,9 @@ export class DataSharingService {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
         const playbackHistory = value as PlaybackHistory[];
+        this.historyLength = playbackHistory.length;
         this.getContexts(playbackHistory).then(contexts => {
           this.contexts = contexts;
-          this.historyLength = playbackHistory.length;
           for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {
             const trackIds = playbackHistory.slice(i * 50, (i + 1) * 50);
             if (trackIds.length > 0) {
@@ -108,12 +110,14 @@ export class DataSharingService {
       } else if (historyTrack.contexturi?.match(/(?<=spotify:artist:)\w*/) && !artists.includes(historyTrack.contexturi)) {
         artists.push(historyTrack.contexturi);
       }
+      this.totalContextCount = playlists.length + albums.length + artists.length;
     });
     for (const playlistUri of playlists) {
       const playlistId = playlistUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
       promises.push(
         this.api.getApi().getPlaylist(playlistId).then(playlist => {
           contexts.push({contextType: 'playlist', contextUri: playlistUri, content: playlist});
+          this.loadedContexts = contexts.length;
         }).catch(console.log));
     }
     for (const albumUri of albums) {
@@ -121,6 +125,7 @@ export class DataSharingService {
       promises.push(
         this.api.getApi().getAlbum(albumId).then(album => {
           contexts.push({contextType: 'album', contextUri: albumUri, content: album});
+          this.loadedContexts = contexts.length;
         }).catch(console.log));
     }
     for (const artistUri of artists) {
@@ -128,6 +133,7 @@ export class DataSharingService {
       promises.push(
         this.api.getApi().getArtist(artistId).then(artist => {
           contexts.push({contextType: 'artist', contextUri: artistUri, content: artist});
+          this.loadedContexts = contexts.length;
         }).catch(console.log));
     }
 
