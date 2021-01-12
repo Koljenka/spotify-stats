@@ -20,17 +20,6 @@
 }
 
 app-playlist-card {
-  max-width: 300px;
   margin: 5px;
-
-  cursor: pointer;
-  text-align: center;
-
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-
-  -webkit-user-drag: none;
-  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }

@@ -20,6 +20,7 @@
   padding: 0;
   width: 75vw;
   height: 75vw;
+  outline: none;
   position: relative;
   cursor: pointer;
 
@@ -67,6 +68,7 @@
   width: 100%;
   margin-top: 2vw;
   height: 17vw;
+  outline: none;
   position: relative;
   text-align: left;
   cursor: pointer;
@@ -139,6 +141,13 @@ mat-divider {
   width: 96vw;
   border-top-width: 2px;
   margin: auto;
+}
+
+mat-spinner {
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  top: calc((100% - 100px) /2);
 }
 
 @media (min-width: 1000px) {

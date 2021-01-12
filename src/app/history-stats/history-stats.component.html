@@ -2,8 +2,8 @@
   <ng-container *ngIf="didLoadTracks">
     <div class="top-lists mat-app-background" id="top-lists">
       <div class="top-column" id="topArtistsColumn">
-        <ng-container *ngIf="topArtists.length > 0 && topArtistAvgColor != null">
-          <mat-card mat-ripple [routerLink]="['/album-track-list', topAlbums[0].album.id]" class="top-card">
+        <ng-container *ngIf="topArtists.length > 0 && topArtistAvgColor != null; else spinner">
+          <mat-card mat-ripple [routerLink]="['/album-track-list', topArtists[0].artist.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}, 0),
                rgba({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}, 1) ), url({{topArtists[0].artist.images[0].url}});"></div>
@@ -25,7 +25,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topAlbumsColumn">
-        <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor != null">
+        <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor != null; else spinner">
           <mat-card mat-ripple [routerLink]="['/album-track-list', topAlbums[0].album.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}); background-image: linear-gradient( rgba( {{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 0),
@@ -50,7 +50,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topTracksColumn">
-        <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor != null">
+        <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor != null; else spinner">
           <mat-card mat-ripple [routerLink]="['/track', topTracks[0].track.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}); background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
@@ -75,7 +75,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topContextColumn">
-        <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor != null">
+        <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor != null; else spinner">
           <mat-card mat-ripple [routerLink]="getContextRouterLink(topContexts[0].context)" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}); background-image: linear-gradient( rgba( {{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 0),
@@ -101,6 +101,9 @@
     </div>
     <mat-divider></mat-divider>
   </ng-container>
+  <ng-template #spinner>
+    <mat-spinner></mat-spinner>
+  </ng-template>
   <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
     <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.2-2'}}%</sub>
