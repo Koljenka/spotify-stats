@@ -79,6 +79,7 @@ export class OverviewComponent implements OnInit {
       StorageService.expiresAt = Date.now() + 2400000;
       // @ts-ignore
       StorageService.accessToken = response.access_token;
+      this.api.refreshApi();
     });
   }
 
