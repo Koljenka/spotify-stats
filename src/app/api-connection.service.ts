@@ -2,7 +2,7 @@ import {StorageService} from './storage.service';
 import SpotifyWebApi from 'spotify-web-api-js';
 
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 
 @Injectable({
@@ -48,6 +48,9 @@ export class ApiConnectionService {
   public userId = null;
 
   refreshApi(): void {
+    if (this.api == null) {
+      this.api = new SpotifyWebApi();
+    }
     this.api.setAccessToken(StorageService.accessToken);
     this.api.getMe().then(value => this.userId = value.id);
   }

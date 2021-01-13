@@ -20,7 +20,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSortModule} from '@angular/material/sort';
-import {MatRippleModule} from '@angular/material/core';
+import {MatNativeDateModule, MatRippleModule} from '@angular/material/core';
 import {PlaylistTrackListComponent} from './playlist-track-list/playlist-track-list.component';
 import {MatDividerModule} from '@angular/material/divider';
 import {TrackHistoryComponent} from './track-history/track-history.component';
@@ -37,7 +37,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {PlaylistCardComponent} from './playlist-card/playlist-card.component';
 import {AlbumCardComponent} from './album-card/album-card.component';
 import {TrackListComponent} from './track-list/track-list.component';
-import { AlbumTrackListComponent } from './album-track-list/album-track-list.component';
+import {AlbumTrackListComponent} from './album-track-list/album-track-list.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -76,10 +78,13 @@ import { AlbumTrackListComponent } from './album-track-list/album-track-list.com
     MatRippleModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MatNativeDateModule,
+    MatDatepickerModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
     BrowserAnimationsModule,
     MatListModule,
     MatProgressBarModule,
+    ReactiveFormsModule,
   ],
   providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard, StyleManagerService],
   bootstrap: [OverviewComponent]
