@@ -186,3 +186,9 @@ export interface RGBColor {
   g: number;
   b: number;
 }
+
+export interface SmallCardStat {
+  imgSrc: string;
+  title: string;
+  stat: number | string;
+}

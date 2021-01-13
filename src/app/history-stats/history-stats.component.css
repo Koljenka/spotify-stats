@@ -20,6 +20,10 @@
   margin-bottom: 10vw;
 }
 
+#topContextColumn {
+  margin-bottom: 0;
+}
+
 .top-card {
   padding: 0;
   width: 75vw;
@@ -141,10 +145,24 @@
   font-weight: normal;
 }
 
+.stat-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  width: 100%;
+  height: 221vw;
+}
+
+.stat-card {
+  width: 75vw;
+  height: 25vw;
+  padding: 0;
+}
+
 mat-divider {
   width: 96vw;
   border-top-width: 2px;
-  margin: auto;
+  margin: 10vw auto;
 }
 
 mat-spinner {
@@ -158,7 +176,7 @@ mat-spinner {
   .top-column {
     width: 20vw;
     height: 40vw;
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
 
   .top-card {
@@ -196,6 +214,19 @@ mat-spinner {
     border-radius: 3vw;
     margin: 0.5vw;
 
+  }
+
+  .stat-group {
+    height: 14vw;
+  }
+
+  .stat-card {
+    width: 20vw;
+    height: 6vw;
+  }
+
+  .mat-divider {
+    margin: 20px auto;
   }
 }
 
