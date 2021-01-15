@@ -42,9 +42,13 @@ export class HistoryStatsComponent implements OnInit {
   topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   range = new FormGroup({
-    start: new FormControl(),
-    end: new FormControl()
+    start: new FormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
+    end: new FormControl(new Date())
   });
+  links = [ 'Last 7 days', 'Last month', 'Last year', 'All time'];
+  lastLink = 'latLink';
+  activeLink = this.links[0];
+  private isFirstCallback = true;
 
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
 
@@ -61,13 +65,13 @@ export class HistoryStatsComponent implements OnInit {
     this.dataSharing.playbackHistory.toPromise().then(() => {
       this.playbackHistory = this.dataSharing.getSavedTracks();
       this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
-      this.worker.postMessage({
-        playHistory: this.playbackHistory,
-        token: StorageService.accessToken
-      });
+      this.onLinkChanged();
     });
     this.range.valueChanges.pipe(debounceTime(200)).subscribe(value => {
-      if (value.end != null && value.start != null) {
+      if (!this.isFirstCallback &&
+        value.end != null && value.start != null &&
+        value.start._isValid && value.end._isValid &&
+        value.start <= value.end) {
         this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
         this.worker.postMessage({
           playHistory: this.playbackHistory.filter(
@@ -76,6 +80,40 @@ export class HistoryStatsComponent implements OnInit {
           token: StorageService.accessToken
         });
       }
+      this.isFirstCallback = false;
+    });
+  }
+
+  onLinkChanged(): void {
+    const timeframe = {start: 0, end: Date.now()};
+    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+    switch (this.activeLink) {
+      case this.links[3]:
+        timeframe.start = 0;
+        timeframe.end = Date.now();
+        break;
+      case this.links[2]:
+        timeframe.start = new Date(new Date().getFullYear() - 1, 0, 1).valueOf();
+        timeframe.end = new Date(new Date().getFullYear() - 1, 11, 31, 23, 59, 59).valueOf();
+        break;
+      case this.links[1]:
+        timeframe.start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).valueOf();
+        timeframe.end = new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59, 29).valueOf();
+        break;
+      case this.links[0]:
+        timeframe.start = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7).valueOf();
+        timeframe.end = Date.now();
+        break;
+      case this.lastLink:
+        timeframe.start = this.range.value.start;
+        timeframe.end = this.range.value.end;
+        break;
+    }
+    this.worker.postMessage({
+      playHistory: this.playbackHistory.filter(
+        v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= timeframe.start &&
+          new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= timeframe.end),
+      token: StorageService.accessToken
     });
   }
 

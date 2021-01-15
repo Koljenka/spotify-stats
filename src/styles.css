@@ -29,6 +29,18 @@ app-overview > .ng-star-inserted {
   width: 100%;
 }
 
+app-history-stats {
+  position: absolute !important;
+  top: 48px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  height: unset !important;
+  width: unset !important;
+  overflow-y: unset !important;
+}
+
 .mat-header-cell {
   padding: 5px;
   word-wrap: break-word;

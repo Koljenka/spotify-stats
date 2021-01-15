@@ -11,7 +11,6 @@ import {environment} from '../../environments/environment';
 import {version} from '../../../package.json';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Base64} from 'js-base64';
-import {interval, Observable} from 'rxjs';
 
 @Component({
   selector: 'app-overview',
@@ -35,7 +34,7 @@ export class OverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let theme = options.find(val => val.value = StorageService.theme);
+    let theme = options.find(val => val.value === StorageService.theme);
     if (theme == null) {
       theme = options[0];
     }

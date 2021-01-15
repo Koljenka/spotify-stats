@@ -40,6 +40,7 @@ import {TrackListComponent} from './track-list/track-list.component';
 import {AlbumTrackListComponent} from './album-track-list/album-track-list.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {ReactiveFormsModule} from '@angular/forms';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,7 @@ import {ReactiveFormsModule} from '@angular/forms';
     PlaylistCardComponent,
     AlbumCardComponent,
     TrackListComponent,
-    AlbumTrackListComponent
+    AlbumTrackListComponent,
   ],
   imports: [
     BrowserModule,
@@ -71,6 +72,7 @@ import {ReactiveFormsModule} from '@angular/forms';
     MatIconModule,
     MatCardModule,
     MatTableModule,
+    MatTabsModule,
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
