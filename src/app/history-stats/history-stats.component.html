@@ -1,9 +1,10 @@
 <div class="header" *ngIf="didLoadTracks">
   <nav backgroundColor="primary" mat-tab-nav-bar>
-    <a mat-tab-link *ngFor="let link of links"
+    <a [style.opacity]="activeLink === link ? 1: .6" mat-tab-link *ngFor="let link of links"
        (click)="activeLink = link; onLinkChanged()"
        [active]="activeLink == link">{{link}}</a>
-    <a mat-tab-link  (click)="activeLink = lastLink; onLinkChanged()" [active]="activeLink == lastLink">
+    <a [style.opacity]="activeLink === lastLink ? 1: .6" mat-tab-link (click)="activeLink = lastLink; onLinkChanged()"
+       [active]="activeLink == lastLink">
       Custom
       <mat-form-field appearance="fill">
         <mat-date-range-input [formGroup]="range" [rangePicker]="picker">

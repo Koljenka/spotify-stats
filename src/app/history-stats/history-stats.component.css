@@ -1,6 +1,7 @@
 .wrapper {
   display: block;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .header {
@@ -237,6 +238,16 @@ mat-form-field {
 
   .mat-divider {
     margin: 20px auto;
+  }
+}
+
+@media (max-width: 599px) {
+  .wrapper {
+    overflow-y: visible;
+  }
+
+  .header {
+    top: 56px;
   }
 }
 
