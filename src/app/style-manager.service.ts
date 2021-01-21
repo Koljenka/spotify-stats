@@ -1,16 +1,24 @@
 import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
+import {Option} from './option.model';
+import {environment} from '../environments/environment';
 
 @Injectable()
 export class StyleManagerService {
   constructor() {
   }
 
+  private themeSource = new BehaviorSubject({} as Option);
+  currentTheme = this.themeSource.asObservable();
+
   /**
    * Set the stylesheet with the specified key.
    */
-  setStyle(href: string, themeColor: string): void {
-    getLinkElementForKey('theme').setAttribute('href', href);
-    setThemeColorMetaValue(themeColor);
+  setStyle(theme: Option): void {
+    getLinkElementForKey('theme')
+      .setAttribute('href', `${environment.APP_SETTINGS.assetsBasePath}${theme.value}.css`);
+    setThemeColorMetaValue(theme.headingColor);
+    this.themeSource.next(theme);
   }
 
   /**

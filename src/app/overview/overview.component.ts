@@ -7,7 +7,6 @@ import {StorageService} from '../storage.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
-import {environment} from '../../environments/environment';
 import {version} from '../../../package.json';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Base64} from 'js-base64';
@@ -39,13 +38,13 @@ export class OverviewComponent implements OnInit {
       theme = options[0];
     }
     this.selectedTheme = theme;
-    this.styleManager.setStyle(environment.APP_SETTINGS.assetsBasePath + StorageService.theme + '.css', theme.headingColor);
+    this.styleManager.setStyle(theme);
   }
 
   themeChangeHandler(themeToSet: Option): void {
     this.selectedTheme = themeToSet;
     StorageService.theme = themeToSet.value;
-    this.styleManager.setStyle(`${environment.APP_SETTINGS.assetsBasePath}${themeToSet.value}.css`, themeToSet.headingColor);
+    this.styleManager.setStyle(themeToSet);
   }
 
   getUserName(): string {

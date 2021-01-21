@@ -23,17 +23,29 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.titleService.setTitle('Home - SpotifyStats');
     if (this.cookie.isLoggedIn()) {
-      if (this.api.userId == null) {
-        this.api.getApi().getMe().then(user => {
-          this.api.getApi().getUserPlaylists(user.id, {limit: 50}).then(value => {
-            this.playlists = value.items;
-          });
-        });
-      } else {
-        this.api.getApi().getUserPlaylists(this.api.userId, {limit: 50}).then(value => {
+      this.getUserPlaylist();
+    }
+  }
+
+  getUserPlaylist(): void {
+    if (this.api.userId == null) {
+      this.api.getApi().getMe().then(user => {
+        this.api.getApi().getUserPlaylists(user.id, {limit: 50}).then(value => {
           this.playlists = value.items;
         });
-      }
+      }).catch(reason => {
+        if (reason.status === 401) {
+          setTimeout(() => this.getUserPlaylist(), 500);
+        }
+      });
+    } else {
+      this.api.getApi().getUserPlaylists(this.api.userId, {limit: 50}).then(value => {
+        this.playlists = value.items;
+      }).catch(reason => {
+        if (reason.status === 401) {
+          setTimeout(() => this.getUserPlaylist(), 500);
+        }
+      });
     }
   }
 
