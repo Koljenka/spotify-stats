@@ -9,6 +9,8 @@ import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ContextObjectType = SpotifyApi.ContextObjectType;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
+import TrackObjectFull = SpotifyApi.TrackObjectFull;
+import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +19,10 @@ export class DataSharingService {
 
   private savedTracks: PlayHistoryObjectFull[] = [];
   private contexts: ContextObjectFull[] = [];
+  private tracks: TrackObjectFull[] = [];
+  private audioFeatures: AudioFeaturesObject[] = [];
   private historyLength = 0;
+  private uniqueTrackIds: string[] = [];
   private didStartLoading = false;
   private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
   private totalContextCount = 0;
@@ -34,10 +39,11 @@ export class DataSharingService {
   }
 
   get historyLoadingProgress(): number {
-    if (this.historyLength + this.loadedContexts === 0) {
+    if (this.tracks.length + this.loadedContexts + this.audioFeatures.length === 0) {
       return 0;
     } else {
-      return (this.savedTracks.length + this.loadedContexts) / (this.historyLength + this.totalContextCount);
+      return (this.tracks.length + this.loadedContexts + this.audioFeatures.length) /
+        (this.uniqueTrackIds.length * 2 + this.totalContextCount);
     }
   }
 
@@ -56,43 +62,68 @@ export class DataSharingService {
   loadPlaybackHistory(): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
-        const playbackHistory = value as PlaybackHistory[];
+        const playbackHistory = (value as PlaybackHistory[]);
         this.historyLength = playbackHistory.length;
-        this.getContexts(playbackHistory).then(contexts => {
-          this.contexts = contexts;
-          for (let i = 0; i <= Math.ceil(playbackHistory.length / 50); i++) {
-            const trackIds = playbackHistory.slice(i * 50, (i + 1) * 50);
-            if (trackIds.length > 0) {
-              this.getTracks(trackIds);
-            }
-          }
+        this.uniqueTrackIds = this.getUniqueTrackIds(playbackHistory);
+        Promise.all([this.getContexts(playbackHistory), this.getAllTracks(), this.getAllAudioFeatures()]).then(() => {
+          this.matchTracks(playbackHistory);
         });
       });
   }
 
+  private getUniqueTrackIds(history: PlaybackHistory[]): string[] {
+    const uniqueTracks = [];
+    history.map(val => val.trackid).forEach(id => {
+      if (!uniqueTracks.includes(id)) {
+        uniqueTracks.push(id);
+      }
+    });
+    return uniqueTracks;
+  }
 
-  private getTracks(ids: PlaybackHistory[]): void {
-    this.api.getApi().getTracks(ids.map(i => i.trackid)).then(trackResponse => {
-      const playbackHistoryTracks: PlayHistoryObjectFull[] = [];
-      ids.forEach(historyTrack => {
-        const track = trackResponse.tracks.find(tr => tr.id === historyTrack.trackid);
-        let context = this.contexts.find(ct => ct.contextUri === historyTrack.contexturi);
-        if (context === undefined) {
-          context = {contextType: null, contextUri: null, content: null};
-        }
-        this.savedTracks.push({added_at: (historyTrack.played_at * 1000) + '', track, context});
-        playbackHistoryTracks.push({added_at: (historyTrack.played_at * 1000) + '', track, context});
-      });
-      this.playbackHistorySource.next(playbackHistoryTracks);
-      if (this.didFinishLoadingHistory) {
-        this.playbackHistorySource.complete();
+  private matchTracks(history: PlaybackHistory[]): void {
+    const playbackHistoryTracks: PlayHistoryObjectFull[] = [];
+    history.forEach(historyTrack => {
+      const track = this.tracks.find(tr => tr.id === historyTrack.trackid);
+      const audioFeatures = this.audioFeatures.find(af => af.id === historyTrack.trackid);
+      let context = this.contexts.find(ct => ct.contextUri === historyTrack.contexturi);
+      if (context === undefined) {
+        context = {contextType: null, contextUri: null, content: null};
       }
-    }).catch(reason => {
-      if (reason.status === 429) {
-        setTimeout(() => {
-          this.getTracks(ids);
-        }, 1000);
+      this.savedTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
+      playbackHistoryTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
+    });
+    this.playbackHistorySource.next(playbackHistoryTracks);
+    if (this.didFinishLoadingHistory) {
+      this.playbackHistorySource.complete();
+    }
+  }
+
+  private async getAllTracks(): Promise<TrackObjectFull[]> {
+    const promises = [];
+    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 50); i++) {
+      const trackIds = this.uniqueTrackIds.slice(i * 50, (i + 1) * 50);
+      if (trackIds.length > 0) {
+        promises.push(this.getTracks(trackIds));
       }
+    }
+
+    return Promise.all(promises).then(() => {
+      return Promise.resolve(this.tracks);
+    });
+  }
+
+  private async getAllAudioFeatures(): Promise<AudioFeaturesObject[]> {
+    const promises = [];
+    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 50); i++) {
+      const trackIds = this.uniqueTrackIds.slice(i * 50, (i + 1) * 50);
+      if (trackIds.length > 0) {
+        promises.push(this.getAudioFeatures(trackIds));
+      }
+    }
+
+    return Promise.all(promises).then(() => {
+      return Promise.resolve(this.audioFeatures);
     });
   }
 
@@ -153,6 +184,22 @@ export class DataSharingService {
       this.loadedContexts = this.contexts.length;
     }).catch(() => {
       return this.getPlaylist(playlistId, playlistUri);
+    });
+  }
+
+  private getTracks(ids: string[]): Promise<void> {
+    return this.api.getApi().getTracks(ids).then(tracks => {
+      this.tracks.push(...tracks.tracks);
+    }).catch(() => {
+      return this.getTracks(ids);
+    });
+  }
+
+  private getAudioFeatures(ids: string[]): Promise<void> {
+    return this.api.getApi().getAudioFeaturesForTracks(ids).then(response => {
+      this.audioFeatures.push(...response.audio_features);
+    }).catch(() => {
+      return this.getAudioFeatures(ids);
     });
   }
 }
