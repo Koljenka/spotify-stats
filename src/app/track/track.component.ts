@@ -1,17 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ApiConnectionService} from '../api-connection.service';
-import TrackObjectFull = SpotifyApi.TrackObjectFull;
-import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
-import ArtistObjectSimplified = SpotifyApi.ArtistObjectSimplified;
 import {DomSanitizer, Meta, Title} from '@angular/platform-browser';
 import {KeyHelper} from '../key-helper';
 import {StyleManagerService} from '../style-manager.service';
 import {HttpClient} from '@angular/common/http';
 import {StorageService} from '../storage.service';
+import {environment} from '../../environments/environment';
+import TrackObjectFull = SpotifyApi.TrackObjectFull;
+import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
+import ArtistObjectSimplified = SpotifyApi.ArtistObjectSimplified;
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
-import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-track-view',
@@ -46,9 +46,6 @@ export class TrackComponent implements OnInit {
       this.track = value;
       this.didLoadTrack = true;
       this.titleService.setTitle(this.track.name + ' - SpotifyStats');
-      this.meta.updateTag({property: 'og:description', content: this.track.name + ' by ' + this.track.artists[0].name});
-      this.meta.updateTag({property: 'og:image', content: this.track.album.images[0].url});
-      this.meta.updateTag({property: 'og:title', content: this.track.name + ' - SpotifyStats'});
       this.http.get('https://api.happi.dev/v1/music?limit=1&apikey=9b41f9znvgFEpXr8UVmCQdtPNzHXrEBfxC6gEFChaoD8FedRoma6vyzA&type=track&q='
         + value.artists[0].name + ' ' + value.name).subscribe(val => {
         // @ts-ignore

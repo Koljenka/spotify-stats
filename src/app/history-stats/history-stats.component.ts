@@ -46,7 +46,6 @@ export class HistoryStatsComponent implements OnInit {
   topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   smallStatCardStats: SmallCardStat[] = [];
-  total: SmallCardStat;
   range = new FormGroup({
     start: new FormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
     end: new FormControl(new Date())
@@ -204,7 +203,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   getContextRouterLink(context: ContextObjectFull): string[] {
-    const contextId = context.contextUri.match(/(?<=spotify:\w*:).*/)[0];
+    const contextId = context.content.id;
     switch (context.contextType) {
       case 'playlist':
         return ['/playlist-track-list', contextId];
@@ -226,7 +225,7 @@ export class HistoryStatsComponent implements OnInit {
     } else if ('track' in item) {
       return item.track.id;
     } else if ('context' in item) {
-      return item.context.contextUri;
+      return item.context.content.uri;
     }
     return index;
   }

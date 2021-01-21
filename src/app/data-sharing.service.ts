@@ -59,7 +59,7 @@ export class DataSharingService {
   }
 
 
-  loadPlaybackHistory(): void {
+  private loadPlaybackHistory(): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
         const playbackHistory = (value as PlaybackHistory[]);
@@ -86,9 +86,9 @@ export class DataSharingService {
     history.forEach(historyTrack => {
       const track = this.tracks.find(tr => tr.id === historyTrack.trackid);
       const audioFeatures = this.audioFeatures.find(af => af.id === historyTrack.trackid);
-      let context = this.contexts.find(ct => ct.contextUri === historyTrack.contexturi);
+      let context = this.contexts.find(ct => ct.content.uri === historyTrack.contexturi);
       if (context === undefined) {
-        context = {contextType: null, contextUri: null, content: null};
+        context = {contextType: null, content: null};
       }
       this.savedTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
       playbackHistoryTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
@@ -142,17 +142,24 @@ export class DataSharingService {
       }
       this.totalContextCount = playlists.length + albums.length + artists.length;
     });
+
     for (const playlistUri of playlists) {
       const playlistId = playlistUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
       promises.push(this.getPlaylist(playlistId, playlistUri));
     }
-    for (const albumUri of albums) {
-      const albumId = albumUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
-      promises.push(this.getAlbum(albumId, albumUri));
+
+    for (let i = 0; i <= Math.ceil(albums.length / 20); i++) {
+      const albumIds = albums.slice(i * 20, (i + 1) * 20).map(v => v.match(/(?<=spotify:\w*:)[^:]*/)[0]);
+      if (albumIds.length > 0) {
+        promises.push(this.getAlbums(albumIds));
+      }
     }
-    for (const artistUri of artists) {
-      const artistId = artistUri.match(/(?<=spotify:\w*:)[^:]*/)[0];
-      promises.push(this.getArtist(artistId, artistUri));
+
+    for (let i = 0; i <= Math.ceil(artists.length / 50); i++) {
+      const artistIds = artists.slice(i * 50, (i + 1) * 50).map(v => v.match(/(?<=spotify:\w*:)[^:]*/)[0]);
+      if (artistIds.length > 0) {
+        promises.push(this.getArtists(artistIds));
+      }
     }
 
     return Promise.all(promises).then(() => {
@@ -160,27 +167,31 @@ export class DataSharingService {
     });
   }
 
-  private getArtist(artistId: string, artistUri: string): Promise<void> {
-    return this.api.getApi().getArtist(artistId).then(artist => {
-      this.contexts.push({contextType: 'artist', contextUri: artistUri, content: artist});
-      this.loadedContexts = this.contexts.length;
+  private getArtists(artistIds: string[]): Promise<void> {
+    return this.api.getApi().getArtists(artistIds).then(response => {
+      response.artists.forEach(artist => {
+        this.contexts.push({contextType: 'artist', content: artist});
+        this.loadedContexts = this.contexts.length;
+      });
     }).catch(() => {
-      return this.getArtist(artistId, artistUri);
+      return this.getArtists(artistIds);
     });
   }
 
-  private getAlbum(albumId: string, albumUri: string): Promise<void> {
-    return this.api.getApi().getAlbum(albumId).then(album => {
-      this.contexts.push({contextType: 'album', contextUri: albumUri, content: album});
-      this.loadedContexts = this.contexts.length;
+  private getAlbums(albumIds: string[]): Promise<void> {
+    return this.api.getApi().getAlbums(albumIds).then(response => {
+      response.albums.forEach(album => {
+        this.contexts.push({contextType: 'album', content: album});
+        this.loadedContexts = this.contexts.length;
+      });
     }).catch(() => {
-      return this.getAlbum(albumId, albumUri);
+      return this.getAlbums(albumIds);
     });
   }
 
   private getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
     return this.api.getApi().getPlaylist(playlistId).then(playlist => {
-      this.contexts.push({contextType: 'playlist', contextUri: playlistUri, content: playlist});
+      this.contexts.push({contextType: 'playlist', content: playlist});
       this.loadedContexts = this.contexts.length;
     }).catch(() => {
       return this.getPlaylist(playlistId, playlistUri);
@@ -206,6 +217,5 @@ export class DataSharingService {
 
 export interface ContextObjectFull {
   contextType: ContextObjectType;
-  contextUri: string;
   content: AlbumObjectFull | PlaylistObjectFull | ArtistObjectFull;
 }

@@ -153,13 +153,13 @@ addEventListener('message', ({data}) => {
   function getTopContexts(): void {
     const uniqueContexts: any[] = [];
     for (const context of playbackHistory.map(value => value.context)) {
-      if (context.contextUri == null) {
+      if (context.content == null) {
         continue;
       }
-      if (!uniqueContexts.map(value => value.context.contextUri).includes(context.contextUri)) {
+      if (!uniqueContexts.map(value => value.context.content.uri).includes(context.content.uri)) {
         uniqueContexts.push({context, timesPlayed: 1});
       } else {
-        const index = uniqueContexts.map(value => value.context.contextUri).indexOf(context.contextUri);
+        const index = uniqueContexts.map(value => value.context.content.uri).indexOf(context.content.uri);
         uniqueContexts[index].timesPlayed++;
       }
     }

@@ -9,10 +9,10 @@ import {Title} from '@angular/platform-browser';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
-import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
-import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {Observable} from 'rxjs';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
+import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
+import SavedTrackObject = SpotifyApi.SavedTrackObject;
 
 @Component({
   selector: 'app-track-list',
@@ -105,8 +105,8 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onRowClick(trackId: string, context: ContextObjectFull): void {
     const commands = ['track', trackId];
-    if (context?.contextUri != null) {
-      commands.push(context?.contextUri);
+    if (context?.content?.uri != null) {
+      commands.push(context?.content?.uri);
     }
     this.router.navigate(commands);
   }
