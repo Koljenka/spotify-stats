@@ -3,6 +3,8 @@
 
 import SpotifyWebApi from 'spotify-web-api-js';
 
+const add = (a, b) => a + b;
+
 addEventListener('message', ({data}) => {
   const api: SpotifyWebApi.SpotifyWebApiJs = new SpotifyWebApi();
   api.setAccessToken(data.token);
@@ -66,14 +68,51 @@ addEventListener('message', ({data}) => {
         prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
       }
     });
+    const uniqueArtists = [];
+    playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+      if (!uniqueArtists.includes(artistId)) {
+        uniqueArtists.push(artistId);
+      }
+    });
+    const prevUniqueArtists = [];
+    prevPlaybackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+      if (!prevUniqueArtists.includes(artistId)) {
+        prevUniqueArtists.push(artistId);
+      }
+    });
+    response.push({
+      heading: 'Unique Artists',
+      icon: 'person',
+      stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
+    });
 
     response.push({
-      heading: 'Time spent listening',
+      heading: 'Average Happiness',
       icon: 'sentiment_very_satisfied',
       stat: {
-        value: Math.floor((listeningTime / (timeframe.end - timeframe.start)) * 100) + '%',
+        value: getAverageHappiness(playbackHistory) + '%',
         prevTimeframe,
-        prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
+        prevValue: getAverageHappiness(prevPlaybackHistory) + '%'
+      }
+    });
+
+    response.push({
+      heading: 'Average Energy',
+      icon: 'flash_on',
+      stat: {
+        value: getAverageEnergy(playbackHistory) + '%',
+        prevTimeframe,
+        prevValue: getAverageEnergy(prevPlaybackHistory) + '%'
+      }
+    });
+
+    response.push({
+      heading: 'Average Danceability',
+      icon: 'emoji_people',
+      stat: {
+        value: getAverageDanceability(playbackHistory) + '%',
+        prevTimeframe,
+        prevValue: getAverageDanceability(prevPlaybackHistory) + '%'
       }
     });
 
@@ -84,7 +123,28 @@ addEventListener('message', ({data}) => {
       if (history.length === 0) {
         return 0;
       }
-      return Math.round(history.map(v => v.track.duration_ms).reduce((a, b) => a + b));
+      return Math.round(history.map(v => v.track.duration_ms).reduce(add));
+    }
+
+    function getAverageHappiness(history: any[]): number {
+      if (history.length === 0) {
+        return NaN;
+      }
+      return Math.round(history.map(v => v.audioFeatures.valence).reduce(add) * 100 / history.length);
+    }
+
+    function getAverageEnergy(history: any[]): number {
+      if (history.length === 0) {
+        return NaN;
+      }
+      return Math.round(history.map(v => v.audioFeatures.energy).reduce(add) * 100 / history.length);
+    }
+
+    function getAverageDanceability(history: any[]): number {
+      if (history.length === 0) {
+        return NaN;
+      }
+      return Math.round(history.map(v => v.audioFeatures.danceability).reduce(add) * 100 / history.length);
     }
   }
 

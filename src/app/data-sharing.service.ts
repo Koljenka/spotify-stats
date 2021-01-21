@@ -115,8 +115,8 @@ export class DataSharingService {
 
   private async getAllAudioFeatures(): Promise<AudioFeaturesObject[]> {
     const promises = [];
-    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 50); i++) {
-      const trackIds = this.uniqueTrackIds.slice(i * 50, (i + 1) * 50);
+    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 100); i++) {
+      const trackIds = this.uniqueTrackIds.slice(i * 100, (i + 1) * 100);
       if (trackIds.length > 0) {
         promises.push(this.getAudioFeatures(trackIds));
       }
