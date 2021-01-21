@@ -1,6 +1,6 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {HttpClientModule} from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -9,7 +9,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {AppRoutingModule} from './app-routing.module';
-import {CommonModule, LocationStrategy, PathLocationStrategy} from '@angular/common';
+import {CommonModule, LocationStrategy, PathLocationStrategy, registerLocaleData} from '@angular/common';
 import {OverviewComponent} from './overview/overview.component';
 import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './callback/callback.component';
@@ -41,6 +41,9 @@ import {AlbumTrackListComponent} from './album-track-list/album-track-list.compo
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatTabsModule} from '@angular/material/tabs';
+import localeDe from '@angular/common/locales/de';
+
+registerLocaleData(localeDe);
 
 @NgModule({
   declarations: [
@@ -88,7 +91,11 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatProgressBarModule,
     ReactiveFormsModule,
   ],
-  providers: [{provide: LocationStrategy, useClass: PathLocationStrategy}, LoginGuard, StyleManagerService],
+  providers: [
+    {provide: LocationStrategy, useClass: PathLocationStrategy},
+    LoginGuard, StyleManagerService,
+    {provide: LOCALE_ID, useValue: 'de'}
+  ],
   bootstrap: [OverviewComponent]
 })
 export class AppModule {

@@ -11,9 +11,12 @@ import {MatDateRangeInput} from '@angular/material/datepicker';
 import {FormControl, FormGroup} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
+import {Option} from '../option.model';
+import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
+
 
 @Component({
   selector: 'app-history-stats',
@@ -37,15 +40,18 @@ export class HistoryStatsComponent implements OnInit {
   topAlbums: CountedAlbumObject[] = [];
   topTracks: CountedTrackObject[] = [];
   topContexts: CountedContextObject[] = [];
+  theme: Option;
   topArtistAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topAlbumAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
+  smallStatCardStats: SmallCardStat[] = [];
+  total: SmallCardStat;
   range = new FormGroup({
     start: new FormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
     end: new FormControl(new Date())
   });
-  links = [ 'Last 7 days', 'Last month', 'Last year', 'All time'];
+  links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
   lastLink = 'latLink';
   activeLink = this.links[0];
   private isFirstCallback = true;
@@ -53,7 +59,8 @@ export class HistoryStatsComponent implements OnInit {
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
-              private titleService: Title, private api: ApiConnectionService) {
+              private titleService: Title, private api: ApiConnectionService,
+              private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker('./history-stats.worker', {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
@@ -62,6 +69,10 @@ export class HistoryStatsComponent implements OnInit {
 
   ngOnInit(): void {
     this.titleService.setTitle('History Statistics - SpotifyStats');
+    this.styleService.currentTheme.subscribe(value => {
+      this.theme = value;
+    });
+
     this.dataSharing.playbackHistory.toPromise().then(() => {
       this.playbackHistory = this.dataSharing.getSavedTracks();
       this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
@@ -73,11 +84,14 @@ export class HistoryStatsComponent implements OnInit {
         value.start._isValid && value.end._isValid &&
         value.start <= value.end) {
         this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+        const prevTimeframe = {start: 0, end: 0};
+        prevTimeframe.start = new Date(new Date(value.start - (value.end - value.start)).toDateString()).valueOf();
+        prevTimeframe.end = value.start - 1;
         this.worker.postMessage({
-          playHistory: this.playbackHistory.filter(
-            v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()) >= value.start &&
-              new Date(new Date(parseInt(v.added_at, 10)).toDateString()) <= value.end.valueOf()),
-          token: StorageService.accessToken
+          playHistory: this.playbackHistory,
+          token: StorageService.accessToken,
+          timeframe: {start: value.start.valueOf(), end: value.end.valueOf()},
+          prevTimeframe
         });
       }
       this.isFirstCallback = false;
@@ -86,6 +100,7 @@ export class HistoryStatsComponent implements OnInit {
 
   onLinkChanged(): void {
     const timeframe = {start: 0, end: Date.now()};
+    const prevTimeframe = {start: 0, end: 0};
     this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
     switch (this.activeLink) {
       case this.links[3]:
@@ -95,25 +110,32 @@ export class HistoryStatsComponent implements OnInit {
       case this.links[2]:
         timeframe.start = new Date(new Date().getFullYear() - 1, 0, 1).valueOf();
         timeframe.end = new Date(new Date().getFullYear() - 1, 11, 31, 23, 59, 59).valueOf();
+        prevTimeframe.start = new Date(new Date().getFullYear() - 2, 0, 1).valueOf();
         break;
       case this.links[1]:
         timeframe.start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).valueOf();
         timeframe.end = new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59, 29).valueOf();
+        prevTimeframe.start = new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).valueOf();
         break;
       case this.links[0]:
-        timeframe.start = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7).valueOf();
+        let start = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7);
+        timeframe.start = start.valueOf();
         timeframe.end = Date.now();
+        start = new Date(start.valueOf() - 1);
+        prevTimeframe.start = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7).valueOf();
         break;
       case this.lastLink:
-        timeframe.start = this.range.value.start;
-        timeframe.end = this.range.value.end;
+        timeframe.start = this.range.value.start.valueOf();
+        timeframe.end = this.range.value.end.valueOf();
+        prevTimeframe.start = new Date(new Date(timeframe.start - (timeframe.end - timeframe.start)).toDateString()).valueOf();
         break;
     }
+    prevTimeframe.end = timeframe.start - 1;
     this.worker.postMessage({
-      playHistory: this.playbackHistory.filter(
-        v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= timeframe.start &&
-          new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= timeframe.end),
-      token: StorageService.accessToken
+      playHistory: this.playbackHistory,
+      token: StorageService.accessToken,
+      timeframe,
+      prevTimeframe
     });
   }
 
@@ -134,39 +156,51 @@ export class HistoryStatsComponent implements OnInit {
       case 'topContexts':
         this.topContexts = data.content;
         this.getTopContextAvgColor();
+        break;
+      case 'smallCardStats':
+        this.smallStatCardStats = data.content;
+        break;
     }
   }
 
   getTopArtistAvgColor(): void {
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topArtists[0].artist.images[0].url)
-      .subscribe(value => {
-        // @ts-ignore
-        this.topArtistAvgColor = value;
-      });
+    if (this.topArtists.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topArtists[0].artist.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topArtistAvgColor = value;
+        });
+    }
   }
 
   getTopAlbumAvgColor(): void {
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topAlbums[0].album.images[0].url)
-      .subscribe(value => {
-        // @ts-ignore
-        this.topAlbumAvgColor = value;
-      });
+    if (this.topAlbums.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topAlbums[0].album.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topAlbumAvgColor = value;
+        });
+    }
   }
 
   getTopTrackAvgColor(): void {
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topTracks[0].track.album.images[0].url)
-      .subscribe(value => {
-        // @ts-ignore
-        this.topTrackAvgColor = value;
-      });
+    if (this.topTracks.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topTracks[0].track.album.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topTrackAvgColor = value;
+        });
+    }
   }
 
   getTopContextAvgColor(): void {
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topContexts[0].context.content.images[0].url)
-      .subscribe(value => {
-        // @ts-ignore
-        this.topContextAvgColor = value;
-      });
+    if (this.topContexts.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topContexts[0].context.content.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topContextAvgColor = value;
+        });
+    }
   }
 
   getContextRouterLink(context: ContextObjectFull): string[] {
@@ -226,7 +260,14 @@ export interface RGBColor {
 }
 
 export interface SmallCardStat {
-  imgSrc: string;
-  title: string;
-  stat: number | string;
+  heading: string;
+  icon: string;
+  stat: {
+    value: number | string;
+    prevTimeframe: {
+      start: number;
+      end: number;
+    };
+    prevValue: number;
+  };
 }

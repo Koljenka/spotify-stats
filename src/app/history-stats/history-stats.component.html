@@ -122,7 +122,17 @@
     </div>
     <mat-divider></mat-divider>
     <div class="stat-group stat-group-1">
-      <mat-card *ngFor="let i of [0,1,2,3,4,5,6,7]" class="stat-card">
+      <mat-card class="stat-card" *ngFor="let stat of smallStatCardStats">
+        <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});" class="stat-card-image">
+          <mat-icon>{{stat.icon}}</mat-icon>
+        </div>
+        <div class="content">
+          <div class="heading">{{stat.heading}}</div>
+          <div class="statistic">{{stat.stat.value}}</div>
+          <div class="comparison">vs {{stat.stat.prevValue}} ({{stat.stat.prevTimeframe.start | date: 'shortDate'}} - {{stat.stat.prevTimeframe.end | date: 'shortDate'}})</div>
+        </div>
+      </mat-card>
+      <mat-card *ngFor="let i of [0,1,2]" class="stat-card">
 
       </mat-card>
     </div>
