@@ -26,7 +26,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialSort = 'played_at';
   data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>();
 
-  trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull| AlbumTrackObject)[] = [];
+  trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
   dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject> =
     new MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject>();
   didLoadFirstContent = false;
@@ -142,14 +142,59 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.updateQuery(this.p, null);
     } else {
       this.updateQuery(this.p, searchString);
-
-      this.dataSource.data = this.trackList.filter(value => {
-        return value.track.name.toLowerCase().includes(searchString) ||
-          // @ts-ignore
-          value.track.album.name.toLowerCase().includes(searchString) ||
-          // @ts-ignore
-          value.track.artists.filter(artist => artist.name.toLowerCase().includes(searchString)).length > 0;
-      });
+      if (searchString.includes(';')) {
+        const parts = searchString.split(';').slice(0, -1);
+        let filteredData = this.trackList;
+        for (const item of parts) {
+          if (!item.includes('=')) {
+            continue;
+          }
+          const key = item.split('=')[0];
+          const val = item.split('=')[1].toLowerCase();
+          switch (key) {
+            case 'title':
+              filteredData = filteredData.filter(entry => entry.track.name.toLowerCase().includes(val));
+              break;
+            case 'title!':
+              filteredData = filteredData.filter(entry => !entry.track.name.toLowerCase().includes(val));
+              break;
+            case 'album':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => entry.track.album?.name.toLowerCase().includes(val));
+              break;
+            case 'album!':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => !entry.track.album?.name.toLowerCase().includes(val));
+              break;
+            case 'artist':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => entry.track?.artists
+                ?.filter(artist => artist.name.toLowerCase().includes(val)).length > 0);
+              break;
+            case 'artist!':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => entry.track?.artists
+                ?.filter(artist => !artist.name.toLowerCase().includes(val)).length > 0);
+              break;
+            case 'context':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => entry.context?.content?.name.toLowerCase().includes(val));
+              break;
+            case 'context!':
+              // @ts-ignore
+              filteredData = filteredData.filter(entry => !entry.context?.content?.name.toLowerCase().includes(val));
+          }
+        }
+        this.dataSource.data = filteredData;
+      } else {
+        this.dataSource.data = this.trackList.filter(value => {
+          return value.track.name.toLowerCase().includes(searchString) ||
+            // @ts-ignore
+            value.track.album.name.toLowerCase().includes(searchString) ||
+            // @ts-ignore
+            value.track.artists.filter(artist => artist.name.toLowerCase().includes(searchString)).length > 0;
+        });
+      }
     }
   }
 
@@ -183,6 +228,21 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
         // @ts-ignore
         this.dataSource.data.sort((a, b) => (parseInt(a.added_at, 10) - parseInt(b.added_at, 10)) * factor);
         break;
+      case 'context':
+        this.dataSource.data.sort((a, b) => {
+          // @ts-ignore
+          if (a.context.content == null && b.context.content == null) {
+            return 0;
+            // @ts-ignore
+          } else if (a.context.content == null && b.context.content != null) {
+            return 1;
+            // @ts-ignore
+          } else if (a.context.content != null && b.context.content == null) {
+            return -1;
+          }
+          // @ts-ignore
+          return a.context.content?.name.toLowerCase().localeCompare(b.context.content?.name.toLowerCase()) * factor;
+        });
     }
     this.paginator.firstPage();
   }

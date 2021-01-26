@@ -83,13 +83,18 @@ export class HistoryStatsComponent implements OnInit {
         value.start._isValid && value.end._isValid &&
         value.start <= value.end) {
         this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+        this.smallStatCardStats = [];
         const prevTimeframe = {start: 0, end: 0};
-        prevTimeframe.start = new Date(new Date(value.start - (value.end - value.start)).toDateString()).valueOf();
+        prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
         prevTimeframe.end = value.start - 1;
+        let end = value.end.valueOf();
+        if (value.start.valueOf() === value.end.valueOf()) {
+          end = value.start.valueOf() + 86399000;
+        }
         this.worker.postMessage({
           playHistory: this.playbackHistory,
           token: StorageService.accessToken,
-          timeframe: {start: value.start.valueOf(), end: value.end.valueOf()},
+          timeframe: {start: value.start.valueOf(), end: end.valueOf()},
           prevTimeframe
         });
       }
@@ -101,9 +106,10 @@ export class HistoryStatsComponent implements OnInit {
     const timeframe = {start: 0, end: Date.now()};
     const prevTimeframe = {start: 0, end: 0};
     this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+    this.smallStatCardStats = [];
     switch (this.activeLink) {
       case this.links[3]:
-        timeframe.start = 0;
+        timeframe.start = parseInt(this.playbackHistory[this.playbackHistory.length - 1].added_at, 10);
         timeframe.end = Date.now();
         break;
       case this.links[2]:
@@ -126,7 +132,10 @@ export class HistoryStatsComponent implements OnInit {
       case this.lastLink:
         timeframe.start = this.range.value.start.valueOf();
         timeframe.end = this.range.value.end.valueOf();
-        prevTimeframe.start = new Date(new Date(timeframe.start - (timeframe.end - timeframe.start)).toDateString()).valueOf();
+        prevTimeframe.start = new Date(new Date((timeframe.start - 1) - (timeframe.end - (timeframe.start - 1))).toDateString()).valueOf();
+        if (timeframe.start === timeframe.end) {
+          timeframe.end = timeframe.start + 86399000;
+        }
         break;
     }
     prevTimeframe.end = timeframe.start - 1;

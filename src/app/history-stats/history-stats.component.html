@@ -129,9 +129,10 @@
         <div class="content">
           <div class="heading">{{stat.heading}}</div>
           <div class="statistic">{{stat.stat.value}}</div>
-          <div class="comparison">vs {{stat.stat.prevValue}} ({{stat.stat.prevTimeframe.start | date: 'shortDate'}} - {{stat.stat.prevTimeframe.end | date: 'shortDate'}})</div>
+          <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">vs {{stat.stat.prevValue}} ({{stat.stat.prevTimeframe.start | date: 'shortDate'}} - {{stat.stat.prevTimeframe.end | date: 'shortDate'}})</div>
         </div>
       </mat-card>
+      <mat-spinner *ngIf="smallStatCardStats.length === 0" style="top: unset"></mat-spinner>
     </div>
     <mat-divider></mat-divider>
   </ng-container>

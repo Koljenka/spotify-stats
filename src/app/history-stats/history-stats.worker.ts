@@ -231,7 +231,7 @@ addEventListener('message', ({data}) => {
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+    const seconds = Math.floor(totalSeconds % 60);
     let result = `${minutes
       .toString()
       .padStart(1, '0')}:${seconds.toString().padStart(2, '0')}`;
