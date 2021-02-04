@@ -17,17 +17,6 @@ import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 })
 export class DataSharingService {
 
-  private savedTracks: PlayHistoryObjectFull[] = [];
-  private contexts: ContextObjectFull[] = [];
-  private tracks: TrackObjectFull[] = [];
-  private audioFeatures: AudioFeaturesObject[] = [];
-  private historyLength = 0;
-  private uniqueTrackIds: string[] = [];
-  private didStartLoading = false;
-  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
-  private totalContextCount = 0;
-  private loadedContexts = 0;
-
   get playbackHistory(): Observable<PlayHistoryObjectFull[]> {
     if ((this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
       this.playbackHistorySource.value.length <= 0) && !this.didStartLoading) {
@@ -51,11 +40,22 @@ export class DataSharingService {
     return this.historyLoadingProgress === 1;
   }
 
-  public getSavedTracks(): PlayHistoryObjectFull[] {
-    return this.savedTracks;
+  constructor(private http: HttpClient, private api: ApiConnectionService) {
   }
 
-  constructor(private http: HttpClient, private api: ApiConnectionService) {
+  private savedTracks: PlayHistoryObjectFull[] = [];
+  private contexts: ContextObjectFull[] = [];
+  private tracks: TrackObjectFull[] = [];
+  private audioFeatures: AudioFeaturesObject[] = [];
+  private historyLength = 0;
+  private uniqueTrackIds: string[] = [];
+  private didStartLoading = false;
+  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
+  private totalContextCount = 0;
+  private loadedContexts = 0;
+
+  public getSavedTracks(): PlayHistoryObjectFull[] {
+    return this.savedTracks;
   }
 
 

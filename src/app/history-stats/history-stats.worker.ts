@@ -23,6 +23,7 @@ addEventListener('message', ({data}) => {
   getTopAlbums();
   getTopSongs();
   getTopContexts();
+  getGraphs();
 
   function getSmallCardStats(): void {
     const response = [];
@@ -125,26 +126,133 @@ addEventListener('message', ({data}) => {
       }
       return Math.round(history.map(v => v.track.duration_ms).reduce(add));
     }
+  }
 
-    function getAverageHappiness(history: any[]): number {
-      if (history.length === 0) {
-        return NaN;
+  function getGraphs(): void {
+    const xAxisData = [];
+    const valence = [];
+    const energy = [];
+    const danceability = [];
+    const dataSet = (timeframe.end - timeframe.start <= 2678400000) ? getAverageFeaturesOverTime() : getAverageFeaturesOverMonth();
+    dataSet.forEach(item => {
+      xAxisData.push(item.date);
+      valence.push(item.valence);
+      energy.push(item.energy);
+      danceability.push(item.danceability);
+    });
+
+    const options = {
+      backgroundColor: '#00000000',
+      title: {
+        text: 'Audio Features over time'
+      },
+      legend: {
+        data: ['Happiness', 'Energy', 'Danceability'],
+        align: 'left',
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {title: 'Save as Image'}
+        }
+      },
+      xAxis: {
+        data: xAxisData,
+        silent: false,
+        splitLine: {
+          show: false,
+        },
+      },
+      yAxis: {
+        min: 0,
+        max: 100,
+        axisLabel: {
+          formatter: '{value}%'
+        }
+      },
+      series: [
+        {
+          name: 'Happiness',
+          type: 'line',
+          data: valence,
+          lineStyle: {
+            width: 4
+          }
+        },
+        {
+          name: 'Energy',
+          type: 'line',
+          data: energy,
+          lineStyle: {
+            width: 4
+          }
+        },
+        {
+          name: 'Danceability',
+          type: 'line',
+          data: danceability,
+          lineStyle: {
+            width: 4
+          }
+        },
+      ],
+      animationEasing: 'elasticOut',
+    };
+    postMessage({type: 'graph', content: options});
+
+    function getAverageFeaturesOverTime(): any[] {
+      const result = [];
+      for (const item of playbackHistory) {
+        if (result.map(v => v.date).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
+          continue;
+        }
+        const tempList = playbackHistory.filter(v => new Date(parseInt(item.added_at, 10)).toDateString() ===
+          new Date(parseInt(v.added_at, 10)).toDateString());
+        result.push({
+          date: new Date(parseInt(item.added_at, 10)).toDateString(),
+          valence: getAverageHappiness(tempList),
+          energy: getAverageEnergy(tempList),
+          danceability: getAverageDanceability(tempList)
+        });
       }
-      return Math.round(history.map(v => v.audioFeatures.valence).reduce(add) * 100 / history.length);
+      result.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
+      return result.map(v => {
+        return {date: new Date(v.date).toLocaleDateString(), valence: v.valence, energy: v.energy, danceability: v.danceability};
+      });
     }
 
-    function getAverageEnergy(history: any[]): number {
-      if (history.length === 0) {
-        return NaN;
+    function getAverageFeaturesOverMonth(): any[] {
+      const result = [];
+      for (const item of playbackHistory) {
+        if (result.map(v => JSON.stringify(v.date)).includes(JSON.stringify({
+          month: new Date(parseInt(item.added_at, 10)).getMonth(),
+          year: new Date(parseInt(item.added_at, 10)).getFullYear()
+        }))) {
+          continue;
+        }
+        const tempList = playbackHistory.filter(v =>
+          new Date(parseInt(item.added_at, 10)).getMonth() === new Date(parseInt(v.added_at, 10)).getMonth() &&
+          new Date(parseInt(item.added_at, 10)).getFullYear() === new Date(parseInt(v.added_at, 10)).getFullYear()
+        );
+        result.push({
+          date: {month: new Date(parseInt(item.added_at, 10)).getMonth(), year: new Date(parseInt(item.added_at, 10)).getFullYear()},
+          valence: getAverageHappiness(tempList),
+          energy: getAverageEnergy(tempList),
+          danceability: getAverageDanceability(tempList)
+        });
       }
-      return Math.round(history.map(v => v.audioFeatures.energy).reduce(add) * 100 / history.length);
-    }
-
-    function getAverageDanceability(history: any[]): number {
-      if (history.length === 0) {
-        return NaN;
-      }
-      return Math.round(history.map(v => v.audioFeatures.danceability).reduce(add) * 100 / history.length);
+      result.sort((a, b) => {
+        if (a.date.year - b.date.year !== 0) {
+          return a.date.year - b.date.year;
+        }
+        return a.date.month - b.date.month;
+      });
+      return result.map(v => {
+        return {date: (v.date.month + 1) + '.' + v.date.year, valence: v.valence, energy: v.energy, danceability: v.danceability};
+      });
     }
   }
 
@@ -244,6 +352,27 @@ addEventListener('message', ({data}) => {
       result = `${days} ${days > 1 ? 'days' : 'day'}, ${hours}  ${hours > 1 ? 'hours' : 'hour'}`;
     }
     return result;
+  }
+
+  function getAverageHappiness(history: any[]): number {
+    if (history.length === 0) {
+      return NaN;
+    }
+    return Math.round(history.map(v => v.audioFeatures.valence).reduce(add) * 100 / history.length);
+  }
+
+  function getAverageEnergy(history: any[]): number {
+    if (history.length === 0) {
+      return NaN;
+    }
+    return Math.round(history.map(v => v.audioFeatures.energy).reduce(add) * 100 / history.length);
+  }
+
+  function getAverageDanceability(history: any[]): number {
+    if (history.length === 0) {
+      return NaN;
+    }
+    return Math.round(history.map(v => v.audioFeatures.danceability).reduce(add) * 100 / history.length);
   }
 
 });

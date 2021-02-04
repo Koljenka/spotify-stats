@@ -162,6 +162,11 @@
   height: 160vw;
 }
 
+.graph {
+  width: 90%;
+  margin: auto;
+}
+
 .stat-card {
   width: 75vw;
   height: 17vw;

@@ -41,6 +41,7 @@ export class HistoryStatsComponent implements OnInit {
   topTracks: CountedTrackObject[] = [];
   topContexts: CountedContextObject[] = [];
   theme: Option;
+  themeIsDark = false;
   topArtistAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topAlbumAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
@@ -53,6 +54,8 @@ export class HistoryStatsComponent implements OnInit {
   links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
   lastLink = 'latLink';
   activeLink = this.links[0];
+  options: any;
+  isLoadingGraph = true;
   private isFirstCallback = true;
 
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
@@ -70,6 +73,7 @@ export class HistoryStatsComponent implements OnInit {
     this.titleService.setTitle('History Statistics - SpotifyStats');
     this.styleService.currentTheme.subscribe(value => {
       this.theme = value;
+      this.themeIsDark = this.styleService.isDarkStyleActive();
     });
 
     this.dataSharing.playbackHistory.toPromise().then(() => {
@@ -84,6 +88,7 @@ export class HistoryStatsComponent implements OnInit {
         value.start <= value.end) {
         this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
         this.smallStatCardStats = [];
+        this.isLoadingGraph = true;
         const prevTimeframe = {start: 0, end: 0};
         prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
         prevTimeframe.end = value.start - 1;
@@ -107,6 +112,7 @@ export class HistoryStatsComponent implements OnInit {
     const prevTimeframe = {start: 0, end: 0};
     this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
     this.smallStatCardStats = [];
+    this.isLoadingGraph = true;
     switch (this.activeLink) {
       case this.links[3]:
         timeframe.start = parseInt(this.playbackHistory[this.playbackHistory.length - 1].added_at, 10);
@@ -168,6 +174,11 @@ export class HistoryStatsComponent implements OnInit {
       case 'smallCardStats':
         this.smallStatCardStats = data.content;
         break;
+      case 'graph': {
+        this.options = data.content;
+        this.isLoadingGraph = false;
+        break;
+      }
     }
   }
 

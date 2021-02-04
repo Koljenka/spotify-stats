@@ -93,7 +93,8 @@ registerLocaleData(localeDe);
   ],
   providers: [
     {provide: LocationStrategy, useClass: PathLocationStrategy},
-    LoginGuard, StyleManagerService,
+    LoginGuard,
+    StyleManagerService,
     {provide: LOCALE_ID, useValue: 'de'}
   ],
   bootstrap: [OverviewComponent]
