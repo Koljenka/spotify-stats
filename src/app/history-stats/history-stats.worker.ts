@@ -49,6 +49,25 @@ addEventListener('message', ({data}) => {
       icon: 'music_note',
       stat: {value: uniqueTracks.length, prevTimeframe, prevValue: prevUniqueTracks.length}
     });
+
+    const uniqueArtists = [];
+    playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+      if (!uniqueArtists.includes(artistId)) {
+        uniqueArtists.push(artistId);
+      }
+    });
+    const prevUniqueArtists = [];
+    prevPlaybackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+      if (!prevUniqueArtists.includes(artistId)) {
+        prevUniqueArtists.push(artistId);
+      }
+    });
+    response.push({
+      heading: 'Unique Artists',
+      icon: 'person',
+      stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
+    });
+
     const listeningTime = getListeningTime(playbackHistory);
     const prevListeningTime = getListeningTime(prevPlaybackHistory);
     response.push({
@@ -69,22 +88,17 @@ addEventListener('message', ({data}) => {
         prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
       }
     });
-    const uniqueArtists = [];
-    playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
-      if (!uniqueArtists.includes(artistId)) {
-        uniqueArtists.push(artistId);
-      }
-    });
-    const prevUniqueArtists = [];
-    prevPlaybackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
-      if (!prevUniqueArtists.includes(artistId)) {
-        prevUniqueArtists.push(artistId);
-      }
-    });
+
+    const mostActiveDay = getMostActiveDay(playbackHistory);
+    const prevMostActiveDay = getMostActiveDay(prevPlaybackHistory);
     response.push({
-      heading: 'Unique Artists',
-      icon: 'person',
-      stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
+      heading: 'Most Active Day',
+      icon: 'event',
+      stat: {
+        value: mostActiveDay.date.toLocaleDateString() + ' (' + mostActiveDay.plays + ')',
+        prevTimeframe,
+        prevValue: prevMostActiveDay.date.toLocaleDateString() + ' (' + prevMostActiveDay.plays + ')'
+      }
     });
 
     response.push({
@@ -126,6 +140,28 @@ addEventListener('message', ({data}) => {
       }
       return Math.round(history.map(v => v.track.duration_ms).reduce(add));
     }
+
+    function getMostActiveDay(history: any[]): { date: Date, plays: number } {
+      if (history.length <= 0) {
+        return {date: new Date(0), plays: NaN};
+      }
+      const days: { date: Date, plays: number }[] = [];
+      for (const item of history) {
+        if (days.map(v => v.date.toDateString()).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
+          continue;
+        }
+        const tempList = history.filter(v =>
+          new Date(parseInt(item.added_at, 10)).toDateString() === new Date(parseInt(v.added_at, 10)).toDateString());
+        days.push({date: new Date(new Date(parseInt(item.added_at, 10)).toDateString()), plays: tempList.length});
+      }
+      let top = days[0];
+      days.forEach(v => {
+        if (v.plays > top.plays) {
+          top = v;
+        }
+      });
+      return top;
+    }
   }
 
   function getGraphs(): void {
@@ -147,6 +183,7 @@ addEventListener('message', ({data}) => {
         text: 'Audio Features over time'
       },
       legend: {
+        top: 25,
         data: ['Happiness', 'Energy', 'Danceability'],
         align: 'left',
       },
