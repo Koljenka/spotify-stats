@@ -11,12 +11,13 @@ addEventListener('message', ({data}) => {
 
   const timeframe = data.timeframe;
   const prevTimeframe = data.prevTimeframe;
-  const playbackHistory: any[] = data.playHistory.filter(
+  let playbackHistory: any[] = data.playHistory.filter(
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= timeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= timeframe.end);
   const prevPlaybackHistory: any[] = data.playHistory.filter(
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= prevTimeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= prevTimeframe.end);
+  playbackHistory = playbackHistory.filter(val => val.audioFeatures != null);
 
   getSmallCardStats();
   getTopArtists();
@@ -257,7 +258,12 @@ addEventListener('message', ({data}) => {
       }
       result.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
       return result.map(v => {
-        return {date: new Date(v.date).toLocaleDateString(), valence: v.valence, energy: v.energy, danceability: v.danceability};
+        return {
+          date: new Date(v.date).toLocaleDateString(),
+          valence: v.valence,
+          energy: v.energy,
+          danceability: v.danceability
+        };
       });
     }
 
@@ -275,7 +281,10 @@ addEventListener('message', ({data}) => {
           new Date(parseInt(item.added_at, 10)).getFullYear() === new Date(parseInt(v.added_at, 10)).getFullYear()
         );
         result.push({
-          date: {month: new Date(parseInt(item.added_at, 10)).getMonth(), year: new Date(parseInt(item.added_at, 10)).getFullYear()},
+          date: {
+            month: new Date(parseInt(item.added_at, 10)).getMonth(),
+            year: new Date(parseInt(item.added_at, 10)).getFullYear()
+          },
           valence: getAverageHappiness(tempList),
           energy: getAverageEnergy(tempList),
           danceability: getAverageDanceability(tempList)
@@ -288,7 +297,12 @@ addEventListener('message', ({data}) => {
         return a.date.month - b.date.month;
       });
       return result.map(v => {
-        return {date: (v.date.month + 1) + '.' + v.date.year, valence: v.valence, energy: v.energy, danceability: v.danceability};
+        return {
+          date: (v.date.month + 1) + '.' + v.date.year,
+          valence: v.valence,
+          energy: v.energy,
+          danceability: v.danceability
+        };
       });
     }
   }

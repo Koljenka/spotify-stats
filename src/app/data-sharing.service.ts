@@ -85,7 +85,7 @@ export class DataSharingService {
     const playbackHistoryTracks: PlayHistoryObjectFull[] = [];
     history.forEach(historyTrack => {
       const track = this.tracks.find(tr => tr.id === historyTrack.trackid);
-      const audioFeatures = this.audioFeatures.find(af => af.id === historyTrack.trackid);
+      const audioFeatures = this.audioFeatures.find(af => af != null && af.id === historyTrack.trackid);
       let context = this.contexts.find(ct => ct.content.uri === historyTrack.contexturi);
       if (context === undefined) {
         context = {contextType: null, content: null};
