@@ -11,13 +11,13 @@ addEventListener('message', ({data}) => {
 
   const timeframe = data.timeframe;
   const prevTimeframe = data.prevTimeframe;
-  let playbackHistory: any[] = data.playHistory.filter(
+  data.playHistory = data.playHistory.filter(val => val.audioFeatures != null);
+  const playbackHistory: any[] = data.playHistory.filter(
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= timeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= timeframe.end);
   const prevPlaybackHistory: any[] = data.playHistory.filter(
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= prevTimeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= prevTimeframe.end);
-  playbackHistory = playbackHistory.filter(val => val.audioFeatures != null);
 
   getSmallCardStats();
   getTopArtists();
