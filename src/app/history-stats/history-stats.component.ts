@@ -10,7 +10,11 @@ import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/
 import {MatDateRangeInput} from '@angular/material/datepicker';
 import {FormControl, FormGroup} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
-import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter
+} from '@angular/material-moment-adapter';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
@@ -64,12 +68,17 @@ export class HistoryStatsComponent implements OnInit {
               private titleService: Title, private api: ApiConnectionService,
               private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
-      this.worker = new Worker('./history-stats.worker', {type: 'module'});
+      this.worker = new Worker('./history-stats.worker', {type: 'module'}),
       this.worker.onmessage = ({data}) => this.workerCallback(data);
     }
   }
 
   ngOnInit(): void {
+    for (let i = 0; i < 9; i++) {
+      this.smallStatCardStats.push({
+        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+      });
+    }
     this.titleService.setTitle('History Statistics - SpotifyStats');
     this.styleService.currentTheme.subscribe(value => {
       this.theme = value;
@@ -112,6 +121,11 @@ export class HistoryStatsComponent implements OnInit {
     const prevTimeframe = {start: 0, end: 0};
     this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
     this.smallStatCardStats = [];
+    for (let i = 0; i < 9; i++) {
+      this.smallStatCardStats.push({
+        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+      });
+    }
     this.isLoadingGraph = true;
     switch (this.activeLink) {
       case this.links[3]:
@@ -171,8 +185,8 @@ export class HistoryStatsComponent implements OnInit {
         this.topContexts = data.content;
         this.getTopContextAvgColor();
         break;
-      case 'smallCardStats':
-        this.smallStatCardStats = data.content;
+      case 'new_smallCardStats':
+        this.smallStatCardStats[data.content.id] = data.content;
         break;
       case 'graph': {
         this.options = data.content;
@@ -279,6 +293,7 @@ export interface RGBColor {
 }
 
 export interface SmallCardStat {
+  id: number;
   heading: string;
   icon: string;
   stat: {

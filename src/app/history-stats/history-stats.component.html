@@ -123,20 +123,24 @@
     <mat-divider></mat-divider>
     <div class="stat-group stat-group-1">
       <mat-card class="stat-card" *ngFor="let stat of smallStatCardStats">
-        <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});" class="stat-card-image">
-          <mat-icon>{{stat.icon}}</mat-icon>
-        </div>
-        <div class="content">
-          <div class="heading">{{stat.heading}}</div>
-          <div class="statistic">{{stat.stat.value}}</div>
-          <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">vs. {{stat.stat.prevValue}}</div>
-        </div>
+        <ng-container *ngIf="stat.stat.value != null">
+          <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});"
+               class="stat-card-image">
+            <mat-icon>{{stat.icon}}</mat-icon>
+          </div>
+          <div class="content">
+            <div class="heading">{{stat.heading}}</div>
+            <div class="statistic">{{stat.stat.value}}</div>
+            <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">vs. {{stat.stat.prevValue}}</div>
+          </div>
+        </ng-container>
+        <mat-spinner diameter="40" *ngIf="stat.stat.value == null" style="top: calc(50% - 20px);"></mat-spinner>
       </mat-card>
-      <mat-spinner *ngIf="smallStatCardStats.length === 0" style="top: unset"></mat-spinner>
     </div>
     <mat-divider></mat-divider>
     <div class="stat-graphs">
-      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingGraph" [options]="options" class="graph"></mat-card>
+      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingGraph" [options]="options"
+                class="graph"></mat-card>
     </div>
     <mat-divider></mat-divider>
   </ng-container>

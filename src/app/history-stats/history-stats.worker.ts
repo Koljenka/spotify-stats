@@ -19,121 +19,166 @@ addEventListener('message', ({data}) => {
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= prevTimeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= prevTimeframe.end);
 
-  getSmallCardStats();
-  getTopArtists();
-  getTopAlbums();
-  getTopSongs();
-  getTopContexts();
-  getGraphs();
+  async function getSmallCardStats(): Promise<void> {
+    async function getTotalTracks(): Promise<void> {
+      postMessage({
+        type: 'new_smallCardStats', content:
+          {
+            id: 0,
+            heading: 'Total Tracks',
+            icon: 'music_note',
+            stat: {value: playbackHistory.length, prevTimeframe, prevValue: prevPlaybackHistory.length}
+          }
+      });
+      return Promise.resolve();
+    }
 
-  function getSmallCardStats(): void {
-    const response = [];
-    response.push({
-      heading: 'Total Tracks',
-      icon: 'music_note',
-      stat: {value: playbackHistory.length, prevTimeframe, prevValue: prevPlaybackHistory.length}
-    });
-    const uniqueTracks = [];
-    playbackHistory.map(value => value.track.id).forEach(trackId => {
-      if (!uniqueTracks.includes(trackId)) {
-        uniqueTracks.push(trackId);
-      }
-    });
-    const prevUniqueTracks = [];
-    prevPlaybackHistory.map(value => value.track.id).forEach(trackId => {
-      if (!prevUniqueTracks.includes(trackId)) {
-        prevUniqueTracks.push(trackId);
-      }
-    });
-    response.push({
-      heading: 'Unique Tracks',
-      icon: 'music_note',
-      stat: {value: uniqueTracks.length, prevTimeframe, prevValue: prevUniqueTracks.length}
-    });
+    async function getUniqueTracks(): Promise<void> {
+      const uniqueTracks = [];
+      playbackHistory.map(value => value.track.id).forEach(trackId => {
+        if (!uniqueTracks.includes(trackId)) {
+          uniqueTracks.push(trackId);
+        }
+      });
+      const prevUniqueTracks = [];
+      prevPlaybackHistory.map(value => value.track.id).forEach(trackId => {
+        if (!prevUniqueTracks.includes(trackId)) {
+          prevUniqueTracks.push(trackId);
+        }
+      });
+      postMessage({
+          type: 'new_smallCardStats', content:
+            {
+              id: 1,
+              heading: 'Unique Tracks',
+              icon: 'music_note',
+              stat: {value: uniqueTracks.length, prevTimeframe, prevValue: prevUniqueTracks.length}
+            }
+        }
+      );
+      return Promise.resolve();
+    }
 
-    const uniqueArtists = [];
-    playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
-      if (!uniqueArtists.includes(artistId)) {
-        uniqueArtists.push(artistId);
-      }
-    });
-    const prevUniqueArtists = [];
-    prevPlaybackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
-      if (!prevUniqueArtists.includes(artistId)) {
-        prevUniqueArtists.push(artistId);
-      }
-    });
-    response.push({
-      heading: 'Unique Artists',
-      icon: 'person',
-      stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
-    });
+    async function getUniqueArtists(): Promise<void> {
+      const uniqueArtists = [];
+      playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+        if (!uniqueArtists.includes(artistId)) {
+          uniqueArtists.push(artistId);
+        }
+      });
+      const prevUniqueArtists = [];
+      prevPlaybackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
+        if (!prevUniqueArtists.includes(artistId)) {
+          prevUniqueArtists.push(artistId);
+        }
+      });
+      postMessage({
+        type: 'new_smallCardStats', content:
+          {
+            id: 2,
+            heading: 'Unique Artists',
+            icon: 'person',
+            stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
+          }
+      });
+      return Promise.resolve();
+    }
 
-    const listeningTime = getListeningTime(playbackHistory);
-    const prevListeningTime = getListeningTime(prevPlaybackHistory);
-    response.push({
-      heading: 'Listening Time',
-      icon: 'schedule',
-      stat: {
-        value: toHoursMinutesSeconds(listeningTime / 1000),
-        prevTimeframe,
-        prevValue: toHoursMinutesSeconds(prevListeningTime / 1000)
-      }
-    });
-    response.push({
-      heading: 'Time spent listening',
-      icon: 'data_usage',
-      stat: {
-        value: Math.floor((listeningTime / (timeframe.end - timeframe.start)) * 100) + '%',
-        prevTimeframe,
-        prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
-      }
-    });
+    async function getListeningTimeStat(): Promise<void> {
+      const listeningTime = getListeningTime(playbackHistory);
+      const prevListeningTime = getListeningTime(prevPlaybackHistory);
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 3,
+          heading: 'Listening Time',
+          icon: 'schedule',
+          stat: {
+            value: toHoursMinutesSeconds(listeningTime / 1000),
+            prevTimeframe,
+            prevValue: toHoursMinutesSeconds(prevListeningTime / 1000)
+          }
+        }
+      });
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 4,
+          heading: 'Time spent listening',
+          icon: 'data_usage',
+          stat: {
+            value: Math.floor((listeningTime / (timeframe.end - timeframe.start)) * 100) + '%',
+            prevTimeframe,
+            prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
+          }
+        }
+      });
+      return Promise.resolve();
+    }
 
-    const mostActiveDay = getMostActiveDay(playbackHistory);
-    const prevMostActiveDay = getMostActiveDay(prevPlaybackHistory);
-    response.push({
-      heading: 'Most Active Day',
-      icon: 'event',
-      stat: {
-        value: mostActiveDay.date.toLocaleDateString() + ' (' + mostActiveDay.plays + ')',
-        prevTimeframe,
-        prevValue: prevMostActiveDay.date.toLocaleDateString() + ' (' + prevMostActiveDay.plays + ')'
-      }
-    });
+    async function getMostActiveDayStat(): Promise<void> {
+      const mostActiveDay = getMostActiveDay(playbackHistory);
+      const prevMostActiveDay = getMostActiveDay(prevPlaybackHistory);
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 5,
+          heading: 'Most Active Day',
+          icon: 'event',
+          stat: {
+            value: mostActiveDay.date.toLocaleDateString() + ' (' + mostActiveDay.plays + ')',
+            prevTimeframe,
+            prevValue: prevMostActiveDay.date.toLocaleDateString() + ' (' + prevMostActiveDay.plays + ')'
+          }
+        }
+      });
+      return Promise.resolve();
+    }
 
-    response.push({
-      heading: 'Average Happiness',
-      icon: 'sentiment_very_satisfied',
-      stat: {
-        value: getAverageHappiness(playbackHistory) + '%',
-        prevTimeframe,
-        prevValue: getAverageHappiness(prevPlaybackHistory) + '%'
-      }
-    });
+    async function getAverageHappinessStat(): Promise<void> {
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 6,
+          heading: 'Average Happiness',
+          icon: 'sentiment_very_satisfied',
+          stat: {
+            value: getAverageHappiness(playbackHistory) + '%',
+            prevTimeframe,
+            prevValue: getAverageHappiness(prevPlaybackHistory) + '%'
+          }
+        }
+      });
+      return Promise.resolve();
+    }
 
-    response.push({
-      heading: 'Average Energy',
-      icon: 'flash_on',
-      stat: {
-        value: getAverageEnergy(playbackHistory) + '%',
-        prevTimeframe,
-        prevValue: getAverageEnergy(prevPlaybackHistory) + '%'
-      }
-    });
+    async function getAverageEnergyStat(): Promise<void> {
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 7,
+          heading: 'Average Energy',
+          icon: 'flash_on',
+          stat: {
+            value: getAverageEnergy(playbackHistory) + '%',
+            prevTimeframe,
+            prevValue: getAverageEnergy(prevPlaybackHistory) + '%'
+          }
+        }
+      });
+      return Promise.resolve();
+    }
 
-    response.push({
-      heading: 'Average Danceability',
-      icon: 'emoji_people',
-      stat: {
-        value: getAverageDanceability(playbackHistory) + '%',
-        prevTimeframe,
-        prevValue: getAverageDanceability(prevPlaybackHistory) + '%'
-      }
-    });
-
-    postMessage({type: 'smallCardStats', content: response});
-
+    async function getAverageDanceabilityStat(): Promise<void> {
+      postMessage({
+        type: 'new_smallCardStats', content: {
+          id: 8,
+          heading: 'Average Danceability',
+          icon: 'emoji_people',
+          stat: {
+            value: getAverageDanceability(playbackHistory) + '%',
+            prevTimeframe,
+            prevValue: getAverageDanceability(prevPlaybackHistory) + '%'
+          }
+        }
+      });
+      return Promise.resolve();
+    }
 
     function getListeningTime(history: any[]): number {
       if (history.length === 0) {
@@ -163,9 +208,20 @@ addEventListener('message', ({data}) => {
       });
       return top;
     }
+
+    return Promise.all([
+      getTotalTracks(),
+      getUniqueTracks(),
+      getUniqueArtists(),
+      getListeningTimeStat(),
+      getMostActiveDayStat(),
+      getAverageHappinessStat(),
+      getAverageEnergyStat(),
+      getAverageDanceabilityStat()
+    ]).then(() => Promise.resolve());
   }
 
-  function getGraphs(): void {
+  async function getGraphs(): Promise<void> {
     const xAxisData = [];
     const valence = [];
     const energy = [];
@@ -305,10 +361,11 @@ addEventListener('message', ({data}) => {
         };
       });
     }
+
+    return Promise.resolve();
   }
 
-
-  function getTopArtists(): void {
+  async function getTopArtists(): Promise<void> {
     const uniqueArtists: { artistId: string, c: number }[] = [];
     playbackHistory.map(value => value.track.artists[0]).forEach(artist => {
       if (!uniqueArtists.map(value => value.artistId).includes(artist.id)) {
@@ -320,7 +377,7 @@ addEventListener('message', ({data}) => {
     });
     const topFive = uniqueArtists.sort((a, b) => b.c - a.c).slice(0, 5);
     const topArtists = [];
-    api.getArtists(topFive.map(artist => artist.artistId), {}, (error, artists) => {
+    await api.getArtists(topFive.map(artist => artist.artistId), {}, (error, artists) => {
       // @ts-ignore
       topFive.forEach(entry => {
         const artist = artists.artists.find(ar => ar.id === entry.artistId);
@@ -329,9 +386,10 @@ addEventListener('message', ({data}) => {
       topArtists.sort((a, b) => b.timesPlayed - a.timesPlayed);
       postMessage({type: 'topArtists', content: topArtists});
     });
+    return Promise.resolve();
   }
 
-  function getTopAlbums(): void {
+  async function getTopAlbums(): Promise<void> {
     const allAlbums = playbackHistory.map(value => value.track.album);
     const uniqueAlbums: { albumId: string, c: number }[] = [];
     allAlbums.forEach(album => {
@@ -344,7 +402,7 @@ addEventListener('message', ({data}) => {
     });
     const topFive = uniqueAlbums.sort((a, b) => b.c - a.c).slice(0, 5);
     const topAlbums = [];
-    api.getAlbums(topFive.map(album => album.albumId), {}, (error, albums) => {
+    await api.getAlbums(topFive.map(album => album.albumId), {}, (error, albums) => {
       // @ts-ignore
       topFive.forEach(entry => {
         const album = albums.albums.find(al => al.id === entry.albumId);
@@ -353,9 +411,10 @@ addEventListener('message', ({data}) => {
       topAlbums.sort((a, b) => b.timesPlayed - a.timesPlayed);
       postMessage({type: 'topAlbums', content: topAlbums});
     });
+    return Promise.resolve();
   }
 
-  function getTopSongs(): void {
+  async function getTopSongs(): Promise<void> {
     const uniqueTracks: any[] = [];
     playbackHistory.map(value => value.track).forEach(track => {
       if (!uniqueTracks.map(value => value.track.id).includes(track.id)) {
@@ -367,9 +426,10 @@ addEventListener('message', ({data}) => {
     });
     const topTracks = uniqueTracks.sort((a, b) => b.timesPlayed - a.timesPlayed).slice(0, 5);
     postMessage({type: 'topTracks', content: topTracks});
+    return Promise.resolve();
   }
 
-  function getTopContexts(): void {
+  async function getTopContexts(): Promise<void> {
     const uniqueContexts: any[] = [];
     for (const context of playbackHistory.map(value => value.context)) {
       if (context.content == null) {
@@ -384,6 +444,7 @@ addEventListener('message', ({data}) => {
     }
     const topContexts = uniqueContexts.sort((a, b) => b.timesPlayed - a.timesPlayed).slice(0, 5);
     postMessage({type: 'topContexts', content: topContexts});
+    return Promise.resolve();
   }
 
   function toHoursMinutesSeconds(totalSeconds): string {
@@ -426,4 +487,12 @@ addEventListener('message', ({data}) => {
     return Math.round(history.map(v => v.audioFeatures.danceability).reduce(add) * 100 / history.length);
   }
 
+  return Promise.all([
+    getTopSongs(),
+    getTopContexts(),
+    getTopArtists(),
+    getTopAlbums(),
+    getGraphs(),
+    getSmallCardStats()
+  ]);
 });
