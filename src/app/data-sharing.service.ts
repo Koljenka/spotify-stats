@@ -173,8 +173,12 @@ export class DataSharingService {
         this.contexts.push({contextType: 'artist', content: artist});
         this.loadedContexts = this.contexts.length;
       });
-    }).catch(() => {
-      return this.getArtists(artistIds);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
+          this.getArtists(artistIds)
+        );
+      }
     });
   }
 
@@ -184,8 +188,12 @@ export class DataSharingService {
         this.contexts.push({contextType: 'album', content: album});
         this.loadedContexts = this.contexts.length;
       });
-    }).catch(() => {
-      return this.getAlbums(albumIds);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
+          this.getAlbums(albumIds)
+        );
+      }
     });
   }
 
@@ -193,25 +201,41 @@ export class DataSharingService {
     return this.api.getApi().getPlaylist(playlistId).then(playlist => {
       this.contexts.push({contextType: 'playlist', content: playlist});
       this.loadedContexts = this.contexts.length;
-    }).catch(() => {
-      return this.getPlaylist(playlistId, playlistUri);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
+          this.getPlaylist(playlistId, playlistUri)
+        );
+      }
     });
   }
 
   private getTracks(ids: string[]): Promise<void> {
     return this.api.getApi().getTracks(ids).then(tracks => {
       this.tracks.push(...tracks.tracks);
-    }).catch(() => {
-      return this.getTracks(ids);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
+          this.getTracks(ids)
+        );
+      }
     });
   }
 
   private getAudioFeatures(ids: string[]): Promise<void> {
     return this.api.getApi().getAudioFeaturesForTracks(ids).then(response => {
       this.audioFeatures.push(...response.audio_features);
-    }).catch(() => {
-      return this.getAudioFeatures(ids);
+    }).catch(reason => {
+      if (reason.status === 429) {
+        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
+          this.getAudioFeatures(ids)
+        );
+      }
     });
+  }
+
+  private delay(s: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, s * 1000));
   }
 }
 

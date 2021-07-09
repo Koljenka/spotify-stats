@@ -97,6 +97,11 @@ export class HistoryStatsComponent implements OnInit {
         value.start <= value.end) {
         this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
         this.smallStatCardStats = [];
+        for (let i = 0; i < 9; i++) {
+          this.smallStatCardStats.push({
+            id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+          });
+        }
         this.isLoadingGraph = true;
         const prevTimeframe = {start: 0, end: 0};
         prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
