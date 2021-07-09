@@ -206,6 +206,8 @@ export class DataSharingService {
         return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
           this.getPlaylist(playlistId, playlistUri)
         );
+      } else {
+        this.totalContextCount--;
       }
     });
   }
