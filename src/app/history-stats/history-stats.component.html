@@ -141,6 +141,9 @@
     <div class="stat-graphs">
       <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingGraph" [options]="options"
                 class="graph"></mat-card>
+
+      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
+                class="graph"></mat-card>
     </div>
     <mat-divider></mat-divider>
   </ng-container>

@@ -162,6 +162,14 @@
   height: 178vw;
 }
 
+.stat-graphs > .graph {
+  margin-bottom: 1vw;
+}
+
+.stat-graphs:last-child {
+  margin-bottom: 0;
+}
+
 .graph {
   width: 90%;
   margin: auto;

@@ -10,11 +10,7 @@ import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/
 import {MatDateRangeInput} from '@angular/material/datepicker';
 import {FormControl, FormGroup} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
-import {
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-  MAT_MOMENT_DATE_FORMATS,
-  MomentDateAdapter
-} from '@angular/material-moment-adapter';
+import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
@@ -60,6 +56,8 @@ export class HistoryStatsComponent implements OnInit {
   activeLink = this.links[0];
   options: any;
   isLoadingGraph = true;
+  clockGraphData: any;
+  isLoadingClockGraph = true;
   private isFirstCallback = true;
 
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
@@ -69,7 +67,7 @@ export class HistoryStatsComponent implements OnInit {
               private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker('./history-stats.worker', {type: 'module'}),
-      this.worker.onmessage = ({data}) => this.workerCallback(data);
+        this.worker.onmessage = ({data}) => this.workerCallback(data);
     }
   }
 
@@ -103,6 +101,7 @@ export class HistoryStatsComponent implements OnInit {
           });
         }
         this.isLoadingGraph = true;
+        this.isLoadingClockGraph = true;
         const prevTimeframe = {start: 0, end: 0};
         prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
         prevTimeframe.end = value.start - 1;
@@ -132,6 +131,7 @@ export class HistoryStatsComponent implements OnInit {
       });
     }
     this.isLoadingGraph = true;
+    this.isLoadingClockGraph = true;
     switch (this.activeLink) {
       case this.links[3]:
         timeframe.start = parseInt(this.playbackHistory[this.playbackHistory.length - 1].added_at, 10);
@@ -164,6 +164,7 @@ export class HistoryStatsComponent implements OnInit {
         break;
     }
     prevTimeframe.end = timeframe.start - 1;
+    this.getClockGraphData(timeframe.start, timeframe.end);
     this.worker.postMessage({
       playHistory: this.playbackHistory,
       token: StorageService.accessToken,
@@ -199,6 +200,75 @@ export class HistoryStatsComponent implements OnInit {
         break;
       }
     }
+  }
+
+  private getClockGraphData(from: number, to: number): void {
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/listeningClock', {
+      access_token: StorageService.accessToken,
+      from: from / 1000,
+      to: to/ 1000
+    })
+      .subscribe(value => {
+        const temp = {
+          0: 0,
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0,
+          6: 0,
+          7: 0,
+          8: 0,
+          9: 0,
+          10: 0,
+          11: 0,
+          12: 0,
+          13: 0,
+          14: 0,
+          15: 0,
+          16: 0,
+          17: 0,
+          18: 0,
+          19: 0,
+          20: 0,
+          21: 0,
+          22: 0,
+          23: 0
+        };
+        // @ts-ignore
+        value.forEach(val => temp[parseInt(val.hour, 10)] = val.count);
+        this.clockGraphData = {
+          title: {
+            text: 'Listening Clock'
+          },
+          toolbox: {
+            show: true,
+            feature: {
+              saveAsImage: {title: 'Save as Image'}
+            }
+          },
+          backgroundColor: '#00000000',
+          angleAxis: {
+            type: 'category',
+            data: Object.keys(temp)
+          },
+          tooltip: {
+            show: true,
+
+          },
+          radiusAxis: {
+          },
+          polar: {
+          },
+          series: [{
+            type: 'bar',
+            data: Object.values(temp),
+            coordinateSystem: 'polar',
+            name: 'Songs played',
+          }]
+        };
+      });
+    this.isLoadingClockGraph = false;
   }
 
   getTopArtistAvgColor(): void {
