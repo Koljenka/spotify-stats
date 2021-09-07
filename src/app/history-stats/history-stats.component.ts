@@ -72,11 +72,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    for (let i = 0; i < 9; i++) {
-      this.smallStatCardStats.push({
-        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
-      });
-    }
+    this.clearStats();
     this.titleService.setTitle('History Statistics - SpotifyStats');
     this.styleService.currentTheme.subscribe(value => {
       this.theme = value;
@@ -88,50 +84,13 @@ export class HistoryStatsComponent implements OnInit {
       this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
       this.onLinkChanged();
     });
-    this.range.valueChanges.pipe(debounceTime(200)).subscribe(value => {
-      if (!this.isFirstCallback &&
-        value.end != null && value.start != null &&
-        value.start._isValid && value.end._isValid &&
-        value.start <= value.end) {
-        this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
-        this.smallStatCardStats = [];
-        for (let i = 0; i < 9; i++) {
-          this.smallStatCardStats.push({
-            id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
-          });
-        }
-        this.isLoadingGraph = true;
-        this.isLoadingClockGraph = true;
-        const prevTimeframe = {start: 0, end: 0};
-        prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
-        prevTimeframe.end = value.start - 1;
-        let end = value.end.valueOf();
-        if (value.start.valueOf() === value.end.valueOf()) {
-          end = value.start.valueOf() + 86399000;
-        }
-        this.worker.postMessage({
-          playHistory: this.playbackHistory,
-          token: StorageService.accessToken,
-          timeframe: {start: value.start.valueOf(), end: end.valueOf()},
-          prevTimeframe
-        });
-      }
-      this.isFirstCallback = false;
-    });
+    this.range.valueChanges.pipe(debounceTime(200)).subscribe(this.onRangeChanged);
   }
 
   onLinkChanged(): void {
     const timeframe = {start: 0, end: Date.now()};
     const prevTimeframe = {start: 0, end: 0};
-    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
-    this.smallStatCardStats = [];
-    for (let i = 0; i < 9; i++) {
-      this.smallStatCardStats.push({
-        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
-      });
-    }
-    this.isLoadingGraph = true;
-    this.isLoadingClockGraph = true;
+    this.clearStats();
     switch (this.activeLink) {
       case this.links[3]:
         timeframe.start = parseInt(this.playbackHistory[this.playbackHistory.length - 1].added_at, 10);
@@ -164,12 +123,46 @@ export class HistoryStatsComponent implements OnInit {
         break;
     }
     prevTimeframe.end = timeframe.start - 1;
-    this.getClockGraphData(timeframe.start, timeframe.end);
+    this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
+  }
+
+  private onRangeChanged(value): void {
+    if (!this.isFirstCallback &&
+      value.end != null && value.start != null &&
+      value.start._isValid && value.end._isValid &&
+      value.start <= value.end) {
+      this.clearStats();
+      const prevTimeframe = {start: 0, end: 0};
+      prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
+      prevTimeframe.end = value.start - 1;
+      let end = value.end.valueOf();
+      if (value.start.valueOf() === value.end.valueOf()) {
+        end = value.start.valueOf() + 86399000;
+      }
+      this.loadStatsForTimeframe(value.start.valueOf(), end.valueOf(), prevTimeframe.start, prevTimeframe.end);
+    }
+    this.isFirstCallback = false;
+  }
+
+  private clearStats(): void {
+    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+    this.smallStatCardStats = [];
+    for (let i = 0; i < 9; i++) {
+      this.smallStatCardStats.push({
+        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+      });
+    }
+    this.isLoadingGraph = true;
+    this.isLoadingClockGraph = true;
+  }
+
+  private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
+    this.getClockGraphData(from, to);
     this.worker.postMessage({
       playHistory: this.playbackHistory,
       token: StorageService.accessToken,
-      timeframe,
-      prevTimeframe
+      timeframe: {start: from, end: to},
+      prevTimeframe: {start: previousFrom, end: previousTo}
     });
   }
 
@@ -206,7 +199,7 @@ export class HistoryStatsComponent implements OnInit {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/listeningClock', {
       access_token: StorageService.accessToken,
       from: from / 1000,
-      to: to/ 1000
+      to: to / 1000
     })
       .subscribe(value => {
         const temp = {
@@ -256,10 +249,8 @@ export class HistoryStatsComponent implements OnInit {
             show: true,
 
           },
-          radiusAxis: {
-          },
-          polar: {
-          },
+          radiusAxis: {},
+          polar: {},
           series: [{
             type: 'bar',
             data: Object.values(temp),
