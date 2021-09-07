@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {HttpClient} from '@angular/common/http';
@@ -32,6 +32,8 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   didLoadFirstContent = false;
   private s = '';
   private p = '';
+  public innerWidth: any;
+  actualColumns: string[];
 
 
   constructor(private dataSharing: DataSharingService, private http: HttpClient, private api: ApiConnectionService,
@@ -43,9 +45,35 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   @Input() search = '';
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event): void {
+    this.innerWidth = window.innerWidth;
+    this.removeColumnsIfNeeded();
+  }
+
   ngOnInit(): void {
+    this.innerWidth = window.innerWidth;
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
+    this.removeColumnsIfNeeded();
+  }
+
+  private removeColumnsIfNeeded(): void {
+    this.actualColumns = this.displayedColumns.filter(column => {
+      if (column === 'length') {
+        return this.innerWidth >= 850;
+      }
+      if (column === 'album') {
+        return this.innerWidth >= 800;
+      }
+      if (column === 'contextUri') {
+        return this.innerWidth >= 700;
+      }
+      if (column === 'artist') {
+        return this.innerWidth >= 500;
+      }
+      return true;
+    });
   }
 
   ngAfterViewInit(): void {
