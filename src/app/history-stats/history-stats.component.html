@@ -131,7 +131,7 @@
           <div class="content">
             <div class="heading">{{stat.heading}}</div>
             <div class="statistic">{{stat.stat.value}}</div>
-            <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">vs. {{stat.stat.prevValue}}</div>
+            <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">{{stat.stat.prevValue}}</div>
           </div>
         </ng-container>
         <mat-spinner diameter="40" *ngIf="stat.stat.value == null" style="top: calc(50% - 20px);"></mat-spinner>
@@ -143,6 +143,8 @@
                 class="graph"></mat-card>
 
       <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
+                class="graph"></mat-card>
+      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [options]="mapGraphData"
                 class="graph"></mat-card>
     </div>
     <mat-divider></mat-divider>

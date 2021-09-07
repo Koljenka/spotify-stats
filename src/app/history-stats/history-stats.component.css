@@ -166,8 +166,9 @@
   margin-bottom: 1vw;
 }
 
-.stat-graphs:last-child {
+.stat-graphs > .graph:last-child {
   margin-bottom: 0;
+  height: 500px;
 }
 
 .graph {

@@ -33,6 +33,7 @@ import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
   ]
 })
 export class HistoryStatsComponent implements OnInit {
+  private isInitialized = false;
   playbackHistory: PlayHistoryObjectFull[];
   worker: Worker;
   didLoadTracks = false;
@@ -58,6 +59,7 @@ export class HistoryStatsComponent implements OnInit {
   isLoadingGraph = true;
   clockGraphData: any;
   isLoadingClockGraph = true;
+  mapGraphData: any;
   private isFirstCallback = true;
 
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
@@ -85,6 +87,7 @@ export class HistoryStatsComponent implements OnInit {
       this.onLinkChanged();
     });
     this.range.valueChanges.pipe(debounceTime(200)).subscribe(this.onRangeChanged);
+    this.isInitialized = true;
   }
 
   onLinkChanged(): void {
@@ -126,8 +129,20 @@ export class HistoryStatsComponent implements OnInit {
     this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
   }
 
+  private clearStats(): void {
+    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
+    this.smallStatCardStats = [];
+    for (let i = 0; i < 10; i++) {
+      this.smallStatCardStats.push({
+        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+      });
+    }
+    this.isLoadingGraph = true;
+    this.isLoadingClockGraph = true;
+  }
+
   private onRangeChanged(value): void {
-    if (!this.isFirstCallback &&
+    if (this.isInitialized && !this.isFirstCallback &&
       value.end != null && value.start != null &&
       value.start._isValid && value.end._isValid &&
       value.start <= value.end) {
@@ -144,26 +159,82 @@ export class HistoryStatsComponent implements OnInit {
     this.isFirstCallback = false;
   }
 
-  private clearStats(): void {
-    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
-    this.smallStatCardStats = [];
-    for (let i = 0; i < 9; i++) {
-      this.smallStatCardStats.push({
-        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
-      });
-    }
-    this.isLoadingGraph = true;
-    this.isLoadingClockGraph = true;
-  }
-
   private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
     this.getClockGraphData(from, to);
+    this.getStreak(from, to);
+    this.createMapGraph();
     this.worker.postMessage({
       playHistory: this.playbackHistory,
       token: StorageService.accessToken,
       timeframe: {start: from, end: to},
       prevTimeframe: {start: previousFrom, end: previousTo}
     });
+  }
+
+  private createMapGraph(): void {
+    const artists = [];
+    const links = [];
+    let currInd = 0;
+    const trackArtists = this.playbackHistory.filter(val => val.track.artists.length > 1).map(a => a.track.artists);
+    trackArtists.forEach(artistsOfTrack => {
+      artistsOfTrack.forEach(artist => {
+        if (!artists.map(va => va.artistId).includes(artist.id)) {
+          artists.push({
+            id: currInd++,
+            artistId: artist.id,
+            name: artist.name,
+            value: 0
+          });
+        }
+      });
+    });
+    trackArtists.forEach(artistsOfTrack => {
+      const tempLinks = artistsOfTrack.sort().reduce(
+        (acc, item, i, arr) => acc.concat(
+          arr.slice(i + 1).map(secondItem => [item, secondItem])
+        ), []);
+      tempLinks.forEach(lin => {
+        const artist1 = artists.filter(artist => artist.artistId === lin[0].id)[0];
+        const artist2 = artists.filter(artist => artist.artistId === lin[1].id)[0];
+        const tempLink = artist1.id + '|' + artist2.id;
+        const inverse = artist2.id + '|' + artist1.id;
+
+        if (!links.includes(tempLink) && !links.includes(inverse)) {
+          artist1.value++;
+          artist2.value++;
+          links.push(tempLink);
+        }
+
+      });
+    });
+    const edges = links.map(a => (
+      {
+        source: a.split('|')[0],
+        target: a.split('|')[1]
+      }
+    ));
+    this.mapGraphData = {
+      backgroundColor: '#00000000',
+      title: {
+        text: 'Artist Map'
+      },
+      tooltip: {},
+      series: [{
+        type: 'graph',
+        layout: 'force',
+        animation: false,
+        roam: true,
+        draggable: false,
+        data: artists,
+        force: {
+          edgeLength: 2,
+          friction: 0.5,
+          repulsion: 50,
+        },
+        edges
+      }]
+    };
+    console.log(this.mapGraphData);
   }
 
   workerCallback(data): void {
@@ -195,70 +266,91 @@ export class HistoryStatsComponent implements OnInit {
     }
   }
 
+  private getStreak(from: number, to: number): void {
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/streak', {
+      access_token: StorageService.accessToken,
+      from: from / 1000,
+      to: to / 1000
+    }).subscribe(value => {
+        this.smallStatCardStats[9] = {
+          id: 9,
+          heading: 'Longest Streak',
+          icon: 'date_range',
+          stat: {
+            value: value[0].days + ' days',
+            prevTimeframe: {start: 10, end: 10},
+            prevValue: new Date(value[0].start).toLocaleDateString() + ' - ' + new Date(value[0].end).toLocaleDateString()
+          }
+        };
+        console.log(value);
+      }
+    );
+  }
+
   private getClockGraphData(from: number, to: number): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/listeningClock', {
       access_token: StorageService.accessToken,
       from: from / 1000,
       to: to / 1000
-    })
-      .subscribe(value => {
-        const temp = {
-          0: 0,
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0,
-          6: 0,
-          7: 0,
-          8: 0,
-          9: 0,
-          10: 0,
-          11: 0,
-          12: 0,
-          13: 0,
-          14: 0,
-          15: 0,
-          16: 0,
-          17: 0,
-          18: 0,
-          19: 0,
-          20: 0,
-          21: 0,
-          22: 0,
-          23: 0
-        };
-        // @ts-ignore
-        value.forEach(val => temp[parseInt(val.hour, 10)] = val.count);
-        this.clockGraphData = {
-          title: {
-            text: 'Listening Clock'
-          },
-          toolbox: {
-            show: true,
-            feature: {
-              saveAsImage: {title: 'Save as Image'}
-            }
-          },
-          backgroundColor: '#00000000',
-          angleAxis: {
-            type: 'category',
-            data: Object.keys(temp)
-          },
-          tooltip: {
-            show: true,
-
-          },
-          radiusAxis: {},
-          polar: {},
-          series: [{
-            type: 'bar',
-            data: Object.values(temp),
-            coordinateSystem: 'polar',
-            name: 'Songs played',
-          }]
-        };
-      });
+    }).subscribe(value => {
+      const temp = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        7: 0,
+        8: 0,
+        9: 0,
+        10: 0,
+        11: 0,
+        12: 0,
+        13: 0,
+        14: 0,
+        15: 0,
+        16: 0,
+        17: 0,
+        18: 0,
+        19: 0,
+        20: 0,
+        21: 0,
+        22: 0,
+        23: 0
+      };
+      // @ts-ignore
+      value.forEach(val => temp[parseInt(val.hour, 10)] = val.count);
+      this.clockGraphData = {
+        title: {
+          text: 'Listening Clock'
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            saveAsImage: {title: 'Save as Image'}
+          }
+        },
+        backgroundColor: '#00000000',
+        angleAxis: {
+          type: 'category',
+          data: Object.keys(temp),
+        },
+        tooltip: {
+          show: true,
+        },
+        radiusAxis: {
+          z: 5
+        },
+        polar: {},
+        series: [{
+          type: 'bar',
+          data: Object.values(temp),
+          coordinateSystem: 'polar',
+          name: 'Songs played',
+        }]
+      };
+    });
     this.isLoadingClockGraph = false;
   }
 
@@ -368,6 +460,6 @@ export interface SmallCardStat {
       start: number;
       end: number;
     };
-    prevValue: number;
+    prevValue: number | string;
   };
 }

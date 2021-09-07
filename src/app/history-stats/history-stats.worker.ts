@@ -27,7 +27,7 @@ addEventListener('message', ({data}) => {
             id: 0,
             heading: 'Total Tracks',
             icon: 'music_note',
-            stat: {value: playbackHistory.length, prevTimeframe, prevValue: prevPlaybackHistory.length}
+            stat: {value: playbackHistory.length, prevTimeframe, prevValue: 'vs. ' + prevPlaybackHistory.length}
           }
       });
       return Promise.resolve();
@@ -52,7 +52,7 @@ addEventListener('message', ({data}) => {
               id: 1,
               heading: 'Unique Tracks',
               icon: 'music_note',
-              stat: {value: uniqueTracks.length, prevTimeframe, prevValue: prevUniqueTracks.length}
+              stat: {value: uniqueTracks.length, prevTimeframe, prevValue: 'vs. ' + prevUniqueTracks.length}
             }
         }
       );
@@ -78,7 +78,7 @@ addEventListener('message', ({data}) => {
             id: 2,
             heading: 'Unique Artists',
             icon: 'person',
-            stat: {value: uniqueArtists.length, prevTimeframe, prevValue: prevUniqueArtists.length}
+            stat: {value: uniqueArtists.length, prevTimeframe, prevValue: 'vs. ' + prevUniqueArtists.length}
           }
       });
       return Promise.resolve();
@@ -95,7 +95,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: toHoursMinutesSeconds(listeningTime / 1000),
             prevTimeframe,
-            prevValue: toHoursMinutesSeconds(prevListeningTime / 1000)
+            prevValue: 'vs. ' + toHoursMinutesSeconds(prevListeningTime / 1000)
           }
         }
       });
@@ -107,7 +107,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: Math.floor((listeningTime / (timeframe.end - timeframe.start)) * 100) + '%',
             prevTimeframe,
-            prevValue: Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
+            prevValue: 'vs. ' + Math.floor((prevListeningTime / (prevTimeframe.end - prevTimeframe.start)) * 100) + '%'
           }
         }
       });
@@ -125,7 +125,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: mostActiveDay.date.toLocaleDateString() + ' (' + mostActiveDay.plays + ')',
             prevTimeframe,
-            prevValue: prevMostActiveDay.date.toLocaleDateString() + ' (' + prevMostActiveDay.plays + ')'
+            prevValue: 'vs. ' + prevMostActiveDay.date.toLocaleDateString() + ' (' + prevMostActiveDay.plays + ')'
           }
         }
       });
@@ -141,7 +141,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: getAverageHappiness(playbackHistory) + '%',
             prevTimeframe,
-            prevValue: getAverageHappiness(prevPlaybackHistory) + '%'
+            prevValue: 'vs. ' + getAverageHappiness(prevPlaybackHistory) + '%'
           }
         }
       });
@@ -157,7 +157,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: getAverageEnergy(playbackHistory) + '%',
             prevTimeframe,
-            prevValue: getAverageEnergy(prevPlaybackHistory) + '%'
+            prevValue: 'vs. ' + getAverageEnergy(prevPlaybackHistory) + '%'
           }
         }
       });
@@ -173,7 +173,7 @@ addEventListener('message', ({data}) => {
           stat: {
             value: getAverageDanceability(playbackHistory) + '%',
             prevTimeframe,
-            prevValue: getAverageDanceability(prevPlaybackHistory) + '%'
+            prevValue: 'vs. ' + getAverageDanceability(prevPlaybackHistory) + '%'
           }
         }
       });
