@@ -1,7 +1,6 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {ApiConnectionService} from '../api-connection.service';
-import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject} from 'rxjs';
 import {Title} from '@angular/platform-browser';
 

@@ -26,14 +26,18 @@ build_angular:
     paths:
       - ./docker
 
-lint:
+eslint:
   stage: lint
   allow_failure: true
   script:
-    - npm run lint
+    - npm ci
+    - npx eslint --format gitlab .
   needs:
     - job: install_dependencies
       artifacts: true
+  artifacts:
+    reports:
+      codequality: gl-codequality.json
 
 deploy_image:
   stage: deploy

@@ -5,8 +5,8 @@ import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import TrackObjectSimplified = SpotifyApi.TrackObjectSimplified;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
-import {Title} from "@angular/platform-browser";
-import {ContextObjectFull} from "../data-sharing.service";
+import {Title} from '@angular/platform-browser';
+import {ContextObjectFull} from '../data-sharing.service';
 
 @Component({
   selector: 'app-album-track-list',

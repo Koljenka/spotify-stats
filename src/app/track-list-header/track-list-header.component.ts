@@ -1,5 +1,4 @@
-import {AfterViewInit, Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
-import {ContextObjectFull} from '../data-sharing.service';
+import {AfterViewInit, Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
@@ -18,7 +17,7 @@ export class TrackListHeaderComponent implements AfterViewInit {
   @Input() contextObject: any;
   @Input() tracksSource: Observable<any[]>;
 
-  @Output('bgChanged') onBackgroundColor = new EventEmitter<string>();
+  @Output() backgroundColorChanged = new EventEmitter<string>();
 
   tracks: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
 
@@ -34,7 +33,7 @@ export class TrackListHeaderComponent implements AfterViewInit {
         .subscribe(color => {
           // @ts-ignore
           this.backgroundColor = color;
-          this.onBackgroundColor.emit(`linear-gradient(rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
+          this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
         });
     });
   }

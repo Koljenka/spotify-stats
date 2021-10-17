@@ -8,8 +8,6 @@ import {BreakpointObserver} from '@angular/cdk/layout';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
 import {version} from '../../../package.json';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Base64} from 'js-base64';
 
 @Component({
   selector: 'app-overview',

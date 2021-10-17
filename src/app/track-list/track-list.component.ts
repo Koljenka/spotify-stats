@@ -9,12 +9,9 @@ import {
   ViewChild
 } from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
-import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
-import {HttpClient} from '@angular/common/http';
-import {ApiConnectionService} from '../api-connection.service';
+import {ContextObjectFull} from '../data-sharing.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
-import {Title} from '@angular/platform-browser';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
@@ -22,8 +19,8 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
-import {StyleManagerService} from "../style-manager.service";
-import {Option} from "../option.model";
+import {StyleManagerService} from '../style-manager.service';
+import {Option} from '../option.model';
 
 @Component({
   selector: 'app-track-list',
@@ -53,8 +50,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   private backgroundColorSource = new BehaviorSubject<string>('unset');
   backgroundColor = this.backgroundColorSource.asObservable();
 
-  constructor(private dataSharing: DataSharingService, private http: HttpClient, private api: ApiConnectionService,
-              private route: ActivatedRoute, private router: Router, private location: Location,
+  constructor(private route: ActivatedRoute, private router: Router, private location: Location,
               private cdRef: ChangeDetectorRef, private styleService: StyleManagerService) {
   }
 

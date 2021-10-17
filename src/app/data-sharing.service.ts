@@ -47,7 +47,6 @@ export class DataSharingService {
   private contexts: ContextObjectFull[] = [];
   private tracks: TrackObjectFull[] = [];
   private audioFeatures: AudioFeaturesObject[] = [];
-  private historyLength = 0;
   private uniqueTrackIds: string[] = [];
   private didStartLoading = false;
   private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
@@ -63,7 +62,6 @@ export class DataSharingService {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
         const playbackHistory = (value as PlaybackHistory[]);
-        this.historyLength = playbackHistory.length;
         this.uniqueTrackIds = this.getUniqueTrackIds(playbackHistory);
         Promise.all([this.getContexts(playbackHistory), this.getAllTracks(), this.getAllAudioFeatures()]).then(() => {
           this.matchTracks(playbackHistory);

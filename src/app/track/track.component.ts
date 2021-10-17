@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {ApiConnectionService} from '../api-connection.service';
-import {DomSanitizer, Meta, Title} from '@angular/platform-browser';
+import {DomSanitizer, Title} from '@angular/platform-browser';
 import {KeyHelper} from '../key-helper';
 import {StyleManagerService} from '../style-manager.service';
 import {HttpClient} from '@angular/common/http';
@@ -31,7 +31,7 @@ export class TrackComponent implements OnInit {
   lyrics: string;
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, public sanitizer: DomSanitizer,
-              private titleService: Title, private meta: Meta, private readonly styleService: StyleManagerService,
+              private titleService: Title, private readonly styleService: StyleManagerService,
               private http: HttpClient) {
     this.trackId = this.route.snapshot.params.trackId;
     this.contextUri = this.route.snapshot.params.contextUri;

@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import AlbumObjectSimplified = SpotifyApi.AlbumObjectSimplified;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import {environment} from '../../environments/environment';
 

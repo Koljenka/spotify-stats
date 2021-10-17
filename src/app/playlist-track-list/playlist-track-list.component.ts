@@ -1,10 +1,9 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import {BehaviorSubject} from 'rxjs';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
-import {HttpClient} from '@angular/common/http';
 import {Title} from '@angular/platform-browser';
 import {ContextObjectFull} from '../data-sharing.service';
 
@@ -20,7 +19,7 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
 
   private playlistId: string;
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private http: HttpClient, private titleService: Title) {
+  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private titleService: Title) {
     this.playlistId = this.route.snapshot.params.playlistId;
   }
 

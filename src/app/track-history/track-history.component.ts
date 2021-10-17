@@ -1,10 +1,9 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
-import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject} from 'rxjs';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
-import {Title} from "@angular/platform-browser";
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-track-history',

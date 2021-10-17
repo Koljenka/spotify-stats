@@ -3,7 +3,6 @@ import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
-import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
 import {StorageService} from '../storage.service';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
@@ -68,7 +67,7 @@ export class HistoryStatsComponent implements OnInit {
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
-              private titleService: Title, private api: ApiConnectionService,
+              private titleService: Title,
               private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker('./history-stats.worker', {type: 'module'}),
@@ -343,7 +342,6 @@ export class HistoryStatsComponent implements OnInit {
 
   }
 
-  // tslint:disable-next-line:typedef
   trackByFunction(index, item) {
     if ('artist' in item) {
       return item.artist.id;

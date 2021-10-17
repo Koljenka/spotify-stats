@@ -1,8 +1,7 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {CookieService} from '../cookie.service';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
-import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {Title} from '@angular/platform-browser';
 
@@ -16,8 +15,8 @@ export class HomeComponent implements OnInit {
 
   playlists: SpotifyApi.PlaylistObjectSimplified[];
 
-  constructor(private route: ActivatedRoute, private api: ApiConnectionService, private titleService: Title,
-              public http: HttpClient, public cookie: CookieService, private router: Router) {
+  constructor(private api: ApiConnectionService, private titleService: Title,
+              public http: HttpClient, public cookie: CookieService) {
   }
 
   ngOnInit(): void {

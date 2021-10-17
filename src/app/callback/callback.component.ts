@@ -5,7 +5,6 @@ import {CookieService} from '../cookie.service';
 import {StorageService} from '../storage.service';
 import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
-import {DataSharingService} from '../data-sharing.service';
 
 @Component({
   selector: 'app-callback',
@@ -17,7 +16,7 @@ export class CallbackComponent implements OnInit {
   private options = {headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')};
 
   constructor(private api: ApiConnectionService, private activatedRoute: ActivatedRoute, public http: HttpClient,
-              public router: Router, public cookie: CookieService, private dataSharing: DataSharingService) {
+              public router: Router, public cookie: CookieService) {
     this.activatedRoute.queryParams.subscribe(params => {
       this.code = params.code;
       this.authorize();

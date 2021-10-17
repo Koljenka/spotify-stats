@@ -15,7 +15,7 @@ export class Util {
   }
 
   static getTextColorForBackground(r, g, b): string {
-    // tslint:disable-next-line:radix
+    // eslint-disable-next-line radix
     const brightness = Math.round(((parseInt(r) * 299) + (parseInt(g) * 587) + (parseInt(b) * 114)) / 1000);
     return (brightness > 125) ? 'black' : 'white';
   }
