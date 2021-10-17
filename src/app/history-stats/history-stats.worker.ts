@@ -188,11 +188,11 @@ addEventListener('message', ({data}) => {
       return Math.round(history.map(v => v.track.duration_ms).reduce(add));
     }
 
-    function getMostActiveDay(history: any[]): { date: Date, plays: number } {
+    function getMostActiveDay(history: any[]): { date: Date; plays: number } {
       if (history.length <= 0) {
         return {date: new Date(0), plays: NaN};
       }
-      const days: { date: Date, plays: number }[] = [];
+      const days: { date: Date; plays: number }[] = [];
       for (const item of history) {
         if (days.map(v => v.date.toDateString()).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
           continue;
@@ -314,14 +314,12 @@ addEventListener('message', ({data}) => {
         });
       }
       result.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
-      return result.map(v => {
-        return {
+      return result.map(v => ({
           date: new Date(v.date).toLocaleDateString(),
           valence: v.valence,
           energy: v.energy,
           danceability: v.danceability
-        };
-      });
+        }));
     }
 
     function getAverageFeaturesOverMonth(): any[] {
@@ -353,21 +351,19 @@ addEventListener('message', ({data}) => {
         }
         return a.date.month - b.date.month;
       });
-      return result.map(v => {
-        return {
+      return result.map(v => ({
           date: (v.date.month + 1) + '.' + v.date.year,
           valence: v.valence,
           energy: v.energy,
           danceability: v.danceability
-        };
-      });
+        }));
     }
 
     return Promise.resolve();
   }
 
   async function getTopArtists(): Promise<void> {
-    const uniqueArtists: { artistId: string, c: number }[] = [];
+    const uniqueArtists: { artistId: string; c: number }[] = [];
     playbackHistory.map(value => value.track.artists[0]).forEach(artist => {
       if (!uniqueArtists.map(value => value.artistId).includes(artist.id)) {
         uniqueArtists.push({artistId: artist.id, c: 1});
@@ -392,7 +388,7 @@ addEventListener('message', ({data}) => {
 
   async function getTopAlbums(): Promise<void> {
     const allAlbums = playbackHistory.map(value => value.track.album);
-    const uniqueAlbums: { albumId: string, c: number }[] = [];
+    const uniqueAlbums: { albumId: string; c: number }[] = [];
     allAlbums.forEach(album => {
       if (!uniqueAlbums.map(countedAlbum => countedAlbum.albumId).includes(album.id)) {
         uniqueAlbums.push({albumId: album.id, c: 1});

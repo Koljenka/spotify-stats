@@ -42,12 +42,14 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject> =
     new MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject>();
   didLoadFirstContent = false;
+  actualColumns: string[];
+  public innerWidth: any;
+
   private s = '';
   private p = '';
-  public innerWidth: any;
-  actualColumns: string[];
   private theme: Option;
   private backgroundColorSource = new BehaviorSubject<string>('unset');
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   backgroundColor = this.backgroundColorSource.asObservable();
 
   constructor(private route: ActivatedRoute, private router: Router, private location: Location,
@@ -55,7 +57,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event): void {
+  onResize(): void {
     this.innerWidth = window.innerWidth;
     this.removeColumnsIfNeeded();
   }
@@ -73,24 +75,6 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public calculateBackgroundColor(): void {
     this.backgroundColorSource.next(this.theme.backgroundColor + (this.styleService.isDarkStyleActive() ? '80' : '8'));
-  }
-
-  private removeColumnsIfNeeded(): void {
-    this.actualColumns = this.displayedColumns.filter(column => {
-      if (column === 'length') {
-        return this.innerWidth >= 850;
-      }
-      if (column === 'album') {
-        return this.innerWidth >= 800;
-      }
-      if (column === 'contextUri') {
-        return this.innerWidth >= 700;
-      }
-      if (column === 'artist') {
-        return this.innerWidth >= 500;
-      }
-      return true;
-    });
   }
 
   ngAfterViewInit(): void {
@@ -121,33 +105,6 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.didLoadFirstContent = false;
-  }
-
-  private recreatePageFromQuery(page: string, search: string): void {
-    if (search !== null && search !== undefined && search.length > 0) {
-      this.search = search;
-      this.cdRef.detectChanges();
-      this.filterData(search);
-    }
-    if (page !== null && page !== undefined && page.length > 0) {
-      this.paginator.pageIndex = parseInt(page, 10);
-      this.dataSource.paginator.page.next({
-        pageIndex: parseInt(page, 10),
-        pageSize: this.dataSource.paginator.pageSize,
-        length: this.dataSource.paginator.length
-      });
-    }
-
-  }
-
-  private updateQuery(page: string, search: string): void {
-    const url = this.router.createUrlTree([], {
-      relativeTo: this.route,
-      queryParams: {s: search, p: page}
-    }).toString();
-    this.s = search;
-    this.p = page;
-    this.location.replaceState(url);
   }
 
   onRowClick(trackId: string, context: ContextObjectFull): void {
@@ -311,5 +268,50 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
       default:
         return 'play_circle_outline';
     }
+  }
+
+  private removeColumnsIfNeeded(): void {
+    this.actualColumns = this.displayedColumns.filter(column => {
+      if (column === 'length') {
+        return this.innerWidth >= 850;
+      }
+      if (column === 'album') {
+        return this.innerWidth >= 800;
+      }
+      if (column === 'contextUri') {
+        return this.innerWidth >= 700;
+      }
+      if (column === 'artist') {
+        return this.innerWidth >= 500;
+      }
+      return true;
+    });
+  }
+
+  private recreatePageFromQuery(page: string, search: string): void {
+    if (search !== null && search !== undefined && search.length > 0) {
+      this.search = search;
+      this.cdRef.detectChanges();
+      this.filterData(search);
+    }
+    if (page !== null && page !== undefined && page.length > 0) {
+      this.paginator.pageIndex = parseInt(page, 10);
+      this.dataSource.paginator.page.next({
+        pageIndex: parseInt(page, 10),
+        pageSize: this.dataSource.paginator.pageSize,
+        length: this.dataSource.paginator.length
+      });
+    }
+
+  }
+
+  private updateQuery(page: string, search: string): void {
+    const url = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: {s: search, p: page}
+    }).toString();
+    this.s = search;
+    this.p = page;
+    this.location.replaceState(url);
   }
 }
