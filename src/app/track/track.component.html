@@ -1,4 +1,5 @@
 <div class="wrapper">
+  <ng-scrollbar appearance="standard">
   <ng-container *ngIf="didLoadTrack">
     <img [src]="track.album.images[0].url" width="300px" height="300px" alt="Album Cover">
 
@@ -112,5 +113,6 @@
   <ng-container *ngIf="!didLoadTrack">
     <mat-spinner></mat-spinner>
   </ng-container>
+  </ng-scrollbar>
 </div>
 

@@ -1,10 +1,11 @@
 table {
-  width: 100%;
+  width: calc(100% - 13px);
   text-align: left;
 }
 
 .tableContainer {
   overflow: auto;
+  width: 100vw;
 }
 
 .trContent {

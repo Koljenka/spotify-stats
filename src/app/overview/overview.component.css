@@ -1,4 +1,4 @@
-mat-toolbar{
+mat-toolbar {
   justify-content: space-between;
   position: fixed;
   top: 0;
@@ -19,3 +19,15 @@ mat-toolbar{
 .home-icon {
   margin: 0 3px 4px 0;
 }
+
+::ng-deep .ng-scrollbar-wrapper[verticalHovered=true] {
+  cursor: pointer !important;
+}
+
+
+
+::ng-deep .ng-scroll-content {
+  height: 100% !important;
+}
+
+

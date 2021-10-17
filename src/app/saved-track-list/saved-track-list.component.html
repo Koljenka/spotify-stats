@@ -1,5 +1,7 @@
 <div class="wrapper">
+  <ng-scrollbar appearance="standard">
   <app-track-list initialSort="added_at"
                   [displayedColumns]="['title', 'album', 'artist', 'length', 'added_at']"
                   [data]="this.savedTracksSource.asObservable()"></app-track-list>
+  </ng-scrollbar>
 </div>

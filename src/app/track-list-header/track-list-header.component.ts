@@ -15,8 +15,8 @@ import {HttpClient} from '@angular/common/http';
   styleUrls: ['./track-list-header.component.css']
 })
 export class TrackListHeaderComponent implements AfterViewInit {
-  @Input() contextObject: ContextObjectFull;
-  @Input() tracksSource: Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>;
+  @Input() contextObject: any;
+  @Input() tracksSource: Observable<any[]>;
 
   @Output('bgChanged') onBackgroundColor = new EventEmitter<string>();
 
@@ -54,13 +54,11 @@ export class TrackListHeaderComponent implements AfterViewInit {
   getUsername(): string {
     switch (this.contextObject?.contextType) {
       case 'album':
-        // @ts-ignore
         return this.contextObject.content.artists[0].name;
       case 'artist':
       default:
         return '';
       case 'playlist':
-        // @ts-ignore
         return this.contextObject.content.owner.display_name;
     }
   }

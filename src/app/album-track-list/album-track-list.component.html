@@ -1,7 +1,9 @@
 <div [style.background]="this.backgroundColor" class="wrapper">
+  <ng-scrollbar>
   <app-track-list-header [contextObject]="this.getContextObject()"
                          [tracksSource]="this.albumTracksSource.asObservable()"
                          (bgChanged)="this.backgroundColor = $event"></app-track-list-header>
   <app-track-list [displayedColumns]="['title', 'artist', 'length']"
                   [data]="albumTracksSource.asObservable()"></app-track-list>
+  </ng-scrollbar>
 </div>

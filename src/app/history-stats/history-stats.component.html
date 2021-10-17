@@ -20,6 +20,7 @@
 
 <div class="wrapper">
   <ng-container *ngIf="didLoadTracks">
+    <ng-scrollbar appearance="standard">
 
     <div class="top-lists mat-app-background" id="top-lists">
       <div class="top-column" id="topArtistsColumn">
@@ -146,6 +147,7 @@
                 class="graph"></mat-card>
     </div>
     <mat-divider></mat-divider>
+    </ng-scrollbar>
   </ng-container>
   <ng-template #spinner>
     <mat-spinner></mat-spinner>

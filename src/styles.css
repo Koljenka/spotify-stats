@@ -10,6 +10,11 @@ body {
   margin: 0;
 }
 
+ng-scrollbar {
+  --scrollbar-thumb-color: #e91e63A0 !important;
+  --scrollbar-hover-size: 8px !important;
+}
+
 app-overview {
   display: flex;
   margin: 0;

@@ -43,6 +43,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatTabsModule} from '@angular/material/tabs';
 import localeDe from '@angular/common/locales/de';
 import { TrackListHeaderComponent } from './track-list-header/track-list-header.component';
+import {NgScrollbarModule} from 'ngx-scrollbar';
 
 registerLocaleData(localeDe);
 
@@ -92,6 +93,7 @@ registerLocaleData(localeDe);
     MatListModule,
     MatProgressBarModule,
     ReactiveFormsModule,
+    NgScrollbarModule,
   ],
   providers: [
     {provide: LocationStrategy, useClass: PathLocationStrategy},
