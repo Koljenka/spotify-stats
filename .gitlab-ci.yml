@@ -78,5 +78,6 @@ deploy_image:
     - docker push kojenka/spotify-stats:$CI_COMMIT_TAG
     - docker push kojenka/spotify-stats:latest
   needs:
+    - job: karma
     - job: build_angular
       artifacts: true
