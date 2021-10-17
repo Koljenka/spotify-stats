@@ -72,7 +72,9 @@ export class TrackComponent implements OnInit {
 
   getContextsOfTrack(): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/contextOfTrack', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       access_token: StorageService.accessToken,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       track_id: this.trackId
     }).subscribe(value => {
       console.log(value);
@@ -110,6 +112,8 @@ export class TrackComponent implements OnInit {
   }
 
   public getSvgStyle(): string {
-    return this.styleService.isDarkStyleActive() ? 'filter: invert(var(--value, 100%)); height: 200px; width: 200px;' : 'height: 200px; width: 200px;';
+    return this.styleService.isDarkStyleActive() ?
+      'filter: invert(var(--value, 100%)); height: 200px; width: 200px;' :
+      'height: 200px; width: 200px;';
   }
 }

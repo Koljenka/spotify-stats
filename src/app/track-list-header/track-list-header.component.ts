@@ -21,7 +21,7 @@ export class TrackListHeaderComponent implements AfterViewInit {
 
   tracks: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
 
-  private backgroundColor: { r: number, g: number, b: number };
+  private backgroundColor: { r: number; g: number; b: number };
 
   constructor(private http: HttpClient) {
   }
@@ -33,7 +33,8 @@ export class TrackListHeaderComponent implements AfterViewInit {
         .subscribe(color => {
           // @ts-ignore
           this.backgroundColor = color;
-          this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
+          this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r},
+          ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
         });
     });
   }

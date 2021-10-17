@@ -40,9 +40,6 @@ export class DataSharingService {
     return this.historyLoadingProgress === 1;
   }
 
-  constructor(private http: HttpClient, private api: ApiConnectionService) {
-  }
-
   private savedTracks: PlayHistoryObjectFull[] = [];
   private contexts: ContextObjectFull[] = [];
   private tracks: TrackObjectFull[] = [];
@@ -53,12 +50,16 @@ export class DataSharingService {
   private totalContextCount = 0;
   private loadedContexts = 0;
 
+  constructor(private http: HttpClient, private api: ApiConnectionService) {
+  }
+
   public getSavedTracks(): PlayHistoryObjectFull[] {
     return this.savedTracks;
   }
 
 
   private loadPlaybackHistory(): void {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
         const playbackHistory = (value as PlaybackHistory[]);
@@ -88,7 +89,9 @@ export class DataSharingService {
       if (context === undefined) {
         context = {contextType: null, content: null};
       }
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       this.savedTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       playbackHistoryTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
     });
     this.playbackHistorySource.next(playbackHistoryTracks);
@@ -106,9 +109,7 @@ export class DataSharingService {
       }
     }
 
-    return Promise.all(promises).then(() => {
-      return Promise.resolve(this.tracks);
-    });
+    return Promise.all(promises).then(() => Promise.resolve(this.tracks));
   }
 
   private async getAllAudioFeatures(): Promise<AudioFeaturesObject[]> {
@@ -120,9 +121,7 @@ export class DataSharingService {
       }
     }
 
-    return Promise.all(promises).then(() => {
-      return Promise.resolve(this.audioFeatures);
-    });
+    return Promise.all(promises).then(() => Promise.resolve(this.audioFeatures));
   }
 
   private async getContexts(historyTracks: PlaybackHistory[]): Promise<ContextObjectFull[]> {
@@ -160,9 +159,7 @@ export class DataSharingService {
       }
     }
 
-    return Promise.all(promises).then(() => {
-      return Promise.resolve(this.contexts);
-    });
+    return Promise.all(promises).then(() => Promise.resolve(this.contexts));
   }
 
   private getArtists(artistIds: string[]): Promise<void> {

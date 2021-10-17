@@ -132,6 +132,73 @@ export class HistoryStatsComponent implements OnInit {
     this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
   }
 
+  getTopArtistAvgColor(): void {
+    if (this.topArtists.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topArtists[0].artist.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topArtistAvgColor = value;
+        });
+    }
+  }
+
+  getTopAlbumAvgColor(): void {
+    if (this.topAlbums.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topAlbums[0].album.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topAlbumAvgColor = value;
+        });
+    }
+  }
+
+  getTopTrackAvgColor(): void {
+    if (this.topTracks.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topTracks[0].track.album.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topTrackAvgColor = value;
+        });
+    }
+  }
+
+  getTopContextAvgColor(): void {
+    if (this.topContexts.length > 0) {
+      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topContexts[0].context.content.images[0].url)
+        .subscribe(value => {
+          // @ts-ignore
+          this.topContextAvgColor = value;
+        });
+    }
+  }
+
+  getContextRouterLink(context: ContextObjectFull): string[] {
+    const contextId = context.content.id;
+    switch (context.contextType) {
+      case 'playlist':
+        return ['/playlist-track-list', contextId];
+      case 'album':
+        return ['/album-track-list', contextId];
+      case 'artist':
+      default:
+        return [];
+    }
+
+  }
+
+  trackByFunction(index, item) {
+    if ('artist' in item) {
+      return item.artist.id;
+    } else if ('album' in item) {
+      return item.album.id;
+    } else if ('track' in item) {
+      return item.track.id;
+    } else if ('context' in item) {
+      return item.context.content.uri;
+    }
+    return index;
+  }
+
   private clearStats(): void {
     this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
     this.smallStatCardStats = [];
@@ -290,73 +357,6 @@ export class HistoryStatsComponent implements OnInit {
       };
     });
     this.isLoadingClockGraph = false;
-  }
-
-  getTopArtistAvgColor(): void {
-    if (this.topArtists.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topArtists[0].artist.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topArtistAvgColor = value;
-        });
-    }
-  }
-
-  getTopAlbumAvgColor(): void {
-    if (this.topAlbums.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topAlbums[0].album.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topAlbumAvgColor = value;
-        });
-    }
-  }
-
-  getTopTrackAvgColor(): void {
-    if (this.topTracks.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topTracks[0].track.album.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topTrackAvgColor = value;
-        });
-    }
-  }
-
-  getTopContextAvgColor(): void {
-    if (this.topContexts.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topContexts[0].context.content.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topContextAvgColor = value;
-        });
-    }
-  }
-
-  getContextRouterLink(context: ContextObjectFull): string[] {
-    const contextId = context.content.id;
-    switch (context.contextType) {
-      case 'playlist':
-        return ['/playlist-track-list', contextId];
-      case 'album':
-        return ['/album-track-list', contextId];
-      case 'artist':
-      default:
-        return [];
-    }
-
-  }
-
-  trackByFunction(index, item) {
-    if ('artist' in item) {
-      return item.artist.id;
-    } else if ('album' in item) {
-      return item.album.id;
-    } else if ('track' in item) {
-      return item.track.id;
-    } else if ('context' in item) {
-      return item.context.content.uri;
-    }
-    return index;
   }
 }
 

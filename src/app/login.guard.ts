@@ -16,9 +16,7 @@ export class LoginGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (this.cookie.isLoggedIn()) {
-      return this.api.waitForApi().then(() => {
-        return Promise.resolve(true);
-      });
+      return this.api.waitForApi().then(() => Promise.resolve(true));
     }
     StorageService.redirect = state.url;
     return this.router.navigate(['home']);
