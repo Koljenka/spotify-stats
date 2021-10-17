@@ -42,7 +42,7 @@ eslint:
 karma:
   stage: test
   script:
-    - ng test --watch=false --code-coverage --reporters junit
+    - npm run test --watch=false --code-coverage --reporters junit
   needs:
     - job: install_dependencies
       artifacts: true
