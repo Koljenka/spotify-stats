@@ -1,7 +1,7 @@
 import {Util} from './util';
 
 describe('Util', () => {
-  describe('Util.getTextColorForBackground', () => {
+  describe('getTextColorForBackground()', () => {
     it('should return white', () => {
       expect(Util.getTextColorForBackground(0, 0, 0)).toBe('white');
     });
@@ -10,7 +10,7 @@ describe('Util', () => {
     });
   });
 
-  describe('Util.toHoursMinutesSeconds', () => {
+  describe('toHoursMinutesSeconds()', () => {
     it('should return 1:03:05', () => {
       expect(Util.toHoursMinutesSeconds(3785)).toBe('1:03:05');
     });
@@ -22,6 +22,9 @@ describe('Util', () => {
     });
     it('should return 2h 39m 31s', () => {
       expect(Util.toHoursMinutesSeconds(9571, false)).toBe('2h 39m 31s');
+    });
+    it('should return 2 days, 1  hour', () => {
+      expect(Util.toHoursMinutesSeconds(177457 )).toBe('2 days, 1  hour');
     });
   });
 
