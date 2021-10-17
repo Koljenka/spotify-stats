@@ -8,6 +8,7 @@
     "prod": "ng build --prod --base-href /spotify-stats/",
     "docker": "ng build --prod --base-href /spotify-stats/ --output-path ./docker/dist/spotify-stats",
     "test": "ng test",
+    "test-ci": "ng test --watch=false --code-coverage --reporters junit",
     "lint": "ng lint"
   },
   "private": true,
