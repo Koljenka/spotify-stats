@@ -28,6 +28,7 @@ mat-toolbar {
 
 ::ng-deep .ng-scroll-content {
   height: 100% !important;
+  width: 100% !important;
 }
 
 

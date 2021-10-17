@@ -11,9 +11,6 @@ import {Base64} from 'js-base64';
 })
 export class ApiConnectionService {
 
-  private constructor(private http: HttpClient) {
-  }
-
   get tokenUrl(): string {
     return environment.APP_SETTINGS.tokenUrl;
   }
@@ -41,6 +38,7 @@ export class ApiConnectionService {
   get clientName(): string {
     return environment.APP_SETTINGS.clientName;
   }
+  public userId = null;
 
   private get hasValidToken(): boolean {
     return StorageService.accessToken != null && Date.now() < StorageService.expiresAt;
@@ -48,11 +46,12 @@ export class ApiConnectionService {
 
   private api: SpotifyWebApi.SpotifyWebApiJs = null;
 
-  public userId = null;
+  private constructor(private http: HttpClient) {
+  }
 
   public checkToken(): void {
     if (!this.hasValidToken) {
-      this.requestRefreshToken();
+      this.requestRefreshToken().then();
     }
   }
 
@@ -61,6 +60,17 @@ export class ApiConnectionService {
       await this.requestRefreshToken();
     }
     return Promise.resolve(this.api);
+  }
+
+  getApi(): SpotifyWebApi.SpotifyWebApiJs {
+    if (this.api == null) {
+      this.api = new SpotifyWebApi();
+      this.api.setAccessToken(StorageService.accessToken);
+      if (this.userId == null) {
+        this.api.getMe().then(value => this.userId = value.id);
+      }
+    }
+    return this.api;
   }
 
   private async requestRefreshToken(): Promise<void> {
@@ -85,16 +95,5 @@ export class ApiConnectionService {
     if (this.userId == null) {
       this.api.getMe().then(value => this.userId = value.id);
     }
-  }
-
-  getApi(): SpotifyWebApi.SpotifyWebApiJs {
-    if (this.api == null) {
-      this.api = new SpotifyWebApi();
-      this.api.setAccessToken(StorageService.accessToken);
-      if (this.userId == null) {
-        this.api.getMe().then(value => this.userId = value.id);
-      }
-    }
-    return this.api;
   }
 }

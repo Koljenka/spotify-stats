@@ -4,12 +4,13 @@ stages:
   - install_dependencies
   - lint
   - build
+  - test
   - deploy
 
 install_dependencies:
   stage: install_dependencies
   script:
-    - npm install
+    - npm ci
   artifacts:
     expire_in: 1 day
     paths:
@@ -30,7 +31,6 @@ eslint:
   stage: lint
   allow_failure: true
   script:
-    - npm ci
     - npx eslint --format gitlab .
   needs:
     - job: install_dependencies
@@ -38,6 +38,21 @@ eslint:
   artifacts:
     reports:
       codequality: gl-codequality.json
+
+karma:
+  stage: test
+  script:
+    - ng test --watch=false --code-coverage --reporters junit
+  needs:
+    - job: install_dependencies
+      artifacts: true
+  artifacts:
+    paths:
+      - coverage/
+    reports:
+      junit:
+        - junit.xml
+
 
 deploy_image:
   stage: deploy
@@ -47,7 +62,7 @@ deploy_image:
   image: docker:20.10
   services:
     - docker:20.10-dind
-  only: [tags]
+  only: [ tags ]
   before_script:
     - echo "$DOCKER_REGISTRY_PASS" | docker login --username $DOCKER_REGISTRY_USER --password-stdin
   script:

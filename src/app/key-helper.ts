@@ -61,7 +61,7 @@ export class KeyHelper {
       case 11:
         return prefix + (mode ? 'BM_Gsm.svg' : 'DM_Bm.svg');
       default:
-        return 'CM_Am.svg';
+        return prefix + 'CM_Am.svg';
     }
 
   }

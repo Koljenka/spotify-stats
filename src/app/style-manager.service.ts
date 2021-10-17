@@ -5,11 +5,13 @@ import {environment} from '../environments/environment';
 
 @Injectable()
 export class StyleManagerService {
-  constructor() {
-  }
 
   private themeSource = new BehaviorSubject({} as Option);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   currentTheme = this.themeSource.asObservable();
+
+  constructor() {
+  }
 
   /**
    * Set the stylesheet with the specified key.
@@ -37,30 +39,24 @@ export class StyleManagerService {
   }
 }
 
-function getLinkElementForKey(key: string): Element | HTMLLinkElement | null {
-  return getExistingLinkElementByKey(key) || createLinkElementWithKey(key);
-}
+const getLinkElementForKey = (key: string): Element | HTMLLinkElement | null =>
+  getExistingLinkElementByKey(key) || createLinkElementWithKey(key);
 
-function getExistingLinkElementByKey(key: string): Element | null {
-  return document.head.querySelector(
-    `link[rel="stylesheet"].${getClassNameForKey(key)}`
-  );
-}
+const getExistingLinkElementByKey = (key: string): Element | null =>
+  document.head.querySelector(`link[rel="stylesheet"].${getClassNameForKey(key)}`);
 
 
-function createLinkElementWithKey(key: string): HTMLLinkElement {
+const createLinkElementWithKey = (key: string): HTMLLinkElement => {
   const linkEl = document.createElement('link');
   linkEl.setAttribute('rel', 'stylesheet');
   linkEl.classList.add(getClassNameForKey(key));
   document.head.appendChild(linkEl);
   return linkEl;
-}
+};
 
-function setThemeColorMetaValue(color: string): void {
+const setThemeColorMetaValue = (color: string): void => {
   const metaEl = document.head.querySelector(`meta[name="theme-color"]`);
   metaEl.setAttribute('content', color);
-}
+};
 
-function getClassNameForKey(key: string): string {
-  return `app-${key}`;
-}
+const getClassNameForKey = (key: string): string => `app-${key}`;

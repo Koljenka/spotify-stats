@@ -234,13 +234,11 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.dataSource.data = filteredData;
       } else {
-        this.dataSource.data = this.trackList.filter(value => {
-          return value.track.name.toLowerCase().includes(searchString) ||
-            // @ts-ignore
-            value.track.album.name.toLowerCase().includes(searchString) ||
-            // @ts-ignore
-            value.track.artists.filter(artist => artist.name.toLowerCase().includes(searchString)).length > 0;
-        });
+        this.dataSource.data = this.trackList.filter(value => value.track.name.toLowerCase().includes(searchString) ||
+          // @ts-ignore
+          value.track.album.name.toLowerCase().includes(searchString) ||
+          // @ts-ignore
+          value.track.artists.filter(artist => artist.name.toLowerCase().includes(searchString)).length > 0);
       }
     }
   }
