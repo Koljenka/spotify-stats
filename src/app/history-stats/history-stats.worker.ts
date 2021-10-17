@@ -20,8 +20,8 @@ addEventListener('message', ({data}) => {
     v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= prevTimeframe.start &&
       new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= prevTimeframe.end);
 
-  async function getSmallCardStats(): Promise<void> {
-    async function getTotalTracks(): Promise<void> {
+  const getSmallCardStats = async (): Promise<void> => {
+    const getTotalTracks = async (): Promise<void> => {
       postMessage({
         type: 'new_smallCardStats', content:
           {
@@ -32,9 +32,9 @@ addEventListener('message', ({data}) => {
           }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getUniqueTracks(): Promise<void> {
+    const getUniqueTracks = async (): Promise<void> => {
       const uniqueTracks = [];
       playbackHistory.map(value => value.track.id).forEach(trackId => {
         if (!uniqueTracks.includes(trackId)) {
@@ -58,9 +58,9 @@ addEventListener('message', ({data}) => {
         }
       );
       return Promise.resolve();
-    }
+    };
 
-    async function getUniqueArtists(): Promise<void> {
+    const getUniqueArtists = async (): Promise<void> => {
       const uniqueArtists = [];
       playbackHistory.map(value => value.track.artists[0].id).forEach(artistId => {
         if (!uniqueArtists.includes(artistId)) {
@@ -83,9 +83,9 @@ addEventListener('message', ({data}) => {
           }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getListeningTimeStat(): Promise<void> {
+    const getListeningTimeStat = async (): Promise<void> => {
       const listeningTime = getListeningTime(playbackHistory);
       const prevListeningTime = getListeningTime(prevPlaybackHistory);
       postMessage({
@@ -113,9 +113,9 @@ addEventListener('message', ({data}) => {
         }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getMostActiveDayStat(): Promise<void> {
+    const getMostActiveDayStat = async (): Promise<void> => {
       const mostActiveDay = getMostActiveDay(playbackHistory);
       const prevMostActiveDay = getMostActiveDay(prevPlaybackHistory);
       postMessage({
@@ -131,9 +131,9 @@ addEventListener('message', ({data}) => {
         }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getAverageHappinessStat(): Promise<void> {
+    const getAverageHappinessStat= async (): Promise<void> => {
       postMessage({
         type: 'new_smallCardStats', content: {
           id: 6,
@@ -147,9 +147,9 @@ addEventListener('message', ({data}) => {
         }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getAverageEnergyStat(): Promise<void> {
+    const getAverageEnergyStat = async (): Promise<void> => {
       postMessage({
         type: 'new_smallCardStats', content: {
           id: 7,
@@ -163,9 +163,9 @@ addEventListener('message', ({data}) => {
         }
       });
       return Promise.resolve();
-    }
+    };
 
-    async function getAverageDanceabilityStat(): Promise<void> {
+    const getAverageDanceabilityStat = async (): Promise<void> => {
       postMessage({
         type: 'new_smallCardStats', content: {
           id: 8,
@@ -179,16 +179,16 @@ addEventListener('message', ({data}) => {
         }
       });
       return Promise.resolve();
-    }
+    };
 
-    function getListeningTime(history: any[]): number {
+    const getListeningTime = (history: any[]): number => {
       if (history.length === 0) {
         return 0;
       }
       return Math.round(history.map(v => v.track.duration_ms).reduce(add));
-    }
+    };
 
-    function getMostActiveDay(history: any[]): { date: Date; plays: number } {
+    const getMostActiveDay = (history: any[]): { date: Date; plays: number } => {
       if (history.length <= 0) {
         return {date: new Date(0), plays: NaN};
       }
@@ -208,7 +208,7 @@ addEventListener('message', ({data}) => {
         }
       });
       return top;
-    }
+    };
 
     return Promise.all([
       getTotalTracks(),
@@ -220,9 +220,70 @@ addEventListener('message', ({data}) => {
       getAverageEnergyStat(),
       getAverageDanceabilityStat()
     ]).then(() => Promise.resolve());
-  }
+  };
 
-  async function getGraphs(): Promise<void> {
+  const getAverageFeaturesOverTime = (): any[] => {
+    const result = [];
+    for (const item of playbackHistory) {
+      if (result.map(v => v.date).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
+        continue;
+      }
+      const tempList = playbackHistory.filter(v => new Date(parseInt(item.added_at, 10)).toDateString() ===
+        new Date(parseInt(v.added_at, 10)).toDateString());
+      result.push({
+        date: new Date(parseInt(item.added_at, 10)).toDateString(),
+        valence: getAverageHappiness(tempList),
+        energy: getAverageEnergy(tempList),
+        danceability: getAverageDanceability(tempList)
+      });
+    }
+    result.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
+    return result.map(v => ({
+      date: new Date(v.date).toLocaleDateString(),
+      valence: v.valence,
+      energy: v.energy,
+      danceability: v.danceability
+    }));
+  };
+
+  const getAverageFeaturesOverMonth = (): any[] => {
+    const result = [];
+    for (const item of playbackHistory) {
+      if (result.map(v => JSON.stringify(v.date)).includes(JSON.stringify({
+        month: new Date(parseInt(item.added_at, 10)).getMonth(),
+        year: new Date(parseInt(item.added_at, 10)).getFullYear()
+      }))) {
+        continue;
+      }
+      const tempList = playbackHistory.filter(v =>
+        new Date(parseInt(item.added_at, 10)).getMonth() === new Date(parseInt(v.added_at, 10)).getMonth() &&
+        new Date(parseInt(item.added_at, 10)).getFullYear() === new Date(parseInt(v.added_at, 10)).getFullYear()
+      );
+      result.push({
+        date: {
+          month: new Date(parseInt(item.added_at, 10)).getMonth(),
+          year: new Date(parseInt(item.added_at, 10)).getFullYear()
+        },
+        valence: getAverageHappiness(tempList),
+        energy: getAverageEnergy(tempList),
+        danceability: getAverageDanceability(tempList)
+      });
+    }
+    result.sort((a, b) => {
+      if (a.date.year - b.date.year !== 0) {
+        return a.date.year - b.date.year;
+      }
+      return a.date.month - b.date.month;
+    });
+    return result.map(v => ({
+      date: (v.date.month + 1) + '.' + v.date.year,
+      valence: v.valence,
+      energy: v.energy,
+      danceability: v.danceability
+    }));
+  };
+
+  const getGraphs = async (): Promise<void> => {
     const xAxisData = [];
     const valence = [];
     const energy = [];
@@ -298,71 +359,10 @@ addEventListener('message', ({data}) => {
     };
     postMessage({type: 'graph', content: options});
 
-    function getAverageFeaturesOverTime(): any[] {
-      const result = [];
-      for (const item of playbackHistory) {
-        if (result.map(v => v.date).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
-          continue;
-        }
-        const tempList = playbackHistory.filter(v => new Date(parseInt(item.added_at, 10)).toDateString() ===
-          new Date(parseInt(v.added_at, 10)).toDateString());
-        result.push({
-          date: new Date(parseInt(item.added_at, 10)).toDateString(),
-          valence: getAverageHappiness(tempList),
-          energy: getAverageEnergy(tempList),
-          danceability: getAverageDanceability(tempList)
-        });
-      }
-      result.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
-      return result.map(v => ({
-          date: new Date(v.date).toLocaleDateString(),
-          valence: v.valence,
-          energy: v.energy,
-          danceability: v.danceability
-        }));
-    }
-
-    function getAverageFeaturesOverMonth(): any[] {
-      const result = [];
-      for (const item of playbackHistory) {
-        if (result.map(v => JSON.stringify(v.date)).includes(JSON.stringify({
-          month: new Date(parseInt(item.added_at, 10)).getMonth(),
-          year: new Date(parseInt(item.added_at, 10)).getFullYear()
-        }))) {
-          continue;
-        }
-        const tempList = playbackHistory.filter(v =>
-          new Date(parseInt(item.added_at, 10)).getMonth() === new Date(parseInt(v.added_at, 10)).getMonth() &&
-          new Date(parseInt(item.added_at, 10)).getFullYear() === new Date(parseInt(v.added_at, 10)).getFullYear()
-        );
-        result.push({
-          date: {
-            month: new Date(parseInt(item.added_at, 10)).getMonth(),
-            year: new Date(parseInt(item.added_at, 10)).getFullYear()
-          },
-          valence: getAverageHappiness(tempList),
-          energy: getAverageEnergy(tempList),
-          danceability: getAverageDanceability(tempList)
-        });
-      }
-      result.sort((a, b) => {
-        if (a.date.year - b.date.year !== 0) {
-          return a.date.year - b.date.year;
-        }
-        return a.date.month - b.date.month;
-      });
-      return result.map(v => ({
-          date: (v.date.month + 1) + '.' + v.date.year,
-          valence: v.valence,
-          energy: v.energy,
-          danceability: v.danceability
-        }));
-    }
-
     return Promise.resolve();
-  }
+  };
 
-  async function getTopArtists(): Promise<void> {
+  const getTopArtists = async (): Promise<void> => {
     const uniqueArtists: { artistId: string; c: number }[] = [];
     playbackHistory.map(value => value.track.artists[0]).forEach(artist => {
       if (!uniqueArtists.map(value => value.artistId).includes(artist.id)) {
@@ -384,9 +384,9 @@ addEventListener('message', ({data}) => {
       postMessage({type: 'topArtists', content: topArtists});
     });
     return Promise.resolve();
-  }
+  };
 
-  async function getTopAlbums(): Promise<void> {
+  const getTopAlbums = async (): Promise<void> => {
     const allAlbums = playbackHistory.map(value => value.track.album);
     const uniqueAlbums: { albumId: string; c: number }[] = [];
     allAlbums.forEach(album => {
@@ -409,9 +409,9 @@ addEventListener('message', ({data}) => {
       postMessage({type: 'topAlbums', content: topAlbums});
     });
     return Promise.resolve();
-  }
+  };
 
-  async function getTopSongs(): Promise<void> {
+  const getTopSongs = async (): Promise<void> => {
     const uniqueTracks: any[] = [];
     playbackHistory.map(value => value.track).forEach(track => {
       if (!uniqueTracks.map(value => value.track.id).includes(track.id)) {
@@ -424,9 +424,9 @@ addEventListener('message', ({data}) => {
     const topTracks = uniqueTracks.sort((a, b) => b.timesPlayed - a.timesPlayed).slice(0, 5);
     postMessage({type: 'topTracks', content: topTracks});
     return Promise.resolve();
-  }
+  };
 
-  async function getTopContexts(): Promise<void> {
+  const getTopContexts = async (): Promise<void> => {
     const uniqueContexts: any[] = [];
     for (const context of playbackHistory.map(value => value.context)) {
       if (context.content == null) {
@@ -442,28 +442,28 @@ addEventListener('message', ({data}) => {
     const topContexts = uniqueContexts.sort((a, b) => b.timesPlayed - a.timesPlayed).slice(0, 5);
     postMessage({type: 'topContexts', content: topContexts});
     return Promise.resolve();
-  }
+  };
 
-  function getAverageHappiness(history: any[]): number {
+  const getAverageHappiness = (history: any[]): number => {
     if (history.length === 0) {
       return NaN;
     }
     return Math.round(history.map(v => v.audioFeatures.valence).reduce(add) * 100 / history.length);
-  }
+  };
 
-  function getAverageEnergy(history: any[]): number {
+  const getAverageEnergy = (history: any[]): number => {
     if (history.length === 0) {
       return NaN;
     }
     return Math.round(history.map(v => v.audioFeatures.energy).reduce(add) * 100 / history.length);
-  }
+  };
 
-  function getAverageDanceability(history: any[]): number {
+  const getAverageDanceability = (history: any[]): number => {
     if (history.length === 0) {
       return NaN;
     }
     return Math.round(history.map(v => v.audioFeatures.danceability).reduce(add) * 100 / history.length);
-  }
+  };
 
   return Promise.all([
     getTopSongs(),
