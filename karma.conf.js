@@ -19,11 +19,6 @@ module.exports = function (config) {
     client: {
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
-    coverageIstanbulReporter: {
-      dir: require('path').join(__dirname, './coverage/spotify-stats'),
-      reports: ['html', 'lcovonly', 'text-summary'],
-      fixWebpackSourcePaths: true
-    },
     reporters: ['progress', 'coverage', 'junit'],
     junitReporter: {
       outputDir: '', // results will be saved as $outputDir/$browserName.xml
@@ -31,8 +26,9 @@ module.exports = function (config) {
       useBrowserName: false, // add browser name to report and classes names
     },
     coverageReporter: {
-      type : 'html',
-      dir : 'coverage/'
+      type : 'text-summary',
+      dir : 'coverage/',
+      file : 'coverage.txt'
     },
     port: 9876,
     colors: true,
