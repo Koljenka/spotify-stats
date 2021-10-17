@@ -2,8 +2,9 @@ import {StorageService} from './storage.service';
 import SpotifyWebApi from 'spotify-web-api-js';
 
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {environment} from '../environments/environment';
+import {Base64} from "js-base64";
 
 @Injectable({
   providedIn: 'root',
@@ -47,7 +48,36 @@ export class ApiConnectionService {
 
   public userId = null;
 
-  refreshApi(): void {
+  public async getUserId(): Promise<string> {
+    if (this.userId != null) {
+      return Promise.resolve(this.userId);
+    } else {
+      await this.getApi().getMe().then(value => this.userId = value.id);
+      return Promise.resolve(this.userId);
+    }
+  }
+
+  public checkToken(): void {
+    if (Date.now() >= StorageService.expiresAt) {
+      this.requestRefreshToken();
+    }
+  }
+
+  public requestRefreshToken(): void {
+    const opt = {
+      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+        .append('Authorization', 'Basic ' + Base64.encode(this.clientId + ':' + this.clientSecret))
+    };
+    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
+      StorageService.refreshToken, opt).toPromise().then(response => {
+      StorageService.expiresAt = Date.now() + 2400000;
+      // @ts-ignore
+      StorageService.accessToken = response.access_token;
+      this.refreshApi();
+    });
+  }
+
+  private refreshApi(): void {
     if (this.api == null) {
       this.api = new SpotifyWebApi();
     }

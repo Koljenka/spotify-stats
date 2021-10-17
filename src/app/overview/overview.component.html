@@ -18,7 +18,7 @@
       (themeChange)="themeChangeHandler($event)">
     </app-menu>
     <button mat-button *ngIf="cookie.isLoggedIn() && breakpointObserver.isMatched('(min-width: 650px)')"
-            [matMenuTriggerFor]="profileMenu">{{getUserName()}}</button>
+            [matMenuTriggerFor]="profileMenu">{{api.userId}}</button>
     <mat-menu #profileMenu="matMenu">
       <button mat-menu-item (click)="logout()" matTooltip="Logout">Logout</button>
     </mat-menu>

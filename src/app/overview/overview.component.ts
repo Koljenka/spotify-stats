@@ -19,17 +19,13 @@ import {Base64} from 'js-base64';
 export class OverviewComponent implements OnInit {
   title = 'Spotify Stats';
   version: string = version;
-  username = '';
-  requestedUsername = false;
   options: Array<Option> = options;
   selectedTheme: Option;
 
   constructor(private readonly styleManager: StyleManagerService, public breakpointObserver: BreakpointObserver,
-              private api: ApiConnectionService, public router: Router, public cookie: CookieService, private http: HttpClient) {
-    this.checkToken();
-    setInterval(() => {
-      this.checkToken();
-    }, 60000);
+              public api: ApiConnectionService, public router: Router, public cookie: CookieService) {
+    this.api.checkToken();
+    setInterval(this.api.checkToken, 60000);
   }
 
   ngOnInit(): void {
@@ -47,10 +43,6 @@ export class OverviewComponent implements OnInit {
     this.styleManager.setStyle(themeToSet);
   }
 
-  getUserName(): string {
-    return this.api.userId;
-  }
-
   redirect(): void {
     this.router.navigate(['/home']);
   }
@@ -60,26 +52,4 @@ export class OverviewComponent implements OnInit {
     this.cookie.deleteCookie('isLoggedIn');
     this.redirect();
   }
-
-  private checkToken(): void {
-    if (Date.now() >= StorageService.expiresAt) {
-      this.requestRefreshToken();
-    }
-  }
-
-  private requestRefreshToken(): void {
-    const opt = {
-      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-        .append('Authorization', 'Basic ' + Base64.encode(this.api.clientId + ':' + this.api.clientSecret))
-    };
-    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
-      StorageService.refreshToken, opt).toPromise().then(response => {
-      StorageService.expiresAt = Date.now() + 2400000;
-      // @ts-ignore
-      StorageService.accessToken = response.access_token;
-      this.api.refreshApi();
-    });
-  }
-
-
 }
