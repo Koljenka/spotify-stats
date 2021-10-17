@@ -42,6 +42,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatTabsModule} from '@angular/material/tabs';
 import localeDe from '@angular/common/locales/de';
+import { TrackListHeaderComponent } from './track-list-header/track-list-header.component';
 
 registerLocaleData(localeDe);
 
@@ -60,6 +61,7 @@ registerLocaleData(localeDe);
     AlbumCardComponent,
     TrackListComponent,
     AlbumTrackListComponent,
+    TrackListHeaderComponent,
   ],
   imports: [
     BrowserModule,

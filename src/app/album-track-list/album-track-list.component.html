@@ -1,3 +1,7 @@
-<div class="wrapper">
-  <app-track-list [displayedColumns]="['title', 'artist', 'length']"></app-track-list>
+<div [style.background]="this.backgroundColor" class="wrapper">
+  <app-track-list-header [contextObject]="this.getContextObject()"
+                         [tracksSource]="this.albumTracksSource.asObservable()"
+                         (bgChanged)="this.backgroundColor = $event"></app-track-list-header>
+  <app-track-list [displayedColumns]="['title', 'artist', 'length']"
+                  [data]="albumTracksSource.asObservable()"></app-track-list>
 </div>

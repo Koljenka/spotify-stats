@@ -4,6 +4,7 @@ import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject} from 'rxjs';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
+import {Title} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-track-history',
@@ -11,19 +12,15 @@ import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
   styleUrls: ['./track-history.component.css']
 })
 export class TrackHistoryComponent implements OnInit, AfterViewInit {
-  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
+  playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
   didLoadTracks = false;
 
-  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
-
-  constructor(public dataSharing: DataSharingService) {
+  constructor(public dataSharing: DataSharingService, private titleService: Title) {
   }
 
   ngOnInit(): void {
-    this.trackListComponent.data = this.playbackHistorySource.asObservable();
-    this.trackListComponent.setTitle('Playback History - SpotifyStats');
+    this.titleService.setTitle('Playback History - SpotifyStats');
   }
-
 
   ngAfterViewInit(): void {
     this.dataSharing.playbackHistory.toPromise().then(() => {

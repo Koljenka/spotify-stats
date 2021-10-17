@@ -4,6 +4,9 @@ import {TrackListComponent} from '../track-list/track-list.component';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import TrackObjectSimplified = SpotifyApi.TrackObjectSimplified;
+import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
+import {Title} from "@angular/platform-browser";
+import {ContextObjectFull} from "../data-sharing.service";
 
 @Component({
   selector: 'app-album-track-list',
@@ -11,43 +14,43 @@ import TrackObjectSimplified = SpotifyApi.TrackObjectSimplified;
   styleUrls: ['./album-track-list.component.css']
 })
 export class AlbumTrackListComponent implements OnInit, AfterViewInit {
+  album: AlbumObjectFull;
+  backgroundColor = 'unset';
+  albumTracksSource = new BehaviorSubject(new Array<AlbumTrackObject>());
 
   private albumId: string;
-  private albumTracks: AlbumTrackObject[] = [];
-  private albumTracksSource = new BehaviorSubject(new Array<AlbumTrackObject>());
 
   @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute) {
+  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private titleService: Title) {
     this.albumId = this.route.snapshot.params.albumId;
   }
 
   ngOnInit(): void {
-    this.trackListComponent.data = this.albumTracksSource.asObservable();
     this.api.getApi().getAlbum(this.albumId).then(value => {
-      this.trackListComponent.setTitle(value.name + ' - SpotifyStats');
+      this.album = value;
+      this.titleService.setTitle(value.name + ' - SpotifyStats');
     });
   }
 
   ngAfterViewInit(): void {
-    this.getAlbumTracks(0, 50).then(() => {
-      this.albumTracksSource.next(this.albumTracks);
-      this.albumTracksSource.complete();
-    });
+    this.getAlbumTracks();
   }
 
-  async getAlbumTracks(offset: number, limit: number): Promise<void> {
-    await this.api.getApi().getAlbumTracks(this.albumId, {offset, limit}).then(value => {
+  getContextObject(): ContextObjectFull {
+    return {contextType: 'album', content: this.album};
+  }
 
-      this.albumTracks.push(...value.items.map(val => {
+  private getAlbumTracks(offset: number = 0, limit: number = 50): void {
+    this.api.getApi().getAlbumTracks(this.albumId, {offset, limit}).then(value => {
+      this.albumTracksSource.next(value.items.map(val => {
         return {track: val};
       }));
       if (value.next != null) {
         const parts = value.next.split(/=|&|\?/);
-        return this.getAlbumTracks(parseInt(parts[parts.indexOf('offset') + 1], 10),
-          parseInt(parts[parts.indexOf('limit') + 1], 10));
+        this.getAlbumTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
       } else {
-        return Promise.resolve();
+        this.albumTracksSource.complete();
       }
     });
   }

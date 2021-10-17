@@ -2,9 +2,11 @@ import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
-import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject} from 'rxjs';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
+import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
+import {HttpClient} from '@angular/common/http';
+import {Title} from '@angular/platform-browser';
+import {ContextObjectFull} from '../data-sharing.service';
 
 @Component({
   selector: 'app-playlist-track-list',
@@ -12,39 +14,40 @@ import {PlayHistoryObjectFull} from '../track-history/track-history.component';
   styleUrls: ['./playlist-track-list.component.css']
 })
 export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
+  playlist: PlaylistObjectFull;
+  backgroundColor = 'unset';
+  playlistTracksSource = new BehaviorSubject(new Array<PlaylistTrackObject>());
+
   private playlistId: string;
-  private playlistTracks: PlaylistTrackObject[] = [];
-  private playlistTracksSource = new BehaviorSubject(new Array<PlaylistTrackObject>());
 
-  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
-
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute) {
+  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private http: HttpClient, private titleService: Title) {
     this.playlistId = this.route.snapshot.params.playlistId;
   }
 
   ngOnInit(): void {
-    this.trackListComponent.data = this.playlistTracksSource.asObservable();
     this.api.getApi().getPlaylist(this.playlistId).then(value => {
-      this.trackListComponent.setTitle(value.name + ' - SpotifyStats');
+      this.playlist = value;
+      this.titleService.setTitle(value.name + ' - SpotifyStats');
     });
   }
 
   ngAfterViewInit(): void {
-    this.getPlaylistTracksTracks(0, 50).then(() => {
-      this.playlistTracksSource.next(this.playlistTracks);
-      this.playlistTracksSource.complete();
-    });
+    this.getALlPlaylistTracks();
   }
 
-  async getPlaylistTracksTracks(offset: number, limit: number): Promise<void> {
-    await this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
-      this.playlistTracks.push(...value.items);
+  getContextObject(): ContextObjectFull {
+    return {contextType: 'playlist', content: this.playlist};
+  }
+
+  private getALlPlaylistTracks(offset: number = 0, limit: number = 50): void {
+    this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
+      this.playlistTracksSource.next(value.items);
       if (value.next != null) {
         const parts = value.next.split(/=|&|\?/);
-        return this.getPlaylistTracksTracks(parseInt(parts[parts.indexOf('offset') + 1], 10),
+        this.getALlPlaylistTracks(parseInt(parts[parts.indexOf('offset') + 1], 10),
           parseInt(parts[parts.indexOf('limit') + 1], 10));
       } else {
-        return Promise.resolve();
+        this.playlistTracksSource.complete();
       }
     });
   }

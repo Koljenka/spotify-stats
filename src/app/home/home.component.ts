@@ -27,7 +27,8 @@ export class HomeComponent implements OnInit {
 
   getUserPlaylist(): void {
     this.api.waitForApi().then(api => {
-      api.getUserPlaylists(this.api.userId).then(value => {
+      // @ts-ignore
+      api.getUserPlaylists({limit: 50}).then(value => {
         this.playlists = value.items;
       });
     });

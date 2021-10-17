@@ -3,7 +3,7 @@ import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import {ApiConnectionService} from '../api-connection.service';
 import {TrackListComponent} from '../track-list/track-list.component';
 import {BehaviorSubject} from 'rxjs';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-saved-track-list',
@@ -11,34 +11,27 @@ import {PlayHistoryObjectFull} from '../track-history/track-history.component';
   styleUrls: ['./saved-track-list.component.css']
 })
 export class SavedTrackListComponent implements OnInit, AfterViewInit {
-  private savedTracks: SavedTrackObject[] = [];
-  private savedTracksSource = new BehaviorSubject(new Array<SavedTrackObject>());
+  savedTracksSource = new BehaviorSubject(new Array<SavedTrackObject>());
 
-  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
-
-  constructor(private api: ApiConnectionService) {
+  constructor(private api: ApiConnectionService, private titleService: Title) {
   }
 
   ngOnInit(): void {
-    this.trackListComponent.data = this.savedTracksSource.asObservable();
-    this.trackListComponent.setTitle('My Library - SpotifyStats');
+    this.titleService.setTitle('My Library - SpotifyStats');
   }
 
   ngAfterViewInit(): void {
-    this.getSavedTracks(0, 50).then(() => {
-      this.savedTracksSource.next(this.savedTracks);
-      this.savedTracksSource.complete();
-    });
+    this.getSavedTracks();
   }
 
-  async getSavedTracks(offset: number, limit: number): Promise<void> {
-    await this.api.getApi().getMySavedTracks({offset, limit}).then(value => {
-      this.savedTracks.push(...value.items);
+  getSavedTracks(offset: number = 0, limit: number = 50): void {
+    this.api.getApi().getMySavedTracks({offset, limit}).then(value => {
+      this.savedTracksSource.next(value.items);
       if (value.next != null) {
         const parts = value.next.split(/=|&|\?/);
-        return this.getSavedTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
+        this.getSavedTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
       } else {
-        return Promise.resolve();
+        this.savedTracksSource.complete();
       }
     });
   }

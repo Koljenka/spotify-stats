@@ -1,4 +1,4 @@
-<div class="tableContainer" [ngStyle]="{'display': (didLoadFirstContent ? 'block' : 'none')}">
+<div class="tableContainer" [style.background]="this.backgroundColor | async" [style.display]="didLoadFirstContent ? 'block' : 'none'" >
   <mat-form-field>
     <mat-label>
       <mat-icon>search</mat-icon>

@@ -1,0 +1,26 @@
+<div class="list-header">
+  <img *ngIf="contextObject.content" [src]="contextObject.content.images[0].url" alt="Cover Image"
+       class="mat-elevation-z10">
+  <div *ngIf="contextObject.content" class="basic-data" [style.color]="this.getTextColor()">
+    <h2>{{contextObject.contextType | titlecase}}</h2>
+    <h1>{{contextObject.content.name}}</h1>
+    <div class="bottom-row">
+      <span class="username">{{this.getUsername()}}</span>
+      <span>&nbsp;<b>·</b>&nbsp;</span>
+      <ng-container *ngIf="contextObject.contextType === 'album'">
+        <span>{{contextObject.content.album_type | titlecase}}</span>
+        <span>&nbsp;<b>·</b>&nbsp;</span>
+        <span>{{contextObject.content.release_date | date}}</span>
+        <span>&nbsp;<b>·</b>&nbsp;</span>
+      </ng-container>
+
+      <span>{{contextObject.content.tracks.total}}&nbsp;Song{{contextObject.content.tracks.total > 1 ? 's' : ''}}</span>
+      <span *ngIf="tracks.length > 0">&nbsp;<b>·</b>&nbsp;</span>
+      <span *ngIf="tracks.length > 0">{{getPlaylistLength()}}</span>
+      <ng-container *ngIf="contextObject.contextType === 'playlist'">
+        <span>&nbsp;<b>·</b>&nbsp;</span>
+        <span>{{contextObject.content.followers.total | number:'':'de-DE'}}&nbsp;Follower{{contextObject.content.followers.total > 1 ? 's' : ''}}</span>
+      </ng-container>
+    </div>
+  </div>
+</div>

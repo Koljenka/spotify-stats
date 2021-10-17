@@ -1,4 +1,13 @@
-import {AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {HttpClient} from '@angular/common/http';
@@ -9,10 +18,12 @@ import {Title} from '@angular/platform-browser';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
+import {StyleManagerService} from "../style-manager.service";
+import {Option} from "../option.model";
 
 @Component({
   selector: 'app-track-list',
@@ -24,7 +35,11 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() displayedColumns: string[];
   @Input() showSpinner = true;
   @Input() initialSort = 'played_at';
-  data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>();
+  @Input() data = new Observable<(PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[]>();
+  @Input() search = '';
+
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   trackList: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
   dataSource: MatTableDataSource<PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject> =
@@ -34,16 +49,14 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   private p = '';
   public innerWidth: any;
   actualColumns: string[];
-
+  private theme: Option;
+  private backgroundColorSource = new BehaviorSubject<string>('unset');
+  backgroundColor = this.backgroundColorSource.asObservable();
 
   constructor(private dataSharing: DataSharingService, private http: HttpClient, private api: ApiConnectionService,
               private route: ActivatedRoute, private router: Router, private location: Location,
-              private cdRef: ChangeDetectorRef, private titleService: Title) {
+              private cdRef: ChangeDetectorRef, private styleService: StyleManagerService) {
   }
-
-  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
-  @ViewChild(MatSort, {static: true}) sort: MatSort;
-  @Input() search = '';
 
   @HostListener('window:resize', ['$event'])
   onResize(event): void {
@@ -55,7 +68,15 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.innerWidth = window.innerWidth;
     this.s = this.route.snapshot.queryParams.s;
     this.p = this.route.snapshot.queryParams.p;
+    this.styleService.currentTheme.subscribe(value => {
+      this.theme = value;
+      this.calculateBackgroundColor();
+    });
     this.removeColumnsIfNeeded();
+  }
+
+  public calculateBackgroundColor(): void {
+    this.backgroundColorSource.next(this.theme.backgroundColor + (this.styleService.isDarkStyleActive() ? '80' : '8'));
   }
 
   private removeColumnsIfNeeded(): void {
@@ -77,10 +98,12 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.data.toPromise().then(value => {
+    this.data.subscribe(value => {
+      this.trackList.push(...value);
+    });
+    this.data.toPromise().then(() => {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
-      this.trackList = value;
       this.dataSource.data = this.trackList;
       this.didLoadFirstContent = this.trackList.length > 0;
 
@@ -295,10 +318,4 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'play_circle_outline';
     }
   }
-
-  public setTitle(title: string): void {
-    this.titleService.setTitle(title);
-  }
-
-
 }

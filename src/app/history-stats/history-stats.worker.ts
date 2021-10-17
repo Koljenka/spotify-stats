@@ -2,6 +2,7 @@
 
 
 import SpotifyWebApi from 'spotify-web-api-js';
+import {Util} from '../util';
 
 const add = (a, b) => a + b;
 
@@ -93,9 +94,9 @@ addEventListener('message', ({data}) => {
           heading: 'Listening Time',
           icon: 'schedule',
           stat: {
-            value: toHoursMinutesSeconds(listeningTime / 1000),
+            value: Util.toHoursMinutesSeconds(listeningTime / 1000),
             prevTimeframe,
-            prevValue: 'vs. ' + toHoursMinutesSeconds(prevListeningTime / 1000)
+            prevValue: 'vs. ' + Util.toHoursMinutesSeconds(prevListeningTime / 1000)
           }
         }
       });
@@ -445,25 +446,6 @@ addEventListener('message', ({data}) => {
     const topContexts = uniqueContexts.sort((a, b) => b.timesPlayed - a.timesPlayed).slice(0, 5);
     postMessage({type: 'topContexts', content: topContexts});
     return Promise.resolve();
-  }
-
-  function toHoursMinutesSeconds(totalSeconds): string {
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-    let result = `${minutes
-      .toString()
-      .padStart(1, '0')}:${seconds.toString().padStart(2, '0')}`;
-    if (!!hours) {
-      result = `${hours.toString()}:${minutes
-        .toString()
-        .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    if (!!days) {
-      result = `${days} ${days > 1 ? 'days' : 'day'}, ${hours}  ${hours > 1 ? 'hours' : 'hour'}`;
-    }
-    return result;
   }
 
   function getAverageHappiness(history: any[]): number {

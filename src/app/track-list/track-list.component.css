@@ -4,7 +4,6 @@ table {
 }
 
 .tableContainer {
-  height: 100%;
   overflow: auto;
 }
 
@@ -17,6 +16,10 @@ input {
   width: 100%;
 }
 
+.mat-table {
+  background: transparent;
+}
+
 mat-form-field {
   width: 95%;
   margin-top: 10px;
@@ -25,6 +28,7 @@ mat-form-field {
 
 mat-paginator {
   z-index: 1000;
+  background: transparent;
 }
 
 mat-spinner {
