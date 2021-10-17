@@ -12,7 +12,7 @@ import {Title} from '@angular/platform-browser';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit {
 
   playlists: SpotifyApi.PlaylistObjectSimplified[];
 
@@ -22,15 +22,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.titleService.setTitle('Home - SpotifyStats');
+    this.getUserPlaylist();
   }
 
   getUserPlaylist(): void {
-    this.api.getApi().getUserPlaylists(this.api.userId, {limit: 50}).then(value => {
-      this.playlists = value.items;
-    }).catch(reason => {
-      if (reason.status === 401) {
-        setTimeout(() => this.getUserPlaylist(), 500);
-      }
+    this.api.waitForApi().then(api => {
+      api.getUserPlaylists(this.api.userId).then(value => {
+        this.playlists = value.items;
+      });
     });
   }
 
@@ -40,13 +39,5 @@ export class HomeComponent implements OnInit, AfterViewInit {
       'user-top-read%20user-read-playback-position%20user-read-recently-played%20user-follow-read%20user-follow-modify';
     window.location.href = 'https://accounts.spotify.com/authorize?response_type=code&redirect_uri=' +
       environment.APP_SETTINGS.redirectUri + '&client_id=7dc889b5812346ab848cadbe75a9d90f&scope=' + scopes;
-  }
-
-  ngAfterViewInit(): void {
-    if (this.cookie.isLoggedIn() && this.api.userId != null) {
-      this.getUserPlaylist();
-    } else {
-      this.api.getUserId().then(() => this.getUserPlaylist());
-    }
   }
 }

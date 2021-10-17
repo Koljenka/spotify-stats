@@ -25,7 +25,7 @@ export class OverviewComponent implements OnInit {
   constructor(private readonly styleManager: StyleManagerService, public breakpointObserver: BreakpointObserver,
               public api: ApiConnectionService, public router: Router, public cookie: CookieService) {
     this.api.checkToken();
-    setInterval(this.api.checkToken, 60000);
+    setInterval(() => this.api.checkToken(), 60000);
   }
 
   ngOnInit(): void {

@@ -11,6 +11,8 @@ import {Base64} from "js-base64";
 })
 export class ApiConnectionService {
 
+  private constructor(private http: HttpClient) {
+  }
 
   get tokenUrl(): string {
     return environment.APP_SETTINGS.tokenUrl;
@@ -40,35 +42,33 @@ export class ApiConnectionService {
     return environment.APP_SETTINGS.clientName;
   }
 
-  private constructor(private http: HttpClient) {
-
+  private get hasValidToken(): boolean {
+    return StorageService.accessToken != null && Date.now() < StorageService.expiresAt;
   }
 
   private api: SpotifyWebApi.SpotifyWebApiJs = null;
 
   public userId = null;
 
-  public async getUserId(): Promise<string> {
-    if (this.userId != null) {
-      return Promise.resolve(this.userId);
-    } else {
-      await this.getApi().getMe().then(value => this.userId = value.id);
-      return Promise.resolve(this.userId);
-    }
-  }
-
   public checkToken(): void {
-    if (Date.now() >= StorageService.expiresAt) {
+    if (!this.hasValidToken) {
       this.requestRefreshToken();
     }
   }
 
-  public requestRefreshToken(): void {
+  public async waitForApi(): Promise<SpotifyWebApi.SpotifyWebApiJs> {
+    if (this.api == null || !this.hasValidToken) {
+      await this.requestRefreshToken();
+    }
+    return Promise.resolve(this.api);
+  }
+
+  private async requestRefreshToken(): Promise<void> {
     const opt = {
       headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
         .append('Authorization', 'Basic ' + Base64.encode(this.clientId + ':' + this.clientSecret))
     };
-    this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
+    return this.http.post('https://accounts.spotify.com/api/token', 'grant_type=refresh_token&refresh_token=' +
       StorageService.refreshToken, opt).toPromise().then(response => {
       StorageService.expiresAt = Date.now() + 2400000;
       // @ts-ignore
@@ -82,16 +82,19 @@ export class ApiConnectionService {
       this.api = new SpotifyWebApi();
     }
     this.api.setAccessToken(StorageService.accessToken);
-    this.api.getMe().then(value => this.userId = value.id);
+    if (this.userId == null) {
+      this.api.getMe().then(value => this.userId = value.id);
+    }
   }
 
   getApi(): SpotifyWebApi.SpotifyWebApiJs {
     if (this.api == null) {
       this.api = new SpotifyWebApi();
       this.api.setAccessToken(StorageService.accessToken);
-      this.api.getMe().then(value => this.userId = value.id);
+      if (this.userId == null) {
+        this.api.getMe().then(value => this.userId = value.id);
+      }
     }
-
     return this.api;
   }
 }
