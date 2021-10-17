@@ -32,7 +32,6 @@ export class SavedTrackListComponent implements OnInit, AfterViewInit {
   }
 
   async getSavedTracks(offset: number, limit: number): Promise<void> {
-    await this.api.waitForApi();
     await this.api.getApi().getMySavedTracks({offset, limit}).then(value => {
       this.savedTracks.push(...value.items);
       if (value.next != null) {
