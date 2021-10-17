@@ -36,7 +36,8 @@ import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
   ]
 })
 export class HistoryStatsComponent implements OnInit {
-  private isInitialized = false;
+  @ViewChild('picker') picker: MatDateRangeInput<Date>;
+
   playbackHistory: PlayHistoryObjectFull[];
   worker: Worker;
   didLoadTracks = false;
@@ -62,16 +63,16 @@ export class HistoryStatsComponent implements OnInit {
   isLoadingGraph = true;
   clockGraphData: any;
   isLoadingClockGraph = true;
-  private isFirstCallback = true;
 
-  @ViewChild('picker') picker: MatDateRangeInput<Date>;
+  private isInitialized = false;
+  private isFirstCallback = true;
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
               private titleService: Title,
               private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
-      this.worker = new Worker('./history-stats.worker', {type: 'module'}),
-        this.worker.onmessage = ({data}) => this.workerCallback(data);
+      this.worker = new Worker('./history-stats.worker', {type: 'module'});
+      this.worker.onmessage = ({data}) => this.workerCallback(data);
     }
   }
 
@@ -146,6 +147,7 @@ export class HistoryStatsComponent implements OnInit {
   private onRangeChanged(value): void {
     if (this.isInitialized && !this.isFirstCallback &&
       value.end != null && value.start != null &&
+      // eslint-disable-next-line no-underscore-dangle
       value.start._isValid && value.end._isValid &&
       value.start <= value.end) {
       this.clearStats();
@@ -172,7 +174,7 @@ export class HistoryStatsComponent implements OnInit {
     });
   }
 
-  workerCallback(data): void {
+  private workerCallback(data): void {
     switch (data.type) {
       case 'topArtists':
         this.topArtists = data.content;
@@ -203,6 +205,7 @@ export class HistoryStatsComponent implements OnInit {
 
   private getStreak(from: number, to: number): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/streak', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       access_token: StorageService.accessToken,
       from: from / 1000,
       to: to / 1000
@@ -223,6 +226,7 @@ export class HistoryStatsComponent implements OnInit {
 
   private getClockGraphData(from: number, to: number): void {
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/listeningClock', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       access_token: StorageService.accessToken,
       from: from / 1000,
       to: to / 1000

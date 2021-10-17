@@ -14,13 +14,14 @@ import {ContextObjectFull} from '../data-sharing.service';
   styleUrls: ['./album-track-list.component.css']
 })
 export class AlbumTrackListComponent implements OnInit, AfterViewInit {
+  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
+
   album: AlbumObjectFull;
   backgroundColor = 'unset';
   albumTracksSource = new BehaviorSubject(new Array<AlbumTrackObject>());
 
   private albumId: string;
 
-  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, private titleService: Title) {
     this.albumId = this.route.snapshot.params.albumId;
@@ -43,9 +44,7 @@ export class AlbumTrackListComponent implements OnInit, AfterViewInit {
 
   private getAlbumTracks(offset: number = 0, limit: number = 50): void {
     this.api.getApi().getAlbumTracks(this.albumId, {offset, limit}).then(value => {
-      this.albumTracksSource.next(value.items.map(val => {
-        return {track: val};
-      }));
+      this.albumTracksSource.next(value.items.map(val => ({track: val})));
       if (value.next != null) {
         const parts = value.next.split(/=|&|\?/);
         this.getAlbumTracks(parseInt(parts[parts.indexOf('offset') + 1], 10), parseInt(parts[parts.indexOf('limit') + 1], 10));
