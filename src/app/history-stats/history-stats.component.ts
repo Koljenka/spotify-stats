@@ -234,7 +234,6 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
-    console.log(this.mapGraphData)
     this.getClockGraphData(from, to);
     this.getStreak(from, to);
     this.worker.postMessage({
