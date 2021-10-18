@@ -13,6 +13,7 @@ module.exports = function (config) {
       require('@angular-devkit/build-angular/plugins/karma'),
       require('karma-junit-reporter')
     ],
+
     preprocessors: {
       'src/**/*.ts': ['coverage']
     },
@@ -26,9 +27,13 @@ module.exports = function (config) {
       useBrowserName: false, // add browser name to report and classes names
     },
     coverageReporter: {
-      type : 'text-summary',
-      dir : 'coverage/',
-      file : 'coverage.txt'
+      dir: 'coverage/',
+      reporters: [
+        { type: 'text-summary', subdir: '.', file: 'coverage.txt' },
+        { type: 'lcov', subdir: 'report-lcov' },
+        { type: 'html', subdir: 'report-html' },
+        { type: 'text', subdir: '.', file: 'text.txt' },
+      ]
     },
     port: 9876,
     colors: true,
