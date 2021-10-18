@@ -58,7 +58,7 @@ karma:
       junit:
         - junit.xml
       cobertura:
-        - coverage/cobertura.xml
+        - coverage/cobertura-coverage.xml
   coverage: /Branches\s+:\s(\d+.?\d+)%/
 
 
