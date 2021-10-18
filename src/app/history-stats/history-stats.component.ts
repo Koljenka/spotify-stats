@@ -19,6 +19,7 @@ import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
+import {UnleashService} from '../unleash.service';
 
 
 @Component({
@@ -63,13 +64,15 @@ export class HistoryStatsComponent implements OnInit {
   isLoadingGraph = true;
   clockGraphData: any;
   isLoadingClockGraph = true;
+  mapGraphData: any;
 
   private isInitialized = false;
   private isFirstCallback = true;
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
               private titleService: Title,
-              private styleService: StyleManagerService) {
+              private styleService: StyleManagerService,
+              private toggle: UnleashService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker('./history-stats.worker', {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
@@ -231,6 +234,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
+    console.log(this.mapGraphData)
     this.getClockGraphData(from, to);
     this.getStreak(from, to);
     this.worker.postMessage({
@@ -238,6 +242,11 @@ export class HistoryStatsComponent implements OnInit {
       token: StorageService.accessToken,
       timeframe: {start: from, end: to},
       prevTimeframe: {start: previousFrom, end: previousTo}
+    });
+    this.toggle.isEnabledAsync('artist_map').then(value => {
+      if (value) {
+        this.createMapGraph();
+      }
     });
   }
 
@@ -357,6 +366,71 @@ export class HistoryStatsComponent implements OnInit {
       };
     });
     this.isLoadingClockGraph = false;
+  }
+
+  private createMapGraph(): void {
+    const artists = [];
+    const links = [];
+    let currInd = 0;
+    const trackArtists = this.playbackHistory.filter(val => val.track.artists.length > 1).map(a => a.track.artists);
+    trackArtists.forEach(artistsOfTrack => {
+      artistsOfTrack.forEach(artist => {
+        if (!artists.map(va => va.artistId).includes(artist.id)) {
+          artists.push({
+            id: currInd++,
+            artistId: artist.id,
+            name: artist.name,
+            value: 0
+          });
+        }
+      });
+    });
+    trackArtists.forEach(artistsOfTrack => {
+      const tempLinks = artistsOfTrack.sort().reduce(
+        (acc, item, i, arr) => acc.concat(
+          arr.slice(i + 1).map(secondItem => [item, secondItem])
+        ), []);
+      tempLinks.forEach(lin => {
+        const artist1 = artists.filter(artist => artist.artistId === lin[0].id)[0];
+        const artist2 = artists.filter(artist => artist.artistId === lin[1].id)[0];
+        const tempLink = artist1.id + '|' + artist2.id;
+        const inverse = artist2.id + '|' + artist1.id;
+
+        if (!links.includes(tempLink) && !links.includes(inverse)) {
+          artist1.value++;
+          artist2.value++;
+          links.push(tempLink);
+        }
+
+      });
+    });
+    const edges = links.map(a => (
+      {
+        source: a.split('|')[0],
+        target: a.split('|')[1]
+      }
+    ));
+    this.mapGraphData = {
+      backgroundColor: '#00000000',
+      title: {
+        text: 'Artist Map'
+      },
+      tooltip: {},
+      series: [{
+        type: 'graph',
+        layout: 'force',
+        animation: false,
+        roam: true,
+        draggable: false,
+        data: artists,
+        force: {
+          edgeLength: 2,
+          friction: 0.5,
+          repulsion: 50,
+        },
+        edges
+      }]
+    };
   }
 }
 

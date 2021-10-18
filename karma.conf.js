@@ -13,11 +13,8 @@ module.exports = function (config) {
       require('@angular-devkit/build-angular/plugins/karma'),
       require('karma-junit-reporter')
     ],
-
-    preprocessors: {
-      'src/**/*.ts': ['coverage']
-    },
     client: {
+
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
     reporters: ['progress', 'coverage', 'junit'],
@@ -27,13 +24,14 @@ module.exports = function (config) {
       useBrowserName: false, // add browser name to report and classes names
     },
     coverageReporter: {
-      dir: 'coverage/',
+      dir: require('path').join(__dirname, './coverage/'),
+      thresholds: {statements: 80, lines: 80, branches: 80, functions: 80,},
       reporters: [
-        { type: 'text-summary', subdir: '.', file: 'coverage.txt' },
-        { type: 'lcov', subdir: 'report-lcov' },
-        { type: 'html', subdir: 'report-html' },
-        { type: 'text', subdir: '.', file: 'text.txt' },
-      ]
+        {type: 'lcovonly', subdir: '.'},
+        {type: 'html', subdir: '.'},
+        {type: 'text-summary', subdir: '.'}
+      ],
+      fixWebpackSourcePaths: true,
     },
     port: 9876,
     colors: true,
