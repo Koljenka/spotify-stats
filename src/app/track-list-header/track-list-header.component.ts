@@ -7,6 +7,7 @@ import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import {Util} from '../util';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
+import {StorageService} from '../storage.service';
 
 @Component({
   selector: 'app-track-list-header',
@@ -20,6 +21,7 @@ export class TrackListHeaderComponent implements AfterViewInit {
   @Output() backgroundColorChanged = new EventEmitter<string>();
 
   tracks: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
+  playedCount = 0;
 
   private backgroundColor: { r: number; g: number; b: number };
 
@@ -36,6 +38,7 @@ export class TrackListHeaderComponent implements AfterViewInit {
           this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r},
           ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
         });
+      this.getPlayedCount();
     });
   }
 
@@ -61,6 +64,17 @@ export class TrackListHeaderComponent implements AfterViewInit {
       case 'playlist':
         return this.contextObject.content.owner.display_name;
     }
+  }
+
+  private getPlayedCount(): void {
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/contextPlayedCount', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      contextUri: this.contextObject.content.uri
+    }).subscribe(value => {
+        this.playedCount = value[0]?.count;
+      }
+    );
   }
 
 }

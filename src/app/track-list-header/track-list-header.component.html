@@ -21,6 +21,10 @@
         <span>&nbsp;<b>·</b>&nbsp;</span>
         <span>{{contextObject.content.followers.total | number:'':'de-DE'}}&nbsp;Follower{{contextObject.content.followers.total > 1 ? 's' : ''}}</span>
       </ng-container>
+      <ng-container *ngIf="this.playedCount > 0">
+        <span>&nbsp;<b>·</b>&nbsp;</span>
+        <span>Played&nbsp;{{this.playedCount | number:'':'de-DE'}}&nbsp;time{{this.playedCount > 1 ? 's' : ''}}</span>
+      </ng-container>
     </div>
   </div>
 </div>
