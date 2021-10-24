@@ -14,6 +14,7 @@ import {ContextObjectFull} from '../data-sharing.service';
 })
 export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   playlist: PlaylistObjectFull;
+  context = new BehaviorSubject<ContextObjectFull>(null);
   backgroundColor = 'unset';
   playlistTracksSource = new BehaviorSubject(new Array<PlaylistTrackObject>());
 
@@ -26,6 +27,8 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.api.getApi().getPlaylist(this.playlistId).then(value => {
       this.playlist = value;
+      this.context.next( {contextType: 'playlist', content: this.playlist});
+      this.context.complete();
       this.titleService.setTitle(value.name + ' - SpotifyStats');
     });
   }
@@ -33,11 +36,6 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.getALlPlaylistTracks();
   }
-
-  getContextObject(): ContextObjectFull {
-    return {contextType: 'playlist', content: this.playlist};
-  }
-
   private getALlPlaylistTracks(offset: number = 0, limit: number = 50): void {
     this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
       this.playlistTracksSource.next(value.items);

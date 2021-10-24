@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {TrackListComponent} from '../track-list/track-list.component';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
@@ -14,9 +14,8 @@ import {ContextObjectFull} from '../data-sharing.service';
   styleUrls: ['./album-track-list.component.css']
 })
 export class AlbumTrackListComponent implements OnInit, AfterViewInit {
-  @ViewChild(TrackListComponent, {static: true}) trackListComponent: TrackListComponent;
-
   album: AlbumObjectFull;
+  context = new BehaviorSubject<ContextObjectFull>(null);
   backgroundColor = 'unset';
   albumTracksSource = new BehaviorSubject(new Array<AlbumTrackObject>());
 
@@ -30,16 +29,14 @@ export class AlbumTrackListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.api.getApi().getAlbum(this.albumId).then(value => {
       this.album = value;
+      this.context.next({contextType: 'album', content: this.album});
+      this.context.complete();
       this.titleService.setTitle(value.name + ' - SpotifyStats');
     });
   }
 
   ngAfterViewInit(): void {
     this.getAlbumTracks();
-  }
-
-  getContextObject(): ContextObjectFull {
-    return {contextType: 'album', content: this.album};
   }
 
   private getAlbumTracks(offset: number = 0, limit: number = 50): void {

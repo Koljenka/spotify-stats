@@ -1,4 +1,4 @@
-<div class="list-header">
+<div class="list-header" *ngIf="this.contextObject">
   <img *ngIf="contextObject.content" [src]="contextObject.content.images[0].url" alt="Cover Image"
        class="mat-elevation-z10">
   <div *ngIf="contextObject.content" class="basic-data" [style.color]="this.getTextColor()">
