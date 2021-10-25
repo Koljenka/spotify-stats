@@ -1,6 +1,5 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {TrackListComponent} from '../track-list/track-list.component';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
 import {ApiConnectionService} from '../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import TrackObjectSimplified = SpotifyApi.TrackObjectSimplified;

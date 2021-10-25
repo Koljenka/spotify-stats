@@ -1,9 +1,11 @@
 <div [style.background]="this.backgroundColor" class="wrapper">
   <ng-scrollbar>
-  <app-track-list-header [contextObjectObs]="this.context.asObservable()"
-                         [tracksSource]="this.albumTracksSource.asObservable()"
-                         (backgroundColorChanged)="this.backgroundColor = $event"></app-track-list-header>
-  <app-track-list [displayedColumns]="['title', 'artist', 'length']"
-                  [data]="albumTracksSource.asObservable()"></app-track-list>
+    <div class="scroll-content">
+      <app-track-list-header [contextObjectObs]="this.context.asObservable()"
+                             [tracksSource]="this.albumTracksSource.asObservable()"
+                             (backgroundColorChanged)="this.backgroundColor = $event"></app-track-list-header>
+      <app-track-list [displayedColumns]="['title', 'artist', 'length']"
+                      [data]="albumTracksSource.asObservable()"></app-track-list>
+    </div>
   </ng-scrollbar>
 </div>

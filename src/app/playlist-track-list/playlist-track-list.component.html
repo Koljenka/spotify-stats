@@ -1,10 +1,12 @@
 <div [style.background]="this.backgroundColor" class="wrapper">
-  <ng-scrollbar appearance="standard">
-  <app-track-list-header [contextObjectObs]="this.context.asObservable()"
-                         [tracksSource]="this.playlistTracksSource.asObservable()"
-                         (backgroundColorChanged)="this.backgroundColor = $event"></app-track-list-header>
-  <app-track-list initialSort="added_at"
-                  [data]="this.playlistTracksSource.asObservable()"
-                  [displayedColumns]="['title', 'album', 'artist', 'length', 'added_at', 'added_by']"></app-track-list>
+  <ng-scrollbar>
+    <div class="scroll-content">
+      <app-track-list-header [contextObjectObs]="this.context.asObservable()"
+                             [tracksSource]="this.playlistTracksSource.asObservable()"
+                             (backgroundColorChanged)="this.backgroundColor = $event"></app-track-list-header>
+      <app-track-list initialSort="added_at"
+                      [data]="this.playlistTracksSource.asObservable()"
+                      [displayedColumns]="['title', 'album', 'artist', 'length', 'added_at', 'added_by']"></app-track-list>
+    </div>
   </ng-scrollbar>
 </div>

@@ -1,1 +1,9 @@
+.scroll-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
+app-track-list {
+  height: 100%;
+}
