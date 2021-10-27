@@ -8,6 +8,7 @@ import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import {Util} from '../../util';
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
+import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 
 @Component({
   selector: 'app-track',
@@ -18,6 +19,7 @@ export class TrackMainComponent implements OnInit {
   track: TrackObjectFull;
   album: AlbumObjectFull;
   artists: ArtistObjectFull[];
+  audioFeatures: AudioFeaturesObject;
   trackId: string;
   contextUri: string;
   background: string;
@@ -33,6 +35,7 @@ export class TrackMainComponent implements OnInit {
 
   ngOnInit(): void {
     this.getTrack();
+    this.getAudioFeatures();
   }
 
   getTextColor(): string {
@@ -41,18 +44,6 @@ export class TrackMainComponent implements OnInit {
     } else {
       return 'unset';
     }
-  }
-
-  getTrackLength(): string {
-    return Util.toHoursMinutesSeconds(this.track.duration_ms / 1000, false);
-  }
-
-  getLeft(index: number): string {
-    return `calc(${index + 1} * (120% / ${this.artists.length + 1}) - 125px / 2 - 10%)`;
-  }
-
-  getImgSrc(url) {
-    return url ?? environment.APP_SETTINGS.assetsBasePath + '/artist-placeholder.png';
   }
 
   private getTrack(): void {
@@ -69,6 +60,7 @@ export class TrackMainComponent implements OnInit {
   private getAlbum(): void {
     this.api.getApi().getAlbum(this.track.album.id).then(value => {
       this.album = value;
+      console.log(value);
     });
   }
 
@@ -79,6 +71,12 @@ export class TrackMainComponent implements OnInit {
     });
   }
 
+  private getAudioFeatures(): void {
+    this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => {
+      this.audioFeatures = value;
+    });
+  }
+
   private getBackground(): void {
     const url = this.track.album.images[this.track.album.images.length - 1].url;
     this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/palette?img=' + url)
@@ -86,7 +84,8 @@ export class TrackMainComponent implements OnInit {
         // @ts-ignore
         this.backgroundColor = color[0];
         this.background = `linear-gradient(
-        rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`;
+        rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 75%,
+        rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 0.3))`;
 
         this.headerBackground = `linear-gradient(
         rgb(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}) 50%,

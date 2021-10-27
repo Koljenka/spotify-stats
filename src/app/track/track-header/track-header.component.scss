@@ -1,0 +1,167 @@
+.header {
+  height: 298px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.track, .album, .artists {
+  padding: 24px;
+  display: flex;
+  width: 50%;
+  transition: width 0.5s;
+}
+
+.album, .artists {
+  width: 25%;
+}
+
+.track:hover {
+  width: 70%;
+
+  ~ .album, ~ .artists {
+    width: 15%;
+
+    .content {
+      > .cover {
+        top: calc(50% - 150px / 2);
+      }
+
+      > .info {
+        opacity: 0;
+      }
+    }
+
+
+    .artist-cell.first {
+      left: calc(50% - 125px / 2) !important;
+    }
+
+    .artist-cell:not(.first) {
+      opacity: 0;
+    }
+  }
+}
+
+
+.album:hover {
+  width: 35%;
+
+  ~ .artists {
+    width: 15%;
+
+    .artist-cell.first {
+      left: calc(50% - 125px / 2) !important;
+    }
+
+    .artist-cell:not(.first) {
+      opacity: 0;
+    }
+  }
+}
+
+
+.artist-cell {
+  cursor: pointer;
+  position: absolute;
+  width: 125px;
+  height: 175px;
+  top: calc(50% - 125px / 2);
+  transition: left 0.5s, opacity 0.25s;
+}
+
+
+.artists {
+  position: relative;
+  display: block;
+  align-items: center;
+
+  .artist-portrait {
+    height: 125px;
+    width: 125px;
+    border-radius: 50%;
+    margin: 0;
+  }
+}
+
+
+.album > .content {
+  width: 75%;
+  margin: 0 auto;
+
+  .cover {
+    top: 0;
+    height: 150px;
+    position: relative;
+    transition: top 0.5s;
+
+    img {
+      height: 125px;
+      width: 125px;
+    }
+  }
+
+  .info {
+    display: flex;
+    overflow: hidden;
+    padding-top: 4px;
+    height: 96px;
+    transition: opacity 0.2s;
+
+    .mat-list-base {
+      width: 50%;
+      padding-top: 0;
+
+      .mat-list-item {
+        font-size: 14px;
+
+        .right {
+          margin-left: auto;
+        }
+      }
+    }
+
+    mat-divider {
+      margin-top: 4px;
+    }
+  }
+}
+
+
+.divider {
+  /*noinspection CssInvalidFunction*/
+  box-shadow: -15px 4px 21px -4px rgb(0 0 0 / 40%);
+  position: relative;
+  height: 298px;
+  top: -24px;
+  background: #303030;
+  width: 50px;
+  margin-left: auto;
+  transform: skew(-15deg) translateX(13px);
+}
+
+.basic-data {
+  margin-left: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-align: left;
+  max-width: calc(100% - 315px);
+
+  h1 {
+    font-size: 74px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 84px;
+    line-height: 74px;
+  }
+}
+
+img {
+  height: 250px;
+  width: 250px;
+}
+

@@ -1,12 +1,37 @@
-<div *ngIf="track" class="header mat-elevation-z6" [style.background]="this.background">
+<div *ngIf="track" class="header mat-elevation-z6" [style.background]="this.background"  [style.color]="this.color">
   <div class="track">
     <img [src]="track.album.images[0].url" alt="Cover Image" class="mat-elevation-z10">
-    <div class="basic-data" [style.color]="this.color">
+    <div class="basic-data">
       <h1>{{track.name}}</h1>
     </div>
     <div class="divider"></div>
   </div>
   <div class="album">
+    <div *ngIf="album" class="content">
+      <div class="cover">
+        <img [src]="album.images[0].url" alt="Album Cover">
+        <div>{{album.name}}</div>
+      </div>
+      <div class="info">
+        <mat-list>
+          <mat-list-item>
+            <span>Release:</span><span class="right">{{album.release_date | date}}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span>Genre:</span><span class="right">{{album.genres.length > 0 ? album.genres[0] : 'N/A'}}</span>
+          </mat-list-item>
+        </mat-list>
+        <mat-divider [vertical]="true"></mat-divider>
+        <mat-list>
+          <mat-list-item>
+            <span>Songs:</span><span class="right">{{album.tracks.total | number}}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span>Length:</span><span class="right">{{getAlbumLength()}}</span>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </div>
     <div class="divider"></div>
   </div>
   <div class="artists">

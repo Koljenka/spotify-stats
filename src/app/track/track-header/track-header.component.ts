@@ -1,22 +1,23 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import {HttpClient} from '@angular/common/http';
 import {Util} from '../../util';
 import {environment} from '../../../environments/environment';
+import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 
 @Component({
   selector: 'app-track-header',
   templateUrl: './track-header.component.html',
-  styleUrls: ['./track-header.component.css']
+  styleUrls: ['./track-header.component.scss']
 })
 export class TrackHeaderComponent implements OnInit {
 
   @Input() track: TrackObjectFull;
   @Input() album: AlbumObjectFull;
   @Input() artists: ArtistObjectFull[];
+  @Input() audioFeatures: AudioFeaturesObject;
   @Input() background = 'unset';
   @Input() color: string;
 
@@ -28,6 +29,11 @@ export class TrackHeaderComponent implements OnInit {
 
   getTrackLength(): string {
     return Util.toHoursMinutesSeconds(this.track.duration_ms / 1000, false);
+  }
+
+  getAlbumLength(): string {
+    const ms = this.album.tracks.items.map(v => v.duration_ms).reduce((a,b) => a+b);
+    return Util.toHoursMinutesSeconds(ms / 1000, false);
   }
 
   getLeft(index: number): string {
