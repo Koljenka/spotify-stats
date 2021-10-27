@@ -9,6 +9,7 @@ import {Util} from '../../util';
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-track',
@@ -24,6 +25,8 @@ export class TrackMainComponent implements OnInit {
   contextUri: string;
   background: string;
   headerBackground: string;
+
+  loaded = new BehaviorSubject<void>(null);
 
   private backgroundColor: { r: number; g: number; b: number };
 
@@ -48,7 +51,6 @@ export class TrackMainComponent implements OnInit {
 
   private getTrack(): void {
     this.api.getApi().getTrack(this.trackId).then(value => {
-      console.log(value);
       this.track = value;
       this.titleService.setTitle(this.track.name + ' - SpotifyStats');
       this.getBackground();
@@ -60,7 +62,9 @@ export class TrackMainComponent implements OnInit {
   private getAlbum(): void {
     this.api.getApi().getAlbum(this.track.album.id).then(value => {
       this.album = value;
-      console.log(value);
+      if (this.artists && this.audioFeatures) {
+        this.loaded.complete();
+      }
     });
   }
 
@@ -68,12 +72,18 @@ export class TrackMainComponent implements OnInit {
     const ids = this.track.artists.map(value => value.id);
     this.api.getApi().getArtists(ids).then(value => {
       this.artists = value.artists;
+      if (this.album && this.audioFeatures) {
+        this.loaded.complete();
+      }
     });
   }
 
   private getAudioFeatures(): void {
     this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => {
       this.audioFeatures = value;
+      if (this.artists && this.album) {
+        this.loaded.complete();
+      }
     });
   }
 

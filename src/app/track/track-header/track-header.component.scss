@@ -4,6 +4,13 @@
   position: relative;
   overflow: hidden;
   z-index: 5;
+
+  @media only screen and (max-width: 800px) {
+    height: 148px;
+  }
+  @media only screen and (max-width: 600px) {
+    height: 91px;
+  }
 }
 
 .track, .album, .artists {
@@ -20,12 +27,38 @@
 .track:hover {
   width: 70%;
 
+  .basic-data {
+    .second {
+      display: block;
+    }
+
+    .third {
+      display: block;
+    }
+
+    @media only screen and (max-width: 1600px) {
+
+      .third {
+        display: none;
+      }
+
+    }
+
+
+    .mat-list-base {
+      @media only screen and (max-width: 1600px) {
+        width: 24%;
+      }
+      width: 18%;
+    }
+  }
+
   ~ .album, ~ .artists {
     width: 15%;
 
     .content {
       > .cover {
-        top: calc(50% - 150px / 2);
+        top: calc(50% - 125px / 2);
       }
 
       > .info {
@@ -59,6 +92,16 @@
       opacity: 0;
     }
   }
+
+  .content .info {
+    .second {
+      display: block;
+    }
+
+    .mat-list-base {
+      width: 33%;
+    }
+  }
 }
 
 
@@ -87,10 +130,11 @@
 
 
 .album > .content {
-  width: 75%;
+  width: 85%;
   margin: 0 auto;
 
   .cover {
+    cursor: pointer;
     top: 0;
     height: 150px;
     position: relative;
@@ -109,15 +153,30 @@
     height: 96px;
     transition: opacity 0.2s;
 
+    .second {
+      display: none;
+    }
+
     .mat-list-base {
       width: 50%;
       padding-top: 0;
 
       .mat-list-item {
+        ::ng-deep .mat-list-item-content {
+          padding: 0 8px;
+
+          @media only screen and (max-width: 1800px) {
+            flex-direction: column;
+          }
+        }
+
         font-size: 14px;
+        white-space: nowrap;
 
         .right {
           margin-left: auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
     }
@@ -138,16 +197,17 @@
   background: #303030;
   width: 50px;
   margin-left: auto;
-  transform: skew(-15deg) translateX(13px);
+  transform: skew(-15deg) translateX(30px);
 }
 
 .basic-data {
   margin-left: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   text-align: left;
-  max-width: calc(100% - 315px);
+  width: calc(100% - 315px);
+  padding: 25px 0 0;
 
   h1 {
     font-size: 74px;
@@ -157,11 +217,138 @@
     overflow: hidden;
     height: 84px;
     line-height: 74px;
+    margin-bottom: 0;
+  }
+
+  .info {
+    display: flex;
+
+    .second {
+      @media only screen and (max-width: 1600px) {
+        display: none;
+      }
+    }
+
+    .third {
+      display: none;
+    }
+
+    .mat-list-base {
+      padding: 0;
+      width: 24%;
+      @media only screen and (max-width: 1600px) {
+        width: 30%;
+      }
+
+      .mat-list-item {
+        height: 48px;
+        font-size: 14px;
+        white-space: nowrap;
+
+        ::ng-deep .mat-list-item-content {
+          padding: 0 8px;
+
+          @media only screen and (max-width: 1800px) {
+            flex-direction: column;
+          }
+        }
+
+        .right {
+          margin-left: auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
   }
 }
 
 img {
   height: 250px;
   width: 250px;
+}
+
+.track-minified {
+  display: flex;
+  padding: 24px;
+
+
+  @media only screen and (max-width: 800px) {
+    padding: 12px;
+
+    img {
+      height: 125px;
+      width: 125px;
+    }
+  }
+  @media only screen and (max-width: 600px) {
+    padding: 8px;
+
+    img {
+      height: 75px;
+      width: 75px;
+    }
+  }
+
+  .main {
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
+    padding: 25px 0;
+
+
+    @media only screen and (max-width: 800px) {
+      margin-left: 12px;
+      padding: 0;
+    }
+    @media only screen and (max-width: 600px) {
+      margin-left: 8px;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 74px;
+      font-weight: bold;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      height: 84px;
+      line-height: 74px;
+      margin-bottom: 0;
+      @media only screen and (max-width: 800px) {
+        font-size: 40px;
+        height: 45px;
+        line-height: 40px;
+      }
+      @media only screen and (max-width: 600px) {
+        font-size: 22px;
+        height: 25px;
+        line-height: 22px;
+        font-weight: 500;
+
+      }
+
+    }
+
+    h2 {
+      margin: 0;
+      @media only screen and (max-width: 600px) {
+        font-size: 16px;
+        height: 18px;
+        line-height: 16px;
+      }
+    }
+
+    .artist {
+      font-weight: 500;
+    }
+
+    .artist:hover, h2:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
 

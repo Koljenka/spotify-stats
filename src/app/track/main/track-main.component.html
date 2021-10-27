@@ -1,7 +1,7 @@
 <div [style.background]="this.background" class="wrapper">
   <ng-scrollbar>
     <app-track-header [track]="track" [album]="album" [artists]="artists" [background]="headerBackground"
-                      [color]="getTextColor()" [audioFeatures]="audioFeatures"></app-track-header>
+                      [color]="getTextColor()" [audioFeatures]="audioFeatures" [loaded]="loaded.toPromise()"></app-track-header>
     <app-stat-slider></app-stat-slider>
     <div style="height: 150vh">
 

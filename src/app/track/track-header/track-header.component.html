@@ -1,44 +1,126 @@
-<div *ngIf="track" class="header mat-elevation-z6" [style.background]="this.background"  [style.color]="this.color">
-  <div class="track">
-    <img [src]="track.album.images[0].url" alt="Cover Image" class="mat-elevation-z10">
-    <div class="basic-data">
-      <h1>{{track.name}}</h1>
-    </div>
-    <div class="divider"></div>
-  </div>
-  <div class="album">
-    <div *ngIf="album" class="content">
-      <div class="cover">
-        <img [src]="album.images[0].url" alt="Album Cover">
-        <div>{{album.name}}</div>
+<div *ngIf="track" class="header mat-elevation-z6" [style.background]="this.background" [style.color]="this.color">
+  <ng-container *ngIf="this.getScreenWidth() >= 1200">
+    <div class="track">
+      <img [src]="track.album.images[0].url" alt="Cover Image" class="mat-elevation-z10">
+      <div class="basic-data">
+        <h1>{{track.name}}</h1>
+        <div *ngIf="this.audioFeatures" class="info">
+          <mat-list>
+            <mat-list-item [style.color]="this.color">
+              <span>Length:</span><span class="right">{{getTrackLength()}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Times&nbsp;played:</span><span class="right">{{this.playCount | number}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [style.border-right-color]="getDividerColor()" vertical></mat-divider>
+          <mat-list>
+            <mat-list-item [style.color]="this.color">
+              <span>Key:</span><span class="right"><code>{{getKey(audioFeatures.key)}}</code></span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Mode:</span><span class="right">{{getMode(audioFeatures.mode)}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [style.border-right-color]="getDividerColor()" vertical></mat-divider>
+          <mat-list>
+            <mat-list-item [style.color]="this.color">
+              <span>Tempo:</span><span class="right">{{audioFeatures.tempo | number:'1.0-0'}}&nbsp;bpm</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Danceability:</span><span class="right">{{audioFeatures.danceability | percent}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider class="second" [style.border-right-color]="getDividerColor()" vertical></mat-divider>
+          <mat-list class="second">
+            <mat-list-item [style.color]="this.color">
+              <span>Energy:</span><span class="right">{{audioFeatures.energy | percent}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Happiness:</span><span class="right">{{audioFeatures.valence | percent}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [style.border-right-color]="getDividerColor()" class="third" vertical></mat-divider>
+          <mat-list class="third">
+            <mat-list-item [style.color]="this.color">
+              <span>Acousticness:</span><span class="right">{{audioFeatures.acousticness | percent}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Instrumentalness:</span><span class="right">{{audioFeatures.instrumentalness | percent}}</span>
+            </mat-list-item>
+          </mat-list>
+        </div>
       </div>
-      <div class="info">
-        <mat-list>
-          <mat-list-item>
-            <span>Release:</span><span class="right">{{album.release_date | date}}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <span>Genre:</span><span class="right">{{album.genres.length > 0 ? album.genres[0] : 'N/A'}}</span>
-          </mat-list-item>
-        </mat-list>
-        <mat-divider [vertical]="true"></mat-divider>
-        <mat-list>
-          <mat-list-item>
-            <span>Songs:</span><span class="right">{{album.tracks.total | number}}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <span>Length:</span><span class="right">{{getAlbumLength()}}</span>
-          </mat-list-item>
-        </mat-list>
+      <div class="divider"></div>
+    </div>
+    <div class="album">
+      <div *ngIf="album" class="content">
+        <div class="cover" [routerLink]="['/album-track-list', album.id]">
+          <img [src]="album.images[0].url" alt="Album Cover">
+          <div>{{album.name}}</div>
+        </div>
+        <div class="info">
+          <mat-list>
+            <mat-list-item [style.color]="this.color">
+              <span>Release:</span><span class="right">{{album.release_date | date}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Type:</span><span class="right">{{album.album_type | titlecase}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [style.border-right-color]="getDividerColor()" [vertical]="true"></mat-divider>
+          <mat-list>
+            <mat-list-item [style.color]="this.color">
+              <span>Songs:</span><span class="right">{{album.tracks.total | number}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Length:</span><span class="right">{{getAlbumLength()}}</span>
+            </mat-list-item>
+          </mat-list>
+          <mat-divider [style.border-right-color]="getDividerColor()" class="second" [vertical]="true"></mat-divider>
+          <mat-list class="second">
+            <mat-list-item [style.color]="this.color">
+              <span>Label:</span><span class="right">{{album["label"]}}</span>
+            </mat-list-item>
+            <mat-list-item [style.color]="this.color">
+              <span>Popularity:</span><span class="right">{{album.popularity}}</span>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </div>
+      <div class="divider"></div>
+    </div>
+    <div class="artists">
+      <div *ngFor="let artist of this.artists; let i = index" class="artist-cell" [style.left]="getLeft(i)"
+           [class.first]="i === 0">
+        <img [src]="getImgSrc(artist.images[0]?.url)" class="artist-portrait" alt="portrait">
+        <div>{{artist.name}}</div>
       </div>
     </div>
-    <div class="divider"></div>
-  </div>
-  <div class="artists">
-    <div *ngFor="let artist of this.artists; let i = index" class="artist-cell" [style.left]="getLeft(i)"
-         [class.first]="i === 0">
-      <img [src]="getImgSrc(artist.images[0]?.url)" class="artist-portrait" alt="portrait">
-      <div>{{artist.name}}</div>
+  </ng-container>
+  <ng-container *ngIf="this.getScreenWidth() < 1200">
+    <div class="track-minified">
+      <img [src]="track.album.images[0].url" alt="Cover Image" class="mat-elevation-z10">
+      <div class="main" [style.color]="this.color">
+        <h2 *ngIf="album" [routerLink]="['/album-track-list', album.id]">{{album.name}}</h2>
+        <h1>{{track.name}}</h1>
+        <div class="bottom-row">
+          <ng-container *ngFor="let artist of track.artists; let i = index">
+            <span style="white-space: nowrap" class="artist">{{artist.name}}</span>
+            <span *ngIf="i < track.artists.length - 1">,&nbsp;</span>
+          </ng-container>
+          <span>&nbsp;<b>·</b>&nbsp;</span>
+          <ng-container *ngIf="this.getScreenWidth() >= 600">
+            <ng-container *ngIf="album">
+              <span>{{this.album.release_date | date}}</span>
+              <span>&nbsp;<b>·</b>&nbsp;</span>
+            </ng-container>
+            <span style="white-space: nowrap">{{getTrackLength()}}</span>
+            <span>&nbsp;<b>·</b>&nbsp;</span>
+          </ng-container>
+          <span>Played&nbsp;{{this.playCount | number}}&nbsp;times</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </ng-container>
 </div>

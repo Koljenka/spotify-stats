@@ -17,6 +17,8 @@ const routes: Routes = [
   {path: 'callback', component: CallbackComponent},
   {path: 'track/:trackId', component: TrackMainComponent, canActivate: [LoginGuard]},
   {path: 'track/:trackId/:contextUri', component: TrackMainComponent, canActivate: [LoginGuard]},
+  {path: 'track-old/:trackId', component: TrackOldComponent, canActivate: [LoginGuard]},
+  {path: 'track-old/:trackId/:contextUri', component: TrackOldComponent, canActivate: [LoginGuard]},
   {path: 'track-history', component: TrackHistoryComponent, canActivate: [LoginGuard]},
   {path: 'saved-track-list', component: SavedTrackListComponent, canActivate: [LoginGuard]},
   {path: 'history-stats', component: HistoryStatsComponent, canActivate: [LoginGuard]},
