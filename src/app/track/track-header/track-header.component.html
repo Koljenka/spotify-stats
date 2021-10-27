@@ -1,0 +1,19 @@
+<div *ngIf="track" class="header mat-elevation-z6" [style.background]="this.background">
+  <div class="track">
+    <img [src]="track.album.images[0].url" alt="Cover Image" class="mat-elevation-z10">
+    <div class="basic-data" [style.color]="this.color">
+      <h1>{{track.name}}</h1>
+    </div>
+    <div class="divider"></div>
+  </div>
+  <div class="album">
+    <div class="divider"></div>
+  </div>
+  <div class="artists">
+    <div *ngFor="let artist of this.artists; let i = index" class="artist-cell" [style.left]="getLeft(i)"
+         [class.first]="i === 0">
+      <img [src]="getImgSrc(artist.images[0]?.url)" class="artist-portrait" alt="portrait">
+      <div>{{artist.name}}</div>
+    </div>
+  </div>
+</div>

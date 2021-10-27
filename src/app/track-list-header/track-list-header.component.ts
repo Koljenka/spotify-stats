@@ -30,6 +30,7 @@ export class TrackListHeaderComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.tracksSource.subscribe(value => this.tracks.push(...value));
     this.contextObjectObs.subscribe(value => {
       if (value) {
         this.contextObject = value;
@@ -64,16 +65,13 @@ export class TrackListHeaderComponent implements OnInit {
   }
 
   private getBackground(): void {
-    this.tracksSource.subscribe(value => this.tracks.push(...value));
-    this.tracksSource.toPromise().then(() => {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.contextObject.content.images[0].url)
-        .subscribe(color => {
-          // @ts-ignore
-          this.backgroundColor = color;
-          this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r},
+    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.contextObject.content.images[0].url)
+      .subscribe(color => {
+        // @ts-ignore
+        this.backgroundColor = color;
+        this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r},
           ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
-        });
-    });
+      });
   }
 
   private getPlayedCount(): void {

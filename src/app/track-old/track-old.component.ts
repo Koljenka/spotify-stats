@@ -15,10 +15,10 @@ import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 
 @Component({
   selector: 'app-track-view',
-  templateUrl: './track.component.html',
-  styleUrls: ['./track.component.css']
+  templateUrl: './track-old.component.html',
+  styleUrls: ['./track-old.component.css']
 })
-export class TrackComponent implements OnInit {
+export class TrackOldComponent implements OnInit {
   track: TrackObjectFull;
   trackAudioFeatures: AudioFeaturesObject;
   trackId: string;

@@ -13,7 +13,7 @@ import {CommonModule, LocationStrategy, PathLocationStrategy, registerLocaleData
 import {OverviewComponent} from './overview/overview.component';
 import {HomeComponent} from './home/home.component';
 import {CallbackComponent} from './callback/callback.component';
-import {TrackComponent} from './track/track.component';
+import {TrackOldComponent} from './track-old/track-old.component';
 import {SavedTrackListComponent} from './saved-track-list/saved-track-list.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
@@ -44,6 +44,8 @@ import {MatTabsModule} from '@angular/material/tabs';
 import localeDe from '@angular/common/locales/de';
 import { TrackListHeaderComponent } from './track-list-header/track-list-header.component';
 import {NgScrollbarModule} from 'ngx-scrollbar';
+import { TrackMainComponent } from './track/main/track-main.component';
+import { TrackHeaderComponent } from './track/track-header/track-header.component';
 
 registerLocaleData(localeDe);
 
@@ -52,7 +54,7 @@ registerLocaleData(localeDe);
     OverviewComponent,
     HomeComponent,
     CallbackComponent,
-    TrackComponent,
+    TrackOldComponent,
     SavedTrackListComponent,
     PlaylistTrackListComponent,
     TrackHistoryComponent,
@@ -63,6 +65,8 @@ registerLocaleData(localeDe);
     TrackListComponent,
     AlbumTrackListComponent,
     TrackListHeaderComponent,
+    TrackMainComponent,
+    TrackHeaderComponent,
   ],
   imports: [
     BrowserModule,
