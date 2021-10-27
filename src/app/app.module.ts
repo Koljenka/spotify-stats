@@ -1,6 +1,6 @@
-import {BrowserModule} from '@angular/platform-browser';
+import {BrowserModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig, HammerModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {LOCALE_ID, NgModule} from '@angular/core';
+import {Injectable, LOCALE_ID, NgModule} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {HttpClientModule} from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -42,10 +42,12 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatTabsModule} from '@angular/material/tabs';
 import localeDe from '@angular/common/locales/de';
-import { TrackListHeaderComponent } from './track-list-header/track-list-header.component';
+import {TrackListHeaderComponent} from './track-list-header/track-list-header.component';
 import {NgScrollbarModule} from 'ngx-scrollbar';
-import { TrackMainComponent } from './track/main/track-main.component';
-import { TrackHeaderComponent } from './track/track-header/track-header.component';
+import {TrackMainComponent} from './track/main/track-main.component';
+import {TrackHeaderComponent} from './track/track-header/track-header.component';
+import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
+import {HammerGesturesMigration} from '@angular/material/schematics/ng-update/migrations/hammer-gestures-v9/hammer-gestures-migration';
 
 registerLocaleData(localeDe);
 
@@ -67,6 +69,7 @@ registerLocaleData(localeDe);
     TrackListHeaderComponent,
     TrackMainComponent,
     TrackHeaderComponent,
+    StatSliderComponent,
   ],
   imports: [
     BrowserModule,
@@ -98,12 +101,17 @@ registerLocaleData(localeDe);
     MatProgressBarModule,
     ReactiveFormsModule,
     NgScrollbarModule,
+    HammerModule,
   ],
   providers: [
     {provide: LocationStrategy, useClass: PathLocationStrategy},
     LoginGuard,
     StyleManagerService,
-    {provide: LOCALE_ID, useValue: 'de'}
+    {provide: LOCALE_ID, useValue: 'de'},
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: HammerGestureConfig
+    }
   ],
   bootstrap: [OverviewComponent]
 })

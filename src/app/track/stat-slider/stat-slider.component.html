@@ -1,0 +1,33 @@
+<div class="box-wrapper">
+  <div class="container">
+    <div class="slider" [style.transform]="getTransform()" (swipeleft)="slide(1)" (swiperight)="slide(-1)">
+      <div *ngFor="let i of [0,1,2,3,4]" class="box{{i+1}} box">
+        <div class="bg" [@openClose]="currentSlideIndex === i ? 'open' : 'closed'"></div>
+        <div class="details">
+          <h1>I'm Box number {{i + 1}}</h1>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing
+            elit. Integer lacinia dui lectus. Donec scelerisque ipsum
+            diam, ac mattis orci pellentesque eget.
+          </p>
+        </div>
+        <div class="illustration">
+          <mat-icon>music_note</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <svg (click)="slide(-1)" xmlns="http://www.w3.org/2000/svg" class="prev" width="56.898" height="91"
+         viewBox="0 0 56.898 91">
+      <path d="M45.5,0,91,56.9,48.452,24.068,0,56.9Z" transform="translate(0 91) rotate(-90)" fill="#fff"/>
+    </svg>
+    <svg (click)="slide(1)" xmlns="http://www.w3.org/2000/svg" class="next" width="56.898" height="91"
+         viewBox="0 0 56.898 91">
+      <path d="M45.5,0,91,56.9,48.452,24.068,0,56.9Z" transform="translate(56.898) rotate(90)" fill="#fff"/>
+    </svg>
+    <div class="trail">
+      <div *ngFor="let i of [0,1,2,3,4]" class="box{{i+1}}" [class.active]="currentSlideIndex === i"
+           (click)="currentSlideIndex = i"></div>
+    </div>
+  </div>
+</div>

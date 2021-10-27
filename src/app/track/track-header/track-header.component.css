@@ -3,6 +3,7 @@
   display: flex;
   position: relative;
   overflow: hidden;
+  z-index: 5;
 }
 
 .track, .album, .artists {
