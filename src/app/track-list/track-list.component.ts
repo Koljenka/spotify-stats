@@ -49,8 +49,11 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   private p = '';
   private theme: Option;
   private backgroundColorSource = new BehaviorSubject<string>('unset');
+  private headerBackgroundColorSource = new BehaviorSubject<string>('inherit');
   // eslint-disable-next-line @typescript-eslint/member-ordering
   backgroundColor = this.backgroundColorSource.asObservable();
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  headerBackgroundColor = this.headerBackgroundColorSource.asObservable();
 
   constructor(private route: ActivatedRoute, private router: Router, private location: Location,
               private cdRef: ChangeDetectorRef, private styleService: StyleManagerService) {
@@ -75,6 +78,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public calculateBackgroundColor(): void {
     this.backgroundColorSource.next(this.theme.backgroundColor + (this.styleService.isDarkStyleActive() ? '80' : '8'));
+    this.headerBackgroundColorSource.next(this.theme.backgroundColor);
   }
 
   ngAfterViewInit(): void {
@@ -86,6 +90,20 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.sort = this.sort;
       this.dataSource.data = this.trackList;
       this.didLoadFirstContent = this.trackList.length > 0;
+
+      const observer = new IntersectionObserver(
+        ([e]) => {
+          if (e.intersectionRatio < 1) {
+            e.target.parentElement.parentElement.setAttribute('style', 'background: ' + this.theme.backgroundColor);
+          } else {
+            e.target.parentElement.parentElement.setAttribute('style', 'background: inherit' );
+          }
+        },
+        {threshold: [1]}
+      );
+
+      const header = document.getElementsByClassName('mat-table-sticky')[0];
+      observer.observe(header);
 
       setTimeout(() => {
         this.recreatePageFromQuery(this.p, this.s);
