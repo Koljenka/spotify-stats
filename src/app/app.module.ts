@@ -1,6 +1,6 @@
 import {BrowserModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig, HammerModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {Injectable, LOCALE_ID, NgModule} from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import {HttpClientModule} from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -47,7 +47,6 @@ import {NgScrollbarModule} from 'ngx-scrollbar';
 import {TrackMainComponent} from './track/main/track-main.component';
 import {TrackHeaderComponent} from './track/track-header/track-header.component';
 import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
-import {HammerGesturesMigration} from '@angular/material/schematics/ng-update/migrations/hammer-gestures-v9/hammer-gestures-migration';
 
 registerLocaleData(localeDe);
 
