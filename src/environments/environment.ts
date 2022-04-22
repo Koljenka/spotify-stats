@@ -16,7 +16,8 @@ export const environment = {
     assetsBasePath: 'http://localhost:4200/assets/',
     playbackApiBasePath: 'https://kolkie.de/spotify-playback-api',
     avgColorApiBasePath: 'https://kolkie.de/avg-color-api',
-    unleashProxyUrl: 'https://kolkie.de/unleash-spotify/proxy'
+    unleashProxyUrl: 'https://kolkie.de/unleash-spotify/proxy',
+    songStatApiBasePath: 'https://kolkie.de/spotify-stat-api'
   }
 };
 

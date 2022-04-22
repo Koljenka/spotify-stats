@@ -10,6 +10,10 @@ import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import {BehaviorSubject} from 'rxjs';
+import {ApiAlbum} from '../../stat-api-util/ApiAlbum';
+import {ApiTrack} from '../../stat-api-util/ApiTrack';
+import {BoxStat} from '../stat-slider/stat-slider.component';
+import {StorageService} from '../../storage.service';
 
 @Component({
   selector: 'app-track',
@@ -21,6 +25,7 @@ export class TrackMainComponent implements OnInit {
   album: AlbumObjectFull;
   artists: ArtistObjectFull[];
   audioFeatures: AudioFeaturesObject;
+  stats: BoxStat[] = [];
   trackId: string;
   contextUri: string;
   background: string;
@@ -37,6 +42,20 @@ export class TrackMainComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loaded.toPromise().then(() => {
+      this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/stats', {
+        accessToken: StorageService.accessToken,
+        album: ApiAlbum.fromSpotifyAlbum(this.album),
+        track: ApiTrack.fromSpotifyTrack(this.track)
+      })
+        .subscribe(val => {
+          // @ts-ignore
+          if (val.message === 'BoxStatResponse') {
+            // @ts-ignore
+            this.stats.push(...val.content);
+          }
+        });
+    });
     this.getTrack();
     this.getAudioFeatures();
   }

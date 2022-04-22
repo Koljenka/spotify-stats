@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
@@ -23,21 +23,38 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 })
 export class StatSliderComponent implements OnInit {
 
+  @Input() stats: BoxStat[];
+
   currentSlideIndex = -1;
+  private intervalId = -1;
 
   constructor() {
   }
 
   ngOnInit(): void {
     this.currentSlideIndex++;
+    this.resetInterval();
   }
 
   getTransform(): string {
-    return `translateX(-${this.currentSlideIndex * 20}%)`;
+    return `translateX(-${this.currentSlideIndex * (100 / this.stats.length)}%)`;
   }
 
   slide(direction: number) {
-    this.currentSlideIndex = (this.currentSlideIndex + direction + 5) % 5;
+    this.currentSlideIndex = (this.currentSlideIndex + direction + this.stats.length) % this.stats.length;
+    this.resetInterval();
   }
 
+  private resetInterval() {
+    if (this.intervalId !== -1) {
+      clearInterval(this.intervalId);
+    }
+    this.intervalId = setInterval(() => this.slide(1), 10000);
+  }
+}
+
+export class BoxStat {
+  title: string;
+  description: string;
+  icon: string;
 }
