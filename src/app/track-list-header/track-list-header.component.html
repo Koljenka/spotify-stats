@@ -14,9 +14,9 @@
         <span>&nbsp;<b>·</b>&nbsp;</span>
       </ng-container>
 
-      <span>{{contextObject.content.tracks.total}}&nbsp;Song{{contextObject.content.tracks.total > 1 ? 's' : ''}}</span>
+      <span>{{tracks.length}}&nbsp;Song{{tracks.length > 1 ? 's' : ''}}</span>
       <span *ngIf="tracks.length > 0">&nbsp;<b>·</b>&nbsp;</span>
-      <span *ngIf="tracks.length > 0">{{getPlaylistLength()}}</span>
+      <span *ngIf="tracks.length > 0">{{playlistLength}}</span>
       <ng-container *ngIf="contextObject.contextType === 'playlist'">
         <span>&nbsp;<b>·</b>&nbsp;</span>
         <span>{{contextObject.content.followers.total | number:'':'de-DE'}}&nbsp;Follower{{contextObject.content.followers.total > 1 ? 's' : ''}}</span>

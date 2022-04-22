@@ -38,9 +38,9 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   }
   private getALlPlaylistTracks(offset: number = 0, limit: number = 50): void {
     this.api.getApi().getPlaylistTracks(this.playlistId, {offset, limit}).then(value => {
-      this.playlistTracksSource.next(value.items);
+      this.playlistTracksSource.next(value.items.filter(v => v.track != null));
       if (value.next != null) {
-        const parts = value.next.split(/=|&|\?/);
+        const parts = value.next.split(/[=&?]/);
         this.getALlPlaylistTracks(parseInt(parts[parts.indexOf('offset') + 1], 10),
           parseInt(parts[parts.indexOf('limit') + 1], 10));
       } else {

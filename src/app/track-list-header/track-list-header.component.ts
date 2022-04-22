@@ -23,6 +23,7 @@ export class TrackListHeaderComponent implements OnInit {
   contextObject: any;
   tracks: (PlaylistTrackObject | SavedTrackObject | PlayHistoryObjectFull | AlbumTrackObject)[] = [];
   playedCount = 0;
+  playlistLength = '';
 
   private backgroundColor: { r: number; g: number; b: number };
 
@@ -31,6 +32,7 @@ export class TrackListHeaderComponent implements OnInit {
 
   ngOnInit() {
     this.tracksSource.subscribe(value => this.tracks.push(...value));
+    this.tracksSource.toPromise().then(() => this.getPlaylistLength());
     this.contextObjectObs.subscribe(value => {
       if (value) {
         this.contextObject = value;
@@ -48,8 +50,8 @@ export class TrackListHeaderComponent implements OnInit {
     }
   }
 
-  getPlaylistLength(): string {
-    return Util.toHoursMinutesSeconds(this.tracks.map(t => t.track.duration_ms).reduce((a, b) => a + b) / 1000, false);
+  getPlaylistLength() {
+    this.playlistLength = Util.toHoursMinutesSeconds(this.tracks.map(t => t.track.duration_ms).reduce((a, b) => a + b) / 1000, false);
   }
 
   getUsername(): string {
