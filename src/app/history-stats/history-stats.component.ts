@@ -20,6 +20,7 @@ import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import {UnleashService} from '../unleash.service';
+import {ApiPlaybackHistoryObject} from '../stat-api-util/ApiPlaybackHistoryObject';
 
 
 @Component({
@@ -131,7 +132,9 @@ export class HistoryStatsComponent implements OnInit {
         }
         break;
     }
-    prevTimeframe.end = timeframe.start - 1;
+    if (prevTimeframe.start !== 0) {
+      prevTimeframe.end = timeframe.start - 1;
+    }
     this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
   }
 
@@ -234,6 +237,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
+    this.getSmallStats(from, to, previousFrom, previousTo);
     this.getClockGraphData(from, to);
     this.getStreak(from, to);
     this.worker.postMessage({
@@ -267,15 +271,29 @@ export class HistoryStatsComponent implements OnInit {
         this.topContexts = data.content;
         this.getTopContextAvgColor();
         break;
-      case 'new_smallCardStats':
-        this.smallStatCardStats[data.content.id] = data.content;
-        break;
       case 'graph': {
         this.options = data.content;
         this.isLoadingGraph = false;
         break;
       }
     }
+  }
+
+  private getSmallStats(from: number, to: number, prevFrom: number, prevTo: number) {
+    this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/smallStats', {
+      accessToken: StorageService.accessToken,
+      playbackHistory: this.playbackHistory.map(pb => ApiPlaybackHistoryObject.fromSpotifyPlaybackHistoryObject(pb)),
+      timeframe: {start: from, end: to},
+      prevTimeframe: {start: prevFrom, end: prevTo}
+    })
+      .subscribe(response => {
+        console.log(response);
+        // @ts-ignore
+        for (const stat of response.content) {
+          this.smallStatCardStats[stat.id] = stat;
+        }
+
+      });
   }
 
   private getStreak(from: number, to: number): void {
