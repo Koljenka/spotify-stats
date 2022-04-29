@@ -280,6 +280,9 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private getSmallStats(from: number, to: number, prevFrom: number, prevTo: number) {
+    this.getTotalTracksStat(from, to, prevFrom, prevTo);
+    this.getUniqueTracksStat(from, to, prevFrom, prevTo);
+    this.getMostActiveDay(from, to, prevFrom, prevTo);
     this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/smallStats', {
       accessToken: StorageService.accessToken,
       playbackHistory: this.playbackHistory.map(pb => ApiPlaybackHistoryObject.fromSpotifyPlaybackHistoryObject(pb)),
@@ -294,6 +297,99 @@ export class HistoryStatsComponent implements OnInit {
         }
 
       });
+  }
+
+  private getTotalTracksStat(from: number, to: number, prevFrom: number, prevTo: number): void {
+    this.smallStatCardStats[0] = {
+      id: 0,
+      heading: 'Total Tracks',
+      icon: 'music_note',
+      stat: {
+        value: '-',
+        prevTimeframe: {start: prevFrom, end: prevTo},
+        prevValue: '-'
+      }
+    };
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/totalTracks', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: from / 1000,
+      to: to / 1000
+    }).subscribe(value => {
+      this.smallStatCardStats[0].stat.value = value[0].count;
+      }
+    );
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/totalTracks', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: prevFrom / 1000,
+      to: prevTo / 1000
+    }).subscribe(value => {
+      this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0].count;
+      }
+    );
+  }
+
+  private getUniqueTracksStat(from: number, to: number, prevFrom: number, prevTo: number): void {
+    this.smallStatCardStats[1] = {
+      id: 1,
+      heading: 'Unique Tracks',
+      icon: 'music_note',
+      stat: {
+        value: '-',
+        prevTimeframe: {start: prevFrom, end: prevTo},
+        prevValue: '-'
+      }
+    };
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/uniqueTracks', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: from / 1000,
+      to: to / 1000
+    }).subscribe(value => {
+        this.smallStatCardStats[1].stat.value = value[0].count;
+      }
+    );
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/uniqueTracks', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: prevFrom / 1000,
+      to: prevTo / 1000
+    }).subscribe(value => {
+        this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value[0].count;
+      }
+    );
+  }
+
+  private getMostActiveDay(from: number, to: number, prevFrom: number, prevTo: number): void {
+    this.smallStatCardStats[5] = {
+      id: 5,
+      heading: 'Most Active Day',
+      icon: 'event',
+      stat: {
+        value: '-',
+        prevTimeframe: {start: prevFrom, end: prevTo},
+        prevValue: '-'
+      }
+    };
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/mostActiveDay', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: from / 1000,
+      to: to / 1000
+    }).subscribe(value => {
+        this.smallStatCardStats[5].stat.value = value[0].date + ' (' + value[0].count + ')';
+      }
+    );
+    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/mostActiveDay', {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      access_token: StorageService.accessToken,
+      from: prevFrom / 1000,
+      to: prevTo / 1000
+    }).subscribe(value => {
+        this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value[0].date + ' (' + value[0].count + ')';
+      }
+    );
   }
 
   private getStreak(from: number, to: number): void {
