@@ -7,8 +7,7 @@
         <ng-container *ngIf="stat != null">
           <div class="details">
             <h1>{{stat.title}}</h1>
-            <p>
-              {{stat.description}}
+            <p [innerHTML]="stat.description">
             </p>
           </div>
           <div class="illustration">

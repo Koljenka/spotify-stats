@@ -9,14 +9,17 @@
   .button {
     height: 250px;
     width: 500px;
-    font-size: 5em;
+    font-size: 5rem;
   }
 }
 
 .main-content {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, 300px);
+  grid-template-columns: repeat(auto-fill, 300px);
+  gap: 1em;
   justify-content: space-evenly;
+  padding: 1em;
 }
 
 ::ng-deep .mat-card-footer {
@@ -33,6 +36,7 @@
 }
 
 app-playlist-card {
-  margin: 5px;
+  height: 300px;
+  width: 300px;
   outline: none;
 }

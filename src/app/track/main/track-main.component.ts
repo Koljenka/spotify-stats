@@ -55,6 +55,19 @@ export class TrackMainComponent implements OnInit {
             this.stats.push(...val.content);
           }
         });
+
+      this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/slowStats', {
+        accessToken: StorageService.accessToken,
+        album: ApiAlbum.fromSpotifyAlbum(this.album),
+        track: ApiTrack.fromSpotifyTrack(this.track)
+      })
+        .subscribe(val => {
+          // @ts-ignore
+          if (val.message === 'BoxStatResponse') {
+            // @ts-ignore
+            this.stats.push(...val.content);
+          }
+        });
     });
     this.getTrack();
     this.getAudioFeatures();

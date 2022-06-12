@@ -56,8 +56,11 @@ export class ApiConnectionService {
   }
 
   public async waitForApi(): Promise<SpotifyWebApi.SpotifyWebApiJs> {
-    if (this.api == null || !this.hasValidToken) {
-      await this.requestRefreshToken();
+    if (this.api == null) {
+      if (!this.hasValidToken) {
+        await this.requestRefreshToken();
+      }
+      this.refreshApi();
     }
     return Promise.resolve(this.api);
   }

@@ -1,24 +1,53 @@
 .main-card {
-  width: 300px;
-  padding-left: 0;
-  padding-right: 0;
-  margin: auto;
-
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+  background-color: transparent;
+overflow: visible;
   cursor: pointer;
-  text-align: center;
-
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 
   -webkit-user-drag: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-mat-card img {
-  width: 300px;
-  height: 300px;
+.card-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.main-card:hover .card-body {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  overflow: hidden;
+  border-radius: 5px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.card-back {
+  transform: rotateY(180deg);
+  padding: 1em;
+}
+
+.card-front > img {
+  object-fit: cover;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
 mat-icon {

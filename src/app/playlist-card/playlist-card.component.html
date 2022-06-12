@@ -1,10 +1,17 @@
-<mat-card class="main-card" matRipple (click)="onCardClick()">
-  <img mat-card-image [src]="getImageForPlaylist()" width="300px" height="300px" alt="Album Cover">
-  <mat-card-footer>
-    <mat-card-title>{{playlist.name}}</mat-card-title>
-    <mat-card-subtitle>
-      <mat-icon *ngIf="!playlist.public" matTooltip="Private">public_off</mat-icon>
-      <mat-icon matTooltip="Collaborative" *ngIf="playlist.collaborative">group</mat-icon>
-      {{playlist.owner.id}}</mat-card-subtitle>
-  </mat-card-footer>
-</mat-card>
+<div class="main-card" (click)="onCardClick()">
+  <mat-card class="card-body">
+    <div class="card-front">
+      <img mat-card-image [src]="getImageForPlaylist()" alt="Album Cover">
+    </div>
+    <mat-card-content matRipple class="card-back">
+      <mat-card-footer>
+        <mat-card-title>{{playlist.name}}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-icon *ngIf="!playlist.public" matTooltip="Private">public_off</mat-icon>
+          <mat-icon matTooltip="Collaborative" *ngIf="playlist.collaborative">group</mat-icon>
+          {{playlist.owner.id}}</mat-card-subtitle>
+      </mat-card-footer>
+    </mat-card-content>
+  </mat-card>
+  <!---->
+</div>
