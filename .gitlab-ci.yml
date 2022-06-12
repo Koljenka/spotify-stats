@@ -55,10 +55,11 @@ karma:
     paths:
       - coverage/
     reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
       junit:
         - junit.xml
-      cobertura:
-        - coverage/cobertura-coverage.xml
   coverage: /Branches\s+:\s(\d+.?\d+)%/
 
 
