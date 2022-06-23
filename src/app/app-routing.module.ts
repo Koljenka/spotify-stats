@@ -10,11 +10,13 @@ import {HistoryStatsComponent} from './history-stats/history-stats.component';
 import {LoginGuard} from './login.guard';
 import {AlbumTrackListComponent} from './album-track-list/album-track-list.component';
 import {TrackMainComponent} from './track/main/track-main.component';
+import {ActionsComponent} from './actions/main/actions.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/home', pathMatch: 'full'},
   {path: 'home', component: HomeComponent},
   {path: 'callback', component: CallbackComponent},
+  {path: 'actions', component: ActionsComponent, canActivate: [LoginGuard]},
   {path: 'track/:trackId', component: TrackMainComponent, canActivate: [LoginGuard]},
   {path: 'track/:trackId/:contextUri', component: TrackMainComponent, canActivate: [LoginGuard]},
   {path: 'track-old/:trackId', component: TrackOldComponent, canActivate: [LoginGuard]},

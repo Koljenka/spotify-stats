@@ -1,3 +1,8 @@
 app-track-header {
   z-index: 2;
 }
+
+.wrapper {
+  text-align: center;
+  align-items: center;
+}

@@ -47,6 +47,8 @@ import {NgScrollbarModule} from 'ngx-scrollbar';
 import {TrackMainComponent} from './track/main/track-main.component';
 import {TrackHeaderComponent} from './track/track-header/track-header.component';
 import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
+import { ActionsComponent } from './actions/main/actions.component';
+import { ActionCardComponent } from './actions/action-card/action-card.component';
 
 registerLocaleData(localeDe);
 
@@ -69,6 +71,8 @@ registerLocaleData(localeDe);
     TrackMainComponent,
     TrackHeaderComponent,
     StatSliderComponent,
+    ActionsComponent,
+    ActionCardComponent,
   ],
   imports: [
     BrowserModule,

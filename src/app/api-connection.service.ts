@@ -70,10 +70,20 @@ export class ApiConnectionService {
       this.api = new SpotifyWebApi();
       this.api.setAccessToken(StorageService.accessToken);
       if (this.userId == null) {
-        this.api.getMe().then(value => this.userId = value.id);
+        this.getMe();
       }
     }
     return this.api;
+  }
+
+  private getMe() {
+    this.api.getMe()
+      .then(value => this.userId = value.id)
+      .catch(reason => {
+        if (reason.status === 429) {
+          setTimeout(() => this.getMe(), reason.getResponseHeader('Retry-After') * 1000);
+        }
+      });
   }
 
   private async requestRefreshToken(): Promise<void> {
@@ -96,7 +106,7 @@ export class ApiConnectionService {
     }
     this.api.setAccessToken(StorageService.accessToken);
     if (this.userId == null) {
-      this.api.getMe().then(value => this.userId = value.id);
+      this.getMe();
     }
   }
 }
