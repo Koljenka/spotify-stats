@@ -1,3 +1,6 @@
+include:
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+
 image: node:14.5.0
 
 stages:
