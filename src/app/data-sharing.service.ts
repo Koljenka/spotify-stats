@@ -18,6 +18,20 @@ import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 })
 export class DataSharingService {
 
+  private savedTracks: PlayHistoryObjectFull[] = [];
+  private contexts: ContextObjectFull[] = [];
+  private tracks: TrackObjectFull[] = [];
+  private audioFeatures: AudioFeaturesObject[] = [];
+  private uniqueTrackIds: string[] = [];
+  private didStartLoading = false;
+  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
+  private totalContextCount = 0;
+  private loadedContexts = 0;
+
+  constructor(private http: HttpClient, private api: ApiConnectionService) {
+  }
+
+
   get playbackHistory(): Observable<PlayHistoryObjectFull[]> {
     if ((this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
       this.playbackHistorySource.value.length <= 0) && !this.didStartLoading) {
@@ -41,18 +55,6 @@ export class DataSharingService {
     return this.historyLoadingProgress === 1;
   }
 
-  private savedTracks: PlayHistoryObjectFull[] = [];
-  private contexts: ContextObjectFull[] = [];
-  private tracks: TrackObjectFull[] = [];
-  private audioFeatures: AudioFeaturesObject[] = [];
-  private uniqueTrackIds: string[] = [];
-  private didStartLoading = false;
-  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
-  private totalContextCount = 0;
-  private loadedContexts = 0;
-
-  constructor(private http: HttpClient, private api: ApiConnectionService) {
-  }
 
   public static delay(s: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, s * 1000));
@@ -228,7 +230,7 @@ export class DataSharingService {
       } else if (reason.status === 500) {
         console.log(reason);
         console.log(ids);
-        const promises = [];
+        //const promises = [];
         //ids.forEach(id => promises.push(this.getTracks([id])));
         //return Promise.all(promises).then(() => Promise.resolve());
       } else if (reason.status === 503) {

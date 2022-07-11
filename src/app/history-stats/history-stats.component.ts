@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
@@ -55,7 +56,8 @@ export class HistoryStatsComponent implements OnInit {
   topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   smallStatCardStats: SmallCardStat[] = [];
   range = new UntypedFormGroup({
-    start: new UntypedFormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
+    start: new UntypedFormControl(new Date(new Date().getFullYear(), new Date().getMonth(),
+      new Date().getDate() - new Date().getDay() + 1)),
     end: new UntypedFormControl(new Date())
   });
   links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
@@ -91,7 +93,6 @@ export class HistoryStatsComponent implements OnInit {
     this.dataSharing.playbackHistory.toPromise().then(() => {
       this.playbackHistory = this.dataSharing.getSavedTracks();
       this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
-      console.log(this.playbackHistory);
       this.onLinkChanged();
     });
     this.range.valueChanges.pipe(debounceTime(200)).subscribe(this.onRangeChanged.bind(this));

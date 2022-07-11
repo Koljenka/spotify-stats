@@ -11,6 +11,13 @@ import {Base64} from 'js-base64';
 })
 export class ApiConnectionService {
 
+  public userId = null;
+  public displayName = null;
+  private api: SpotifyWebApi.SpotifyWebApiJs = null;
+
+  private constructor(private http: HttpClient) {
+  }
+
   get tokenUrl(): string {
     return environment.APP_SETTINGS.tokenUrl;
   }
@@ -39,17 +46,8 @@ export class ApiConnectionService {
     return environment.APP_SETTINGS.clientName;
   }
 
-  public userId = null;
-
-  public displayName = null;
-
   private get hasValidToken(): boolean {
     return StorageService.accessToken != null && Date.now() < StorageService.expiresAt;
-  }
-
-  private api: SpotifyWebApi.SpotifyWebApiJs = null;
-
-  private constructor(private http: HttpClient) {
   }
 
   public checkToken(): void {

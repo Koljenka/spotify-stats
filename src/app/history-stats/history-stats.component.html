@@ -2,9 +2,9 @@
   <nav backgroundColor="primary" mat-tab-nav-bar>
     <a [style.opacity]="activeLink === link ? 1: .6" mat-tab-link *ngFor="let link of links"
        (click)="activeLink = link; onLinkChanged()"
-       [active]="activeLink == link">{{link}}</a>
+       [active]="activeLink === link">{{link}}</a>
     <a [style.opacity]="activeLink === lastLink ? 1: .6" mat-tab-link (click)="activeLink = lastLink; onLinkChanged()"
-       [active]="activeLink == lastLink">
+       [active]="activeLink === lastLink">
       Custom
       <mat-form-field appearance="fill">
         <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
@@ -24,7 +24,7 @@
 
     <div class="top-lists mat-app-background" id="top-lists">
       <div class="top-column" id="topArtistsColumn">
-        <ng-container *ngIf="topArtists.length > 0 && topArtistAvgColor != null; else spinner">
+        <ng-container *ngIf="topArtists.length > 0 && topArtistAvgColor !== null; else spinner">
           <mat-card mat-ripple [routerLink]="['/album-track-list', topArtists[0].artist.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}, 0),
@@ -47,7 +47,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topAlbumsColumn">
-        <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor != null; else spinner">
+        <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor !== null; else spinner">
           <mat-card mat-ripple [routerLink]="['/album-track-list', topAlbums[0].album.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}); background-image: linear-gradient( rgba( {{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 0),
@@ -72,7 +72,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topTracksColumn">
-        <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor != null; else spinner">
+        <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor !== null; else spinner">
           <mat-card mat-ripple [routerLink]="['/track', topTracks[0].track.id]" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}); background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
@@ -97,7 +97,7 @@
         </ng-container>
       </div>
       <div class="top-column" id="topContextColumn">
-        <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor != null; else spinner">
+        <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor !== null; else spinner">
           <mat-card mat-ripple [routerLink]="getContextRouterLink(topContexts[0].context)" class="top-card">
             <div class="image"
                  style="background-color: rgb({{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}); background-image: linear-gradient( rgba( {{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 0),
@@ -124,7 +124,7 @@
     <mat-divider></mat-divider>
     <div class="stat-group stat-group-1">
       <mat-card class="stat-card" *ngFor="let stat of smallStatCardStats">
-        <ng-container *ngIf="stat.stat.value != null">
+        <ng-container *ngIf="stat.stat.value !== null">
           <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});"
                class="stat-card-image">
             <mat-icon>{{stat.icon}}</mat-icon>
@@ -135,7 +135,7 @@
             <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">{{stat.stat.prevValue}}</div>
           </div>
         </ng-container>
-        <mat-spinner diameter="40" *ngIf="stat.stat.value == null" style="top: calc(50% - 20px);"></mat-spinner>
+        <mat-spinner diameter="40" *ngIf="stat.stat.value === null" style="top: calc(50% - 20px);"></mat-spinner>
       </mat-card>
     </div>
     <mat-divider></mat-divider>

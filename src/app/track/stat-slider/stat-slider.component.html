@@ -4,7 +4,7 @@
          (swipeleft)="slide(1)" (swiperight)="slide(-1)">
       <div *ngFor="let stat of this.stats; let i = index" class="box{{(i % 5) + 1}} box">
         <div class="bg" [@openClose]="currentSlideIndex === i ? 'open' : 'closed'"></div>
-        <ng-container *ngIf="stat != null">
+        <ng-container *ngIf="stat !== null">
           <div class="details">
             <h1>{{stat.title}}</h1>
             <p [innerHTML]="stat.description">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 export class StorageService {
   private constructor() {
   }

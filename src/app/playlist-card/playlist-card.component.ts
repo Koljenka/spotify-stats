@@ -47,7 +47,7 @@ export class PlaylistCardComponent implements OnInit {
   private createStats() {
     this.stats.push({key: 'Length', value: this.getPlaylistLength()});
     this.getPlayedCount().then(count => {
-      this.stats.push({key: 'Times played', value: count.toLocaleString('de-DE')})
+      this.stats.push({key: 'Times played', value: count.toLocaleString('de-DE')});
     });
     this.stats.push({key: 'Followers', value: this.playlistFull.followers.total.toLocaleString('de-DE')});
   }
