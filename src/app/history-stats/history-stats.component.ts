@@ -7,7 +7,7 @@ import {environment} from '../../environments/environment';
 import {StorageService} from '../storage.service';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
 import {MatDateRangeInput} from '@angular/material/datepicker';
-import {FormControl, FormGroup} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -54,9 +54,9 @@ export class HistoryStatsComponent implements OnInit {
   topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
   smallStatCardStats: SmallCardStat[] = [];
-  range = new FormGroup({
-    start: new FormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
-    end: new FormControl(new Date())
+  range = new UntypedFormGroup({
+    start: new UntypedFormControl(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - new Date().getDay() + 1)),
+    end: new UntypedFormControl(new Date())
   });
   links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
   lastLink = 'latLink';

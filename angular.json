@@ -124,7 +124,6 @@
       }
     }
   },
-  "defaultProject": "spotify-stats",
   "cli": {
     "analytics": "7f5f1340-94ac-4aaa-8c33-f5010fb5ad0d"
   }
