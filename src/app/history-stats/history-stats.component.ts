@@ -75,7 +75,7 @@ export class HistoryStatsComponent implements OnInit {
               private styleService: StyleManagerService,
               private toggle: UnleashService) {
     if (typeof Worker !== 'undefined') {
-      this.worker = new Worker('./history-stats.worker', {type: 'module'});
+      this.worker = new Worker(new URL('./history-stats.worker', import.meta.url), {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
     }
   }
