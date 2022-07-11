@@ -171,9 +171,20 @@
   height: 500px;
 }
 
-.graph {
+.graph, .small-graph-container {
   width: 90%;
   margin: auto;
+}
+
+.small-graph-container {
+  width: calc(90% + 32px);
+  display: flex;
+  justify-content: space-between;
+}
+
+.small-graph {
+  margin: 0;
+  width: 46%;
 }
 
 .stat-card {

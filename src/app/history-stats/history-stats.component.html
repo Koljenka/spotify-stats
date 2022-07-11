@@ -142,9 +142,12 @@
     <div class="stat-graphs">
       <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingGraph" [options]="options"
                 class="graph"></mat-card>
-
-      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
-                class="graph clock-graph"></mat-card>
+      <div class="small-graph-container">
+        <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
+                  class="graph clock-graph small-graph"></mat-card>
+        <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
+                  class="graph clock-graph small-graph"></mat-card>
+      </div>
       <mat-card *ngIf="this.mapGraphData" [theme]="themeIsDark ? 'dark' : ''" echarts [options]="mapGraphData"
                 class="graph"></mat-card>
 
