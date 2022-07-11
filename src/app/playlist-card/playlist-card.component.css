@@ -1,10 +1,7 @@
 .main-card {
-  box-sizing: border-box;
   width: 100%;
   height: 100%;
   perspective: 1000px;
-  background-color: transparent;
-overflow: visible;
   cursor: pointer;
   user-select: none;
 
@@ -13,12 +10,9 @@ overflow: visible;
 }
 
 .card-body {
-  position: relative;
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
   padding: 0;
-  text-align: center;
   transition: transform 0.5s;
   transform-style: preserve-3d;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -40,7 +34,7 @@ overflow: visible;
 }
 .card-back {
   transform: rotateY(180deg);
-  padding: 1em;
+  padding: 16px;
 }
 
 .card-front > img {
@@ -57,4 +51,41 @@ mat-icon {
   height: 14px;
   width: 14px;
   margin-right: 4px;
+}
+
+::ng-deep  .mat-card-header-text {
+  overflow-x: hidden;
+  white-space: nowrap;
+  margin:0 !important;
+}
+
+mat-card-title {
+  text-overflow: ellipsis;
+  overflow-x: clip;
+}
+
+mat-card-content dl {
+  margin: 0;
+  width: 75%;
+}
+mat-card-content dt::before {
+  content: '';
+  display: block;
+}
+mat-card-content dd {
+  display: inline;
+  float: right;
+  margin: 0 0 0 1rem;
+}
+
+ mat-card-content dt {
+   display: inline;
+
+ }
+
+mat-card-footer {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  margin: 0;
 }

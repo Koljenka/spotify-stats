@@ -3,15 +3,25 @@
     <div class="card-front">
       <img mat-card-image [src]="getImageForPlaylist()" alt="Album Cover">
     </div>
-    <mat-card-content matRipple class="card-back">
+    <div class="card-back" matRipple>
+      <mat-card-header>
+        <mat-card-title [matTooltip]="playlist.name">{{playlist.name}}</mat-card-title>
+        <mat-card-subtitle>{{playlist.owner.display_name}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <dl>
+          <ng-container *ngFor="let stat of stats">
+            <dt class="mat-card-subtitle">{{stat.key}}</dt>
+            <dd>{{stat.value}}</dd>
+          </ng-container>
+        </dl>
+
+      </mat-card-content>
       <mat-card-footer>
-        <mat-card-title>{{playlist.name}}</mat-card-title>
-        <mat-card-subtitle>
-          <mat-icon *ngIf="!playlist.public" matTooltip="Private">public_off</mat-icon>
-          <mat-icon matTooltip="Collaborative" *ngIf="playlist.collaborative">group</mat-icon>
-          {{playlist.owner.id}}</mat-card-subtitle>
+        <mat-icon *ngIf="!playlist.public" matTooltip="Private">public_off</mat-icon>
+        <mat-icon matTooltip="Collaborative" *ngIf="playlist.collaborative">group</mat-icon>
       </mat-card-footer>
-    </mat-card-content>
+    </div>
+
   </mat-card>
-  <!---->
 </div>

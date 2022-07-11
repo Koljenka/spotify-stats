@@ -22,18 +22,6 @@
   padding: 1em;
 }
 
-::ng-deep .mat-card-footer {
-  margin: 0 0 -16px 0 !important;
-  padding: 0 16px;
-  white-space: nowrap;
-}
-
-::ng-deep .mat-card-footer > .mat-card-title {
-
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
 
 app-playlist-card {
   height: 300px;

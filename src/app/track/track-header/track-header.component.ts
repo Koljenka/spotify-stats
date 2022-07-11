@@ -72,7 +72,7 @@ export class TrackHeaderComponent implements OnInit {
   }
 
   private getPlayedCount(): void {
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/trackPlayedCount', {
+    this.http.post(`${environment.APP_SETTINGS.playbackApiBasePath}/trackPlayedCount`, {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       access_token: StorageService.accessToken,
       trackId: this.track.id

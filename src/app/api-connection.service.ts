@@ -38,7 +38,10 @@ export class ApiConnectionService {
   get clientName(): string {
     return environment.APP_SETTINGS.clientName;
   }
+
   public userId = null;
+
+  public displayName = null;
 
   private get hasValidToken(): boolean {
     return StorageService.accessToken != null && Date.now() < StorageService.expiresAt;
@@ -78,7 +81,10 @@ export class ApiConnectionService {
 
   private getMe() {
     this.api.getMe()
-      .then(value => this.userId = value.id)
+      .then(value => {
+        this.userId = value.id;
+        this.displayName = value.display_name;
+      })
       .catch(reason => {
         if (reason.status === 429) {
           setTimeout(() => this.getMe(), reason.getResponseHeader('Retry-After') * 1000);

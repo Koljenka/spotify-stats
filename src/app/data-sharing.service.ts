@@ -54,6 +54,10 @@ export class DataSharingService {
   constructor(private http: HttpClient, private api: ApiConnectionService) {
   }
 
+  public static delay(s: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, s * 1000));
+  }
+
   public getSavedTracks(): PlayHistoryObjectFull[] {
     return this.savedTracks;
   }
@@ -68,7 +72,7 @@ export class DataSharingService {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
       .subscribe(value => {
-        const playbackHistory = (value as PlaybackHistory[]);
+        const playbackHistory = (value as PlaybackHistory[]).slice(0, 1000);
         this.uniqueTrackIds = this.getUniqueTrackIds(playbackHistory);
         Promise.all([this.getContexts(playbackHistory), this.getAllTracks(), this.getAllAudioFeatures()]).then(() => {
           this.matchTracks(playbackHistory);
@@ -177,7 +181,7 @@ export class DataSharingService {
       });
     } catch (reason) {
       if (reason.status === 429) {
-        await this.delay(reason.getResponseHeader('Retry-After'));
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
         return await this.getArtists(artistIds);
       }
     }
@@ -192,7 +196,7 @@ export class DataSharingService {
       });
     } catch (reason) {
       if (reason.status === 429) {
-        await this.delay(reason.getResponseHeader('Retry-After'));
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
         return await this.getAlbums(albumIds);
       }
     }
@@ -205,7 +209,7 @@ export class DataSharingService {
       this.loadedContexts = this.contexts.length;
     } catch (reason) {
       if (reason.status === 429) {
-        await this.delay(reason.getResponseHeader('Retry-After'));
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
         return await this.getPlaylist(playlistId, playlistUri);
       } else {
         this.totalContextCount--;
@@ -219,7 +223,7 @@ export class DataSharingService {
       this.tracks.push(...tracks.tracks);
     } catch (reason) {
       if (reason.status === 429) {
-        await this.delay(reason.getResponseHeader('Retry-After'));
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
         return await this.getTracks(ids);
       } else if (reason.status === 500) {
         console.log(reason);
@@ -239,14 +243,10 @@ export class DataSharingService {
       this.audioFeatures.push(...response.audio_features);
     } catch (reason) {
       if (reason.status === 429) {
-        await this.delay(reason.getResponseHeader('Retry-After'));
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
         return await this.getAudioFeatures(ids);
       }
     }
-  }
-
-  private delay(s: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, s * 1000));
   }
 
   private async getAllPages<T extends Pagination>(request: Promise<T>): Promise<T> {
