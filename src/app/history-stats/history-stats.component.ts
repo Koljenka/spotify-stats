@@ -91,6 +91,7 @@ export class HistoryStatsComponent implements OnInit {
     this.dataSharing.playbackHistory.toPromise().then(() => {
       this.playbackHistory = this.dataSharing.getSavedTracks();
       this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
+      console.log(this.playbackHistory);
       this.onLinkChanged();
     });
     this.range.valueChanges.pipe(debounceTime(200)).subscribe(this.onRangeChanged.bind(this));
@@ -316,7 +317,7 @@ export class HistoryStatsComponent implements OnInit {
       from: from / 1000,
       to: to / 1000
     }).subscribe(value => {
-      this.smallStatCardStats[0].stat.value = value[0].count;
+        this.smallStatCardStats[0].stat.value = value[0].count;
       }
     );
     this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/totalTracks', {
@@ -325,7 +326,7 @@ export class HistoryStatsComponent implements OnInit {
       from: prevFrom / 1000,
       to: prevTo / 1000
     }).subscribe(value => {
-      this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0].count;
+        this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0].count;
       }
     );
   }
@@ -446,8 +447,15 @@ export class HistoryStatsComponent implements OnInit {
         22: 0,
         23: 0
       };
+      let maxRadius = 15;
       // @ts-ignore
-      value.forEach(val => temp[parseInt(val.hour, 10)] = val.count);
+      value.forEach(val => {
+        if (val.count > maxRadius) {
+          maxRadius = Math.ceil(val.count);
+        }
+        return temp[parseInt(val.hour, 10)] = val.count.toFixed(2);
+      });
+
       this.clockGraphData = {
         title: {
           text: 'Listening Clock'
@@ -462,14 +470,35 @@ export class HistoryStatsComponent implements OnInit {
         angleAxis: {
           type: 'category',
           data: Object.keys(temp),
+          startAngle: 97.5,
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dotted'
+            }
+          },
+          axisTick: {
+            alignWithLabel: false,
+          }
         },
         tooltip: {
           show: true,
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow',
+          },
+          formatter: '{b}: {c}%'
         },
         radiusAxis: {
+          max: maxRadius,
+          axisLabel: {
+            formatter: '{value}%'
+          },
           z: 5
         },
-        polar: {},
+        polar: {
+          radius: ['15%', '85%']
+        },
         series: [{
           type: 'bar',
           data: Object.values(temp),

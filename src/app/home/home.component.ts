@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../api-connection.service';
 import {environment} from '../../environments/environment';
 import {Title} from '@angular/platform-browser';
+import {DataSharingService} from '../data-sharing.service';
 
 
 @Component({
@@ -16,7 +17,7 @@ export class HomeComponent implements OnInit {
   playlists: SpotifyApi.PlaylistObjectSimplified[];
 
   constructor(private api: ApiConnectionService, private titleService: Title,
-              public http: HttpClient, public cookie: CookieService) {
+              public http: HttpClient, public cookie: CookieService, private dataSharing: DataSharingService) {
   }
 
   ngOnInit(): void {
@@ -25,12 +26,7 @@ export class HomeComponent implements OnInit {
   }
 
   getUserPlaylist(): void {
-    this.api.waitForApi().then(api => {
-      // @ts-ignore
-      api.getUserPlaylists({limit: 50}).then(value => {
-        this.playlists = value.items;
-      });
-    });
+    this.dataSharing.getAllUserPlaylists().then(value => this.playlists = value);
   }
 
   authorize(): void {

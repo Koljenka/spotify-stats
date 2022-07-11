@@ -11,6 +11,7 @@ import ContextObjectType = SpotifyApi.ContextObjectType;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
+import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 
 @Injectable({
   providedIn: 'root'
@@ -57,6 +58,11 @@ export class DataSharingService {
     return this.savedTracks;
   }
 
+  public async getAllUserPlaylists(): Promise<PlaylistObjectSimplified[]> {
+    // @ts-ignore
+    const response = await this.getAllPages(this.api.getApi().getUserPlaylists({limit: 50}));
+    return response.items;
+  }
 
   private loadPlaybackHistory(): void {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -108,8 +114,8 @@ export class DataSharingService {
         promises.push(this.getTracks(trackIds));
       }
     }
-
-    return Promise.all(promises).then(() => Promise.resolve(this.tracks));
+    await Promise.all(promises);
+    return this.tracks;
   }
 
   private async getAllAudioFeatures(): Promise<AudioFeaturesObject[]> {
@@ -120,8 +126,8 @@ export class DataSharingService {
         promises.push(this.getAudioFeatures(trackIds));
       }
     }
-
-    return Promise.all(promises).then(() => Promise.resolve(this.audioFeatures));
+    await Promise.all(promises);
+    return this.audioFeatures;
   }
 
   private async getContexts(historyTracks: PlaybackHistory[]): Promise<ContextObjectFull[]> {
@@ -162,81 +168,107 @@ export class DataSharingService {
     return Promise.all(promises).then(() => Promise.resolve(this.contexts));
   }
 
-  private getArtists(artistIds: string[]): Promise<void> {
-    return this.api.getApi().getArtists(artistIds).then(response => {
+  private async getArtists(artistIds: string[]): Promise<void> {
+    try {
+      const response = await this.api.getApi().getArtists(artistIds);
       response.artists.forEach(artist => {
         this.contexts.push({contextType: 'artist', content: artist});
         this.loadedContexts = this.contexts.length;
       });
-    }).catch(reason => {
+    } catch (reason) {
       if (reason.status === 429) {
-        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
-          this.getArtists(artistIds)
-        );
+        await this.delay(reason.getResponseHeader('Retry-After'));
+        return await this.getArtists(artistIds);
       }
-    });
+    }
   }
 
-  private getAlbums(albumIds: string[]): Promise<void> {
-    return this.api.getApi().getAlbums(albumIds).then(response => {
+  private async getAlbums(albumIds: string[]): Promise<void> {
+    try {
+      const response = await this.api.getApi().getAlbums(albumIds);
       response.albums.forEach(album => {
         this.contexts.push({contextType: 'album', content: album});
         this.loadedContexts = this.contexts.length;
       });
-    }).catch(reason => {
+    } catch (reason) {
       if (reason.status === 429) {
-        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
-          this.getAlbums(albumIds)
-        );
+        await this.delay(reason.getResponseHeader('Retry-After'));
+        return await this.getAlbums(albumIds);
       }
-    });
+    }
   }
 
-  private getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
-    return this.api.getApi().getPlaylist(playlistId).then(playlist => {
+  private async getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
+    try {
+      const playlist = await this.api.getApi().getPlaylist(playlistId);
       this.contexts.push({contextType: 'playlist', content: playlist});
       this.loadedContexts = this.contexts.length;
-    }).catch(reason => {
+    } catch (reason) {
       if (reason.status === 429) {
-        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
-          this.getPlaylist(playlistId, playlistUri)
-        );
+        await this.delay(reason.getResponseHeader('Retry-After'));
+        return await this.getPlaylist(playlistId, playlistUri);
       } else {
         this.totalContextCount--;
       }
-    });
+    }
   }
 
-  private getTracks(ids: string[]): Promise<void> {
-    return this.api.getApi().getTracks(ids).then(tracks => {
+  private async getTracks(ids: string[]): Promise<void> {
+    try {
+      const tracks = await this.api.getApi().getTracks(ids);
       this.tracks.push(...tracks.tracks);
-    }).catch(reason => {
+    } catch (reason) {
       if (reason.status === 429) {
-        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
-          this.getTracks(ids)
-        );
+        await this.delay(reason.getResponseHeader('Retry-After'));
+        return await this.getTracks(ids);
+      } else if (reason.status === 500) {
+        console.log(reason);
+        console.log(ids);
+        const promises = [];
+        //ids.forEach(id => promises.push(this.getTracks([id])));
+        //return Promise.all(promises).then(() => Promise.resolve());
+      } else if (reason.status === 503) {
+        console.log(ids);
       }
-    });
+    }
   }
 
-  private getAudioFeatures(ids: string[]): Promise<void> {
-    return this.api.getApi().getAudioFeaturesForTracks(ids).then(response => {
+  private async getAudioFeatures(ids: string[]): Promise<void> {
+    try {
+      const response = await this.api.getApi().getAudioFeaturesForTracks(ids);
       this.audioFeatures.push(...response.audio_features);
-    }).catch(reason => {
+    } catch (reason) {
       if (reason.status === 429) {
-        return this.delay(reason.getResponseHeader('Retry-After')).then(() =>
-          this.getAudioFeatures(ids)
-        );
+        await this.delay(reason.getResponseHeader('Retry-After'));
+        return await this.getAudioFeatures(ids);
       }
-    });
+    }
   }
 
   private delay(s: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, s * 1000));
+  }
+
+  private async getAllPages<T extends Pagination>(request: Promise<T>): Promise<T> {
+    const paginatedResponse = await request;
+
+    let currentResponse = paginatedResponse;
+
+    while (currentResponse.next) {
+      currentResponse = await this.api.getApi().getGeneric(currentResponse.next) as T;
+      paginatedResponse.items = paginatedResponse.items.concat(currentResponse.items);
+    }
+
+    return paginatedResponse;
   }
 }
 
 export interface ContextObjectFull {
   contextType: ContextObjectType;
   content: AlbumObjectFull | PlaylistObjectFull | ArtistObjectFull;
+}
+
+interface Pagination {
+  next?: string;
+  items: any[];
 }

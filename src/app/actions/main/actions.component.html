@@ -1,5 +1,8 @@
 <div class="wrapper">
   <ng-scrollbar>
-    <app-action-card></app-action-card>
+    <app-action-card title="Create playlist of monthly top songs"
+                     description="Creates a playlist with your top song of each month"
+                     (positiveAction)="createMonthlyTopPlaylist()">
+    </app-action-card>
   </ng-scrollbar>
 </div>

@@ -49,6 +49,7 @@ import {TrackHeaderComponent} from './track/track-header/track-header.component'
 import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
 import { ActionsComponent } from './actions/main/actions.component';
 import { ActionCardComponent } from './actions/action-card/action-card.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 registerLocaleData(localeDe);
 
@@ -105,6 +106,7 @@ registerLocaleData(localeDe);
     ReactiveFormsModule,
     NgScrollbarModule,
     HammerModule,
+    MatSnackBarModule,
   ],
   providers: [
     {provide: LocationStrategy, useClass: PathLocationStrategy},
