@@ -7,7 +7,7 @@ import {StorageService} from '../storage.service';
 import {BreakpointObserver} from '@angular/cdk/layout';
 import {Option} from '../option.model';
 import {StyleManagerService} from '../style-manager.service';
-import {version} from '../../../package.json';
+import config from '../../../package.json';
 
 @Component({
   selector: 'app-overview',
@@ -16,7 +16,7 @@ import {version} from '../../../package.json';
 })
 export class OverviewComponent implements OnInit {
   title = 'Spotify Stats';
-  version: string = version;
+  version: string = config.version;
   options: Array<Option> = options;
   selectedTheme: Option;
 
