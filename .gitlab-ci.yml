@@ -95,6 +95,7 @@ deploy_image:
       artifacts: true
 
 release_job:
+  when: manual
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
