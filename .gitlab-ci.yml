@@ -1,14 +1,13 @@
 include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
 
-image: node:16.1.0
+image: node:16.10.0
 
 stages:
   - install_dependencies
   - lint
   - build
   - test
-  - deploy
   - release
 
 install_dependencies:
@@ -68,7 +67,7 @@ karma:
 
 
 deploy_image:
-  stage: deploy
+  stage: release
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
@@ -100,3 +99,7 @@ release_job:
   release:
     tag_name: 'Version $CI_COMMIT_TAG'
     description: '$CI_COMMIT_TAG'
+  needs:
+    - job: karma
+    - job: build_angular
+      artifacts: true
