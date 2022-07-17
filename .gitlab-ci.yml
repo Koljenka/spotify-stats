@@ -111,7 +111,7 @@ release_job:
 container_scanning:
   stage: post
   variables:
-    DOCKER_IMAGE: hub.docker.com/kojenka/spotify-stats:latest
+    DOCKER_IMAGE: docker.io/kojenka/spotify-stats:latest
     DOCKER_USER: $DOCKER_REGISTRY_USER
     DOCKER_PASSWORD: $DOCKER_REGISTRY_PASS
     DOCKERFILE_PATH: "docker/Dockerfile"
