@@ -28,7 +28,7 @@ export class AlbumTrackListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.api.getApi().getAlbum(this.albumId).then(value => {
       this.album = value;
-      this.context.next({contextType: 'album', content: this.album});
+      this.context.next({type: 'context', contextType: 'album', content: this.album});
       this.context.complete();
       this.titleService.setTitle(value.name + ' - SpotifyStats');
     });

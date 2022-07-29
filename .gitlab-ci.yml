@@ -6,73 +6,85 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 include:
-- template: Security/Dependency-Scanning.gitlab-ci.yml
-- template: Security/SAST.gitlab-ci.yml
-- template: Security/Container-Scanning.gitlab-ci.yml
-- template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Container-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
 image: node:16.10.0
+
 stages:
-- install_dependencies
-- lint
-- build
-- test
-- release
-- post
+  - install_dependencies
+  - lint
+  - build
+  - test
+  - release
+  - post
+
 install_dependencies:
   stage: install_dependencies
   script:
-  - npm ci
+    - npm ci
   artifacts:
     expire_in: 1 day
     paths:
-    - node_modules/
+      - node_modules/
+
 build_angular:
   stage: build
   script:
-  - npm run docker
+    - npm run docker
   needs:
-  - job: install_dependencies
-    artifacts: true
+    - job: install_dependencies
+      artifacts: true
   artifacts:
     paths:
-    - "./docker"
+      - "./docker"
+
 eslint:
   stage: lint
   allow_failure: true
   script:
-  - npx eslint --format gitlab .
+    - npx eslint --format gitlab .
   needs:
-  - job: install_dependencies
-    artifacts: true
+    - job: install_dependencies
+      artifacts: true
   artifacts:
     reports:
       codequality: gl-codequality.json
+
 karma:
   stage: test
   before_script:
-  - apt-get update
-  - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  - apt install -y ./google-chrome*.deb;
-  - export CHROME_BIN=/usr/bin/google-chrome
+    - apt-get update
+    - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    - apt install -y ./google-chrome*.deb;
+    - export CHROME_BIN=/usr/bin/google-chrome
   script:
-  - npm run test-ci
+    - npm run test-ci
   needs:
-  - job: install_dependencies
-    artifacts: true
+    - job: install_dependencies
+      artifacts: true
   artifacts:
     paths:
-    - coverage/
+      - coverage/
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
       junit:
-      - junit.xml
+        - junit.xml
   coverage: "/Branches\\s+:\\s(\\d+.?\\d+)%/"
+
 sast:
   stage: test
   variables:
     SAST_EXCLUDED_PATHS: spec, test, tests, tmp, dist
+
+secret_detection:
+  variables:
+    SECRET_DETECTION_EXCLUDED_PATHS: node_modules
+
 deploy_image:
   stage: release
   variables:
@@ -80,33 +92,35 @@ deploy_image:
     DOCKER_TLS_CERTDIR: ''
   image: docker:20.10
   services:
-  - docker:20.10-dind
+    - docker:20.10-dind
   only:
-  - tags
+    - tags
   before_script:
-  - echo "$DOCKER_REGISTRY_PASS" | docker login --username $DOCKER_REGISTRY_USER --password-stdin
+    - echo "$DOCKER_REGISTRY_PASS" | docker login --username $DOCKER_REGISTRY_USER --password-stdin
   script:
-  - echo "===== BUILD IMAGE ====="
-  - docker build -t kojenka/spotify-stats:$CI_COMMIT_TAG docker
-  - docker tag kojenka/spotify-stats:$CI_COMMIT_TAG kojenka/spotify-stats:latest
-  - echo "===== PUSH IMAGE ====="
-  - docker push kojenka/spotify-stats:$CI_COMMIT_TAG
-  - docker push kojenka/spotify-stats:latest
+    - echo "===== BUILD IMAGE ====="
+    - docker build -t kojenka/spotify-stats:$CI_COMMIT_TAG docker
+    - docker tag kojenka/spotify-stats:$CI_COMMIT_TAG kojenka/spotify-stats:latest
+    - echo "===== PUSH IMAGE ====="
+    - docker push kojenka/spotify-stats:$CI_COMMIT_TAG
+    - docker push kojenka/spotify-stats:latest
   needs:
-  - job: karma
-  - job: build_angular
-    artifacts: true
+    - job: karma
+    - job: build_angular
+      artifacts: true
+
 release_job:
   when: manual
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
-  - if: "$CI_COMMIT_TAG"
+    - if: "$CI_COMMIT_TAG"
   script:
-  - echo "running release_job"
+    - echo "running release_job"
   release:
     tag_name: Version $CI_COMMIT_TAG
     description: "$CI_COMMIT_TAG"
+
 container_scanning:
   stage: post
   variables:
@@ -116,5 +130,5 @@ container_scanning:
     DOCKER_PASSWORD: "$DOCKER_REGISTRY_PASS"
     DOCKERFILE_PATH: docker/Dockerfile
   before_script:
-  - pwd
-  - ls
+    - pwd
+    - ls

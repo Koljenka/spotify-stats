@@ -99,7 +99,7 @@ export class DataSharingService {
       const audioFeatures = this.audioFeatures.find(af => af != null && af.id === historyTrack.trackid);
       let context = this.contexts.find(ct => ct.content.uri === historyTrack.contexturi);
       if (context === undefined) {
-        context = {contextType: null, content: null};
+        context = {type: 'context', contextType: null, content: null};
       }
       // eslint-disable-next-line @typescript-eslint/naming-convention
       this.savedTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
@@ -178,7 +178,7 @@ export class DataSharingService {
     try {
       const response = await this.api.getApi().getArtists(artistIds);
       response.artists.forEach(artist => {
-        this.contexts.push({contextType: 'artist', content: artist});
+        this.contexts.push({type: 'context', contextType: 'artist', content: artist});
         this.loadedContexts = this.contexts.length;
       });
     } catch (reason) {
@@ -193,7 +193,7 @@ export class DataSharingService {
     try {
       const response = await this.api.getApi().getAlbums(albumIds);
       response.albums.forEach(album => {
-        this.contexts.push({contextType: 'album', content: album});
+        this.contexts.push({type: 'context', contextType: 'album', content: album});
         this.loadedContexts = this.contexts.length;
       });
     } catch (reason) {
@@ -207,12 +207,16 @@ export class DataSharingService {
   private async getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
     try {
       const playlist = await this.api.getApi().getPlaylist(playlistId);
-      this.contexts.push({contextType: 'playlist', content: playlist});
+      this.contexts.push({type: 'context', contextType: 'playlist', content: playlist});
       this.loadedContexts = this.contexts.length;
     } catch (reason) {
       if (reason.status === 429) {
-        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-        return await this.getPlaylist(playlistId, playlistUri);
+        if (reason.getAllResponseHeaders().toLowerCase().includes('Retry-After')) {
+          await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
+          return await this.getPlaylist(playlistId, playlistUri);
+        } else {
+          this.totalContextCount--;
+        }
       } else {
         this.totalContextCount--;
       }
@@ -266,6 +270,7 @@ export class DataSharingService {
 }
 
 export interface ContextObjectFull {
+  type: 'context';
   contextType: ContextObjectType;
   content: AlbumObjectFull | PlaylistObjectFull | ArtistObjectFull;
 }

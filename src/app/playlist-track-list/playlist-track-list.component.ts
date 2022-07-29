@@ -27,7 +27,7 @@ export class PlaylistTrackListComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.api.getApi().getPlaylist(this.playlistId).then(value => {
       this.playlist = value;
-      this.context.next( {contextType: 'playlist', content: this.playlist});
+      this.context.next( {type: 'context', contextType: 'playlist', content: this.playlist});
       this.context.complete();
       this.titleService.setTitle(value.name + ' - SpotifyStats');
     });

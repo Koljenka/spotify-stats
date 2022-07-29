@@ -22,142 +22,23 @@
   <ng-container *ngIf="didLoadTracks">
     <ng-scrollbar appearance="standard">
 
-    <div class="top-lists mat-app-background" id="top-lists">
-      <div class="top-column" id="topArtistsColumn">
-        <ng-container *ngIf="topArtists.length > 0 && topArtistAvgColor !== null; else spinner">
-          <mat-card mat-ripple [routerLink]="['/album-track-list', topArtists[0].artist.id]" class="top-card">
-            <div class="image"
-                 style="background-color: rgb({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}); background-image: linear-gradient( rgba( {{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}, 0),
-               rgba({{topArtistAvgColor.r}}, {{topArtistAvgColor.g}}, {{topArtistAvgColor.b}}, 1) ), url({{topArtists[0].artist.images[0].url}});"></div>
-            <div class="top-meta">
-              <h1><b>{{topArtists[0].artist.name}}</b></h1>
-              <h4>Played {{topArtists[0].timesPlayed}} times</h4>
-            </div>
-          </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topArtists.slice(1); trackBy:trackByFunction"
-                    [routerLink]="['/album-track-list', runnerUp.artist.id]"
-                    class="list-item">
-            <div style="background-image: url({{runnerUp.artist.images[0].url}})" class="list-item-image"></div>
-            <div class="runner-up-meta">
-              <h3>{{runnerUp.artist.name}}</h3>
-            </div>
-
-            <h5>Played {{runnerUp.timesPlayed}} times</h5>
-          </mat-card>
-        </ng-container>
+      <div class="top-lists mat-app-background" id="top-lists">
+        <app-history-stats-top-content-list
+          [contentList$]="topArtists.asObservable()" circularImage="true"></app-history-stats-top-content-list>
+        <app-history-stats-top-content-list
+          [contentList$]="topAlbums.asObservable()"></app-history-stats-top-content-list>
+        <app-history-stats-top-content-list
+          [contentList$]="topTracks.asObservable()"></app-history-stats-top-content-list>
+        <app-history-stats-top-content-list
+          [contentList$]="topContexts.asObservable()"></app-history-stats-top-content-list>
       </div>
-      <div class="top-column" id="topAlbumsColumn">
-        <ng-container *ngIf="topAlbums.length > 0 && topAlbumAvgColor !== null; else spinner">
-          <mat-card mat-ripple [routerLink]="['/album-track-list', topAlbums[0].album.id]" class="top-card">
-            <div class="image"
-                 style="background-color: rgb({{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}); background-image: linear-gradient( rgba( {{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 0),
-               rgba({{topAlbumAvgColor.r}}, {{topAlbumAvgColor.g}}, {{topAlbumAvgColor.b}}, 1) ), url({{topAlbums[0].album.images[0].url}});"></div>
-            <div class="top-meta">
-              <h1><b>{{topAlbums[0].album.name}}</b></h1>
-              <h2>{{topAlbums[0].album.artists[0].name}}</h2>
-              <h4>Played {{topAlbums[0].timesPlayed}} times</h4>
-            </div>
-          </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topAlbums.slice(1); trackBy:trackByFunction"
-                    [routerLink]="['/album-track-list', runnerUp.album.id]"
-                    class="list-item">
-            <div style="background-image: url({{runnerUp.album.images[0].url}})" class="list-item-image"></div>
-            <div class="runner-up-meta">
-              <h3>{{runnerUp.album.name}}</h3>
-              <h4>{{runnerUp.album.artists[0].name}}</h4>
-            </div>
-
-            <h5>Played {{runnerUp.timesPlayed}} times</h5>
-          </mat-card>
-        </ng-container>
-      </div>
-      <div class="top-column" id="topTracksColumn">
-        <ng-container *ngIf="topTracks.length > 0 && topTrackAvgColor !== null; else spinner">
-          <mat-card mat-ripple [routerLink]="['/track', topTracks[0].track.id]" class="top-card">
-            <div class="image"
-                 style="background-color: rgb({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}); background-image: linear-gradient( rgba( {{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 0),
-               rgba({{topTrackAvgColor.r}}, {{topTrackAvgColor.g}}, {{topTrackAvgColor.b}}, 1) ), url({{topTracks[0].track.album.images[0].url}});"></div>
-            <div class="top-meta">
-              <h1><b>{{topTracks[0].track.name}}</b></h1>
-              <h2>{{topTracks[0].track.artists[0].name}}</h2>
-              <h4>Played {{topTracks[0].timesPlayed}} times</h4>
-            </div>
-          </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topTracks.slice(1); trackBy:trackByFunction"
-                    [routerLink]="['/track', runnerUp.track.id]"
-                    class="list-item">
-            <div style="background-image: url({{runnerUp.track.album.images[0].url}})" class="list-item-image"></div>
-            <div class="runner-up-meta">
-              <h3>{{runnerUp.track.name}}</h3>
-              <h4>{{runnerUp.track.artists[0].name}}</h4>
-            </div>
-
-            <h5>Played {{runnerUp.timesPlayed}} times</h5>
-          </mat-card>
-        </ng-container>
-      </div>
-      <div class="top-column" id="topContextColumn">
-        <ng-container *ngIf="topContexts.length > 0 && topContextAvgColor !== null; else spinner">
-          <mat-card mat-ripple [routerLink]="getContextRouterLink(topContexts[0].context)" class="top-card">
-            <div class="image"
-                 style="background-color: rgb({{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}); background-image: linear-gradient( rgba( {{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 0),
-               rgba({{topContextAvgColor.r}}, {{topContextAvgColor.g}}, {{topContextAvgColor.b}}, 1) ), url({{topContexts[0].context.content.images[0].url}});"></div>
-            <div class="top-meta">
-              <h1><b>{{topContexts[0].context.content.name}}</b></h1>
-              <h4>Played {{topContexts[0].timesPlayed}} times</h4>
-            </div>
-          </mat-card>
-          <mat-card mat-ripple *ngFor="let runnerUp of topContexts.slice(1); trackBy:trackByFunction"
-                    [routerLink]="getContextRouterLink(runnerUp.context)"
-                    class="list-item">
-            <div style="background-image: url({{runnerUp.context.content.images[0].url}})"
-                 class="list-item-image"></div>
-            <div class="runner-up-meta">
-              <h3>{{runnerUp.context.content.name}}</h3>
-            </div>
-
-            <h5>Played {{runnerUp.timesPlayed}} times</h5>
-          </mat-card>
-        </ng-container>
-      </div>
-    </div>
-    <mat-divider></mat-divider>
-    <div class="stat-group stat-group-1">
-      <mat-card class="stat-card" *ngFor="let stat of smallStatCardStats">
-        <ng-container *ngIf="stat.stat.value !== null">
-          <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});"
-               class="stat-card-image">
-            <mat-icon>{{stat.icon}}</mat-icon>
-          </div>
-          <div class="content">
-            <div class="heading">{{stat.heading}}</div>
-            <div class="statistic">{{stat.stat.value}}</div>
-            <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">{{stat.stat.prevValue}}</div>
-          </div>
-        </ng-container>
-        <mat-spinner diameter="40" *ngIf="stat.stat.value === null" style="top: calc(50% - 20px);"></mat-spinner>
-      </mat-card>
-    </div>
-    <mat-divider></mat-divider>
-    <div class="stat-graphs">
-      <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingGraph" [options]="options"
-                class="graph"></mat-card>
-      <div class="small-graph-container">
-        <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
-                  class="graph clock-graph small-graph"></mat-card>
-        <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
-                  class="graph clock-graph small-graph"></mat-card>
-      </div>
-      <mat-card *ngIf="this.mapGraphData" [theme]="themeIsDark ? 'dark' : ''" echarts [options]="mapGraphData"
-                class="graph"></mat-card>
-
-    </div>
-    <mat-divider></mat-divider>
+      <mat-divider></mat-divider>
+      <app-history-stats-small-stats [historyStatsData]="historyStatsData"></app-history-stats-small-stats>
+      <mat-divider></mat-divider>
+      <app-history-stats-graph [historyStatsData]="historyStatsData"></app-history-stats-graph>
+      <mat-divider></mat-divider>
     </ng-scrollbar>
   </ng-container>
-  <ng-template #spinner>
-    <mat-spinner></mat-spinner>
-  </ng-template>
   <div class="progress-bar-container" *ngIf="!didLoadTracks">
     <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
     <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.2-2'}}%</sub>

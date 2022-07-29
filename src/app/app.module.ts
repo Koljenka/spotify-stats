@@ -50,6 +50,9 @@ import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
 import { ActionsComponent } from './actions/main/actions.component';
 import { ActionCardComponent } from './actions/action-card/action-card.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { HistoryStatsGraphComponent } from './history-stats/history-stats-graph/history-stats-graph.component';
+import { HistoryStatsSmallStatsComponent } from './history-stats/history-stats-small-stats/history-stats-small-stats.component';
+import { HistoryStatsTopContentListComponent } from './history-stats/history-stats-top-content-list/history-stats-top-content-list.component';
 
 registerLocaleData(localeDe);
 
@@ -74,6 +77,9 @@ registerLocaleData(localeDe);
     StatSliderComponent,
     ActionsComponent,
     ActionCardComponent,
+    HistoryStatsGraphComponent,
+    HistoryStatsSmallStatsComponent,
+    HistoryStatsTopContentListComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,31 @@
+.stat-graphs > .graph {
+  margin-bottom: 1vw;
+}
+
+.graph, .small-graph-container {
+  width: 90%;
+  margin: auto;
+}
+
+.small-graph-container {
+  width: calc(90% + 32px);
+  display: flex;
+  justify-content: space-between;
+}
+
+.small-graph {
+  margin: 0;
+  width: 46%;
+}
+
+@media (max-width: 999px) {
+  .small-graph-container {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .small-graph {
+    width: 90%;
+    margin: auto auto 1vw;
+  }
+}
+

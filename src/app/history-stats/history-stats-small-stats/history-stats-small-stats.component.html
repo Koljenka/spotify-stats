@@ -1,0 +1,16 @@
+<div class="stat-group">
+  <mat-card class="stat-card" *ngFor="let stat of smallStatCardStats">
+    <ng-container *ngIf="stat.stat.value !== null">
+      <div style="background: linear-gradient({{theme.headingColor}}, {{theme.darkerColor}});"
+           class="stat-card-image">
+        <mat-icon>{{stat.icon}}</mat-icon>
+      </div>
+      <div class="content">
+        <div class="heading">{{stat.heading}}</div>
+        <div class="statistic">{{stat.stat.value}}</div>
+        <div *ngIf="stat.stat.prevTimeframe.start > 0" class="comparison">{{stat.stat.prevValue}}</div>
+      </div>
+    </ng-container>
+    <mat-spinner diameter="40" *ngIf="stat.stat.value === null" style="top: calc(50% - 20px);"></mat-spinner>
+  </mat-card>
+</div>

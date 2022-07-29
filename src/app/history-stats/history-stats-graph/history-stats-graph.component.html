@@ -1,0 +1,13 @@
+<div class="stat-graphs">
+  <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingAudioFeaturesOverTimeGraphData"
+            [options]="audioFeaturesOverTimeGraphData"
+            class="graph"></mat-card>
+
+  <div class="small-graph-container">
+    <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingClockGraph" [options]="clockGraphData"
+              class="graph small-graph"></mat-card>
+    <mat-card [theme]="themeIsDark ? 'dark' : ''" echarts [loading]="isLoadingKeyGraphData"
+              [options]="keyDistributionGraphData"
+              class="graph small-graph"></mat-card>
+  </div>
+</div>

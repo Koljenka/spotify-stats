@@ -1,0 +1,30 @@
+<div class="top-column">
+  <ng-container *ngIf="contentList.length > 0 && topContentAvgColor !== null; else spinner">
+    <mat-card mat-ripple [routerLink]="contentList[0].routerLink" class="top-card">
+      <div class="image"
+           [style.background-color]="rgbToString(topContentAvgColor)"
+           [style.background-image]="createLinearGradient(rgbToString(topContentAvgColor, 0),
+            rgbToString(topContentAvgColor, 1)) + ', ' + getImageUrl(contentList[0])"></div>
+      <div class="top-meta">
+        <h1><b>{{contentList[0].title}}</b></h1>
+        <h2 *ngIf="contentList[0].subtitle">{{contentList[0].subtitle}}</h2>
+        <h4>Played {{contentList[0].timesPlayed}} times</h4>
+      </div>
+    </mat-card>
+    <mat-card mat-ripple *ngFor="let runnerUp of contentList.slice(1); trackBy:topContentTrackBy"
+              [routerLink]="runnerUp.routerLink"
+              class="list-item">
+      <div [style.background-image]="getImageUrl(runnerUp)" class="list-item-image"
+           [class.circular]="circularImage"></div>
+      <div class="runner-up-meta" [class.one-line]="!runnerUp.subtitle">
+        <h3>{{runnerUp.title}}</h3>
+        <h4 *ngIf="runnerUp.subtitle">{{runnerUp.subtitle}}</h4>
+      </div>
+
+      <h5>Played {{runnerUp.timesPlayed}} times</h5>
+    </mat-card>
+  </ng-container>
+</div>
+<ng-template #spinner>
+  <mat-spinner></mat-spinner>
+</ng-template>

@@ -35,6 +35,7 @@
 .card-back {
   transform: rotateY(180deg);
   padding: 16px;
+  background: inherit;
 }
 
 .card-front > img {

@@ -4,7 +4,6 @@ import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
-import {environment} from '../../environments/environment';
 import {StorageService} from '../storage.service';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
 import {MatDateRangeInput} from '@angular/material/datepicker';
@@ -20,8 +19,10 @@ import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
-import {UnleashService} from '../unleash.service';
-import {ApiPlaybackHistoryObject} from '../stat-api-util/ApiPlaybackHistoryObject';
+import {BehaviorSubject, Subject} from 'rxjs';
+import {TopContent} from './history-stats-top-content-list/history-stats-top-content-list.component';
+import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
+import ImageObject = SpotifyApi.ImageObject;
 
 
 @Component({
@@ -42,19 +43,16 @@ export class HistoryStatsComponent implements OnInit {
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
 
   playbackHistory: PlayHistoryObjectFull[];
+  historyStatsData = new BehaviorSubject({} as HistoryStatsData);
+
   worker: Worker;
   didLoadTracks = false;
-  topArtists: CountedArtistObject[] = [];
-  topAlbums: CountedAlbumObject[] = [];
-  topTracks: CountedTrackObject[] = [];
-  topContexts: CountedContextObject[] = [];
+  topArtists = new Subject<TopContent[]>();
+  topAlbums = new Subject<TopContent[]>();
+  topTracks = new Subject<TopContent[]>();
+  topContexts = new Subject<TopContent[]>();
   theme: Option;
   themeIsDark = false;
-  topArtistAvgColor: RGBColor = {r: 255, g: 255, b: 255};
-  topAlbumAvgColor: RGBColor = {r: 255, g: 255, b: 255};
-  topTrackAvgColor: RGBColor = {r: 255, g: 255, b: 255};
-  topContextAvgColor: RGBColor = {r: 255, g: 255, b: 255};
-  smallStatCardStats: SmallCardStat[] = [];
   range = new UntypedFormGroup({
     start: new UntypedFormControl(new Date(new Date().getFullYear(), new Date().getMonth(),
       new Date().getDate() - new Date().getDay() + 1)),
@@ -63,19 +61,13 @@ export class HistoryStatsComponent implements OnInit {
   links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
   lastLink = 'latLink';
   activeLink = this.links[0];
-  options: any;
-  isLoadingGraph = true;
-  clockGraphData: any;
-  isLoadingClockGraph = true;
-  mapGraphData: any;
 
   private isInitialized = false;
   private isFirstCallback = true;
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
               private titleService: Title,
-              private styleService: StyleManagerService,
-              private toggle: UnleashService) {
+              private styleService: StyleManagerService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker(new URL('./history-stats.worker', import.meta.url), {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
@@ -140,58 +132,16 @@ export class HistoryStatsComponent implements OnInit {
     this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
   }
 
-  getTopArtistAvgColor(): void {
-    if (this.topArtists.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topArtists[0].artist.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topArtistAvgColor = value;
-        });
-    }
-  }
-
-  getTopAlbumAvgColor(): void {
-    if (this.topAlbums.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topAlbums[0].album.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topAlbumAvgColor = value;
-        });
-    }
-  }
-
-  getTopTrackAvgColor(): void {
-    if (this.topTracks.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topTracks[0].track.album.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topTrackAvgColor = value;
-        });
-    }
-  }
-
-  getTopContextAvgColor(): void {
-    if (this.topContexts.length > 0) {
-      this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.topContexts[0].context.content.images[0].url)
-        .subscribe(value => {
-          // @ts-ignore
-          this.topContextAvgColor = value;
-        });
-    }
-  }
-
-  getContextRouterLink(context: ContextObjectFull): string[] {
-    const contextId = context.content.id;
-    switch (context.contextType) {
-      case 'playlist':
-        return ['/playlist-track-list', contextId];
-      case 'album':
-        return ['/album-track-list', contextId];
+  getContextRouterLink(obj: ContentObject): string[] {
+    switch (obj.type) {
       case 'artist':
-      default:
         return [];
+      case 'track':
+        return ['/track', obj.id];
+      case 'playlist':
+      case 'album':
+        return ['/' + obj.type + '-track-list', obj.id];
     }
-
   }
 
   trackByFunction(index, item) {
@@ -208,15 +158,10 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private clearStats(): void {
-    this.topArtists = this.topAlbums = this.topTracks = this.topContexts = [];
-    this.smallStatCardStats = [];
-    for (let i = 0; i < 10; i++) {
-      this.smallStatCardStats.push({
-        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
-      });
-    }
-    this.isLoadingGraph = true;
-    this.isLoadingClockGraph = true;
+    this.topArtists.next([]);
+    this.topAlbums.next([]);
+    this.topTracks.next([]);
+    this.topContexts.next([]);
   }
 
   private onRangeChanged(value): void {
@@ -239,364 +184,65 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
-    this.getSmallStats(from, to, previousFrom, previousTo);
-    this.getClockGraphData(from, to);
-    this.getStreak(from, to);
+    const playHistory = this.playbackHistory.filter(
+      v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= from &&
+        new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= to);
+    const prevPlaybackHistory = this.playbackHistory.filter(
+      v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= previousFrom &&
+        new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= previousTo);
+    const timeframe = {start: from, end: to};
+    const prevTimeframe = {start: previousFrom, end: previousTo};
+    this.historyStatsData.next({playbackHistory: playHistory, prevPlaybackHistory, timeframe, prevTimeframe});
+
     this.worker.postMessage({
       playHistory: this.playbackHistory,
       token: StorageService.accessToken,
-      timeframe: {start: from, end: to},
-      prevTimeframe: {start: previousFrom, end: previousTo}
-    });
-    this.toggle.isEnabledAsync('artist_map').then(value => {
-      if (value) {
-        this.createMapGraph();
-      }
+      timeframe,
+      prevTimeframe
     });
   }
 
   private workerCallback(data): void {
-    switch (data.type) {
-      case 'topArtists':
-        this.topArtists = data.content;
-        this.getTopArtistAvgColor();
-        break;
-      case 'topAlbums':
-        this.topAlbums = data.content;
-        this.getTopAlbumAvgColor();
-        break;
-      case 'topTracks':
-        this.topTracks = data.content;
-        this.getTopTrackAvgColor();
-        break;
-      case 'topContexts':
-        this.topContexts = data.content;
-        this.getTopContextAvgColor();
-        break;
-      case 'graph': {
-        this.options = data.content;
-        this.isLoadingGraph = false;
-        break;
-      }
+    const top = data.content.map(v => this.contentObjectToTopContent(v.obj, v.count));
+    this[data.type].next(top);
+
+  }
+
+  private contentObjectToTopContent(obj: ContentObject | ContextObjectFull, timesPlayed: number): TopContent {
+    const top = {} as TopContent;
+    if (obj.type === 'context') {
+      obj = obj.content;
     }
-  }
 
-  private getSmallStats(from: number, to: number, prevFrom: number, prevTo: number) {
-    this.getTotalTracksStat(from, to, prevFrom, prevTo);
-    this.getUniqueTracksStat(from, to, prevFrom, prevTo);
-    this.getMostActiveDay(from, to, prevFrom, prevTo);
-    this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/smallStats', {
-      accessToken: StorageService.accessToken,
-      playbackHistory: this.playbackHistory.map(pb => ApiPlaybackHistoryObject.fromSpotifyPlaybackHistoryObject(pb)),
-      timeframe: {start: from, end: to},
-      prevTimeframe: {start: prevFrom, end: prevTo}
-    })
-      .subscribe(response => {
-        console.log(response);
-        // @ts-ignore
-        for (const stat of response.content) {
-          this.smallStatCardStats[stat.id] = stat;
-        }
+    let images: ImageObject[];
+    if (obj.type === 'track') {
+      images = obj.album.images;
+    } else {
+      images = obj.images;
+    }
+    top.imageUrl = images[0]?.url;
 
-      });
-  }
+    top.title = obj.name;
+    top.id = obj.id;
+    top.routerLink = this.getContextRouterLink(obj);
 
-  private getTotalTracksStat(from: number, to: number, prevFrom: number, prevTo: number): void {
-    this.smallStatCardStats[0] = {
-      id: 0,
-      heading: 'Total Tracks',
-      icon: 'music_note',
-      stat: {
-        value: '-',
-        prevTimeframe: {start: prevFrom, end: prevTo},
-        prevValue: '-'
-      }
-    };
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/totalTracks', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: from / 1000,
-      to: to / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[0].stat.value = value[0].count;
-      }
-    );
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/totalTracks', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: prevFrom / 1000,
-      to: prevTo / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0].count;
-      }
-    );
-  }
+    switch (obj.type) {
+      case 'artist':
+        top.subtitle = null;
+        break;
+      case 'track':
+      case 'album':
+        top.subtitle = obj.artists[0].name;
+        break;
+      case 'playlist':
+        top.subtitle = obj.owner.display_name ?? obj.owner.id;
+        break;
+    }
 
-  private getUniqueTracksStat(from: number, to: number, prevFrom: number, prevTo: number): void {
-    this.smallStatCardStats[1] = {
-      id: 1,
-      heading: 'Unique Tracks',
-      icon: 'music_note',
-      stat: {
-        value: '-',
-        prevTimeframe: {start: prevFrom, end: prevTo},
-        prevValue: '-'
-      }
-    };
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/uniqueTracks', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: from / 1000,
-      to: to / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[1].stat.value = value[0].count;
-      }
-    );
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/uniqueTracks', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: prevFrom / 1000,
-      to: prevTo / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value[0].count;
-      }
-    );
-  }
-
-  private getMostActiveDay(from: number, to: number, prevFrom: number, prevTo: number): void {
-    this.smallStatCardStats[5] = {
-      id: 5,
-      heading: 'Most Active Day',
-      icon: 'event',
-      stat: {
-        value: '-',
-        prevTimeframe: {start: prevFrom, end: prevTo},
-        prevValue: '-'
-      }
-    };
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/mostActiveDay', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: from / 1000,
-      to: to / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[5].stat.value = value[0].date + ' (' + value[0].count + ')';
-      }
-    );
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/mostActiveDay', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: prevFrom / 1000,
-      to: prevTo / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value[0].date + ' (' + value[0].count + ')';
-      }
-    );
-  }
-
-  private getStreak(from: number, to: number): void {
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/streak', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: from / 1000,
-      to: to / 1000
-    }).subscribe(value => {
-        this.smallStatCardStats[9] = {
-          id: 9,
-          heading: 'Longest Streak',
-          icon: 'date_range',
-          stat: {
-            value: value[0].days + ' days',
-            prevTimeframe: {start: 10, end: 10},
-            prevValue: new Date(value[0].start).toLocaleDateString() + ' - ' + new Date(value[0].end).toLocaleDateString()
-          }
-        };
-      }
-    );
-  }
-
-  private getClockGraphData(from: number, to: number): void {
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/listeningClock', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      from: from / 1000,
-      to: to / 1000
-    }).subscribe(value => {
-      const temp = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0,
-        12: 0,
-        13: 0,
-        14: 0,
-        15: 0,
-        16: 0,
-        17: 0,
-        18: 0,
-        19: 0,
-        20: 0,
-        21: 0,
-        22: 0,
-        23: 0
-      };
-      let maxRadius = 15;
-      // @ts-ignore
-      value.forEach(val => {
-        if (val.count > maxRadius) {
-          maxRadius = Math.ceil(val.count);
-        }
-        return temp[parseInt(val.hour, 10)] = val.count.toFixed(2);
-      });
-
-      this.clockGraphData = {
-        title: {
-          text: 'Listening Clock'
-        },
-        toolbox: {
-          show: true,
-          feature: {
-            saveAsImage: {title: 'Save as Image'}
-          }
-        },
-        backgroundColor: '#00000000',
-        angleAxis: {
-          type: 'category',
-          data: Object.keys(temp),
-          startAngle: 97.5,
-          splitLine: {
-            show: true,
-            lineStyle: {
-              type: 'dotted'
-            }
-          },
-          axisTick: {
-            alignWithLabel: false,
-          }
-        },
-        tooltip: {
-          show: true,
-          trigger: 'axis',
-          axisPointer: {
-            type: 'shadow',
-          },
-          formatter: '{b}: {c}%'
-        },
-        radiusAxis: {
-          max: maxRadius,
-          axisLabel: {
-            formatter: '{value}%'
-          },
-          z: 5
-        },
-        polar: {
-          radius: ['15%', '85%']
-        },
-        series: [{
-          type: 'bar',
-          data: Object.values(temp),
-          coordinateSystem: 'polar',
-          name: 'Songs played',
-        }]
-      };
-    });
-    this.isLoadingClockGraph = false;
-  }
-
-  private createMapGraph(): void {
-    const artists = [];
-    const links = [];
-    let currInd = 0;
-    const trackArtists = this.playbackHistory.filter(val => val.track.artists.length > 1).map(a => a.track.artists);
-    trackArtists.forEach(artistsOfTrack => {
-      artistsOfTrack.forEach(artist => {
-        if (!artists.map(va => va.artistId).includes(artist.id)) {
-          artists.push({
-            id: currInd++,
-            artistId: artist.id,
-            name: artist.name,
-            value: 0
-          });
-        }
-      });
-    });
-    trackArtists.forEach(artistsOfTrack => {
-      const tempLinks = artistsOfTrack.sort().reduce(
-        (acc, item, i, arr) => acc.concat(
-          arr.slice(i + 1).map(secondItem => [item, secondItem])
-        ), []);
-      tempLinks.forEach(lin => {
-        const artist1 = artists.filter(artist => artist.artistId === lin[0].id)[0];
-        const artist2 = artists.filter(artist => artist.artistId === lin[1].id)[0];
-        const tempLink = artist1.id + '|' + artist2.id;
-        const inverse = artist2.id + '|' + artist1.id;
-
-        if (!links.includes(tempLink) && !links.includes(inverse)) {
-          artist1.value++;
-          artist2.value++;
-          links.push(tempLink);
-        }
-
-      });
-    });
-    const edges = links.map(a => (
-      {
-        source: a.split('|')[0],
-        target: a.split('|')[1]
-      }
-    ));
-    this.mapGraphData = {
-      backgroundColor: '#00000000',
-      title: {
-        text: 'Artist Map'
-      },
-      tooltip: {},
-      series: [{
-        type: 'graph',
-        layout: 'force',
-        animation: false,
-        roam: true,
-        draggable: false,
-        data: artists,
-        force: {
-          edgeLength: 2,
-          friction: 0.5,
-          repulsion: 50,
-        },
-        edges
-      }]
-    };
+    top.timesPlayed = timesPlayed;
+    return top;
   }
 }
-
-export interface CountedTrackObject {
-  timesPlayed: number;
-  track: TrackObjectFull;
-}
-
-export interface CountedAlbumObject {
-  timesPlayed: number;
-  album: AlbumObjectFull;
-}
-
-export interface CountedArtistObject {
-  timesPlayed: number;
-  artist: ArtistObjectFull;
-}
-
-export interface CountedContextObject {
-  timesPlayed: number;
-  context: ContextObjectFull;
-}
-
 
 export interface RGBColor {
   r: number;
@@ -604,16 +250,16 @@ export interface RGBColor {
   b: number;
 }
 
-export interface SmallCardStat {
-  id: number;
-  heading: string;
-  icon: string;
-  stat: {
-    value: number | string;
-    prevTimeframe: {
-      start: number;
-      end: number;
-    };
-    prevValue: number | string;
-  };
+type ContentObject = TrackObjectFull | AlbumObjectFull | ArtistObjectFull | PlaylistObjectFull;
+
+export interface Timeframe {
+  start: number;
+  end: number;
+}
+
+export interface HistoryStatsData {
+  playbackHistory: PlayHistoryObjectFull[];
+  prevPlaybackHistory: PlayHistoryObjectFull[];
+  timeframe: Timeframe;
+  prevTimeframe: Timeframe;
 }

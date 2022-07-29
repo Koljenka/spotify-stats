@@ -8,6 +8,7 @@ import {environment} from '../../../environments/environment';
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import {KeyHelper} from '../../key-helper';
 import {StorageService} from '../../storage.service';
+import {CountApiResponse, PlaybackApiService} from '../../playback-api.service';
 
 @Component({
   selector: 'app-track-header',
@@ -26,7 +27,7 @@ export class TrackHeaderComponent implements OnInit {
 
   playCount: number;
 
-  constructor(private http: HttpClient) {
+  constructor(private playbackApi: PlaybackApiService) {
   }
 
   ngOnInit(): void {
@@ -72,13 +73,7 @@ export class TrackHeaderComponent implements OnInit {
   }
 
   private getPlayedCount(): void {
-    this.http.post(`${environment.APP_SETTINGS.playbackApiBasePath}/trackPlayedCount`, {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      trackId: this.track.id
-    }).subscribe(value => {
-        this.playCount = value[0]?.count ?? 0;
-      }
-    );
+    this.playbackApi.callApi<CountApiResponse>('trackPlayedCount', {trackId: this.track.id})
+      .subscribe(value => this.playCount = value[0]?.count ?? 0);
   }
 }
