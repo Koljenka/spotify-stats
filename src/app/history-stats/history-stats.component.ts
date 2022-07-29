@@ -23,6 +23,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {TopContent} from './history-stats-top-content-list/history-stats-top-content-list.component';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import ImageObject = SpotifyApi.ImageObject;
+import {PlaybackApiService, TopTracksApiResponse} from '../playback-api.service';
 
 
 @Component({
@@ -67,7 +68,8 @@ export class HistoryStatsComponent implements OnInit {
 
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
               private titleService: Title,
-              private styleService: StyleManagerService) {
+              private styleService: StyleManagerService,
+              private playbackApi: PlaybackApiService){
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker(new URL('./history-stats.worker', import.meta.url), {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
@@ -200,10 +202,20 @@ export class HistoryStatsComponent implements OnInit {
       timeframe,
       prevTimeframe
     });
+
+    this.playbackApi.callApiWithTimeframe<TopTracksApiResponse>('topTrack', timeframe).subscribe(value => {
+      const topTracks = value.map(v =>
+        this.contentObjectToTopContent(this.playbackHistory.find(t => t.track.id === v.trackId).track, v.count));
+      this.topTracks.next(topTracks);
+    });
   }
 
   private workerCallback(data): void {
+
     const top = data.content.map(v => this.contentObjectToTopContent(v.obj, v.count));
+    if (data.type === 'topTracks') {
+      console.log('worker', top);
+    }
     this[data.type].next(top);
 
   }

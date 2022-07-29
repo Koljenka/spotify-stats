@@ -18,6 +18,8 @@ import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 })
 export class DataSharingService {
 
+  public trackMap = new Map();
+
   private savedTracks: PlayHistoryObjectFull[] = [];
   private contexts: ContextObjectFull[] = [];
   private tracks: TrackObjectFull[] = [];
@@ -227,6 +229,10 @@ export class DataSharingService {
     try {
       const tracks = await this.api.getApi().getTracks(ids);
       this.tracks.push(...tracks.tracks);
+      tracks.tracks.forEach(track => {
+        localStorage.removeItem(track.id)
+        this.trackMap.set(track.id, track);
+      });
     } catch (reason) {
       if (reason.status === 429) {
         await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
@@ -267,6 +273,15 @@ export class DataSharingService {
 
     return paginatedResponse;
   }
+
+  private spotTrackToDbTrack(track: TrackObjectFull): DbTrack {
+    return {
+      id: track.id,
+      name: track.name,
+      albumId: track.album.id,
+      artistIds: track.artists.map(a => a.id),
+    };
+  }
 }
 
 export interface ContextObjectFull {
@@ -278,4 +293,11 @@ export interface ContextObjectFull {
 interface Pagination {
   next?: string;
   items: any[];
+}
+
+interface DbTrack {
+  id: string;
+  name: string;
+  albumId: string;
+  artistIds: string[];
 }

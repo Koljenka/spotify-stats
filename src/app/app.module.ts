@@ -47,12 +47,16 @@ import {NgScrollbarModule} from 'ngx-scrollbar';
 import {TrackMainComponent} from './track/main/track-main.component';
 import {TrackHeaderComponent} from './track/track-header/track-header.component';
 import {StatSliderComponent} from './track/stat-slider/stat-slider.component';
-import { ActionsComponent } from './actions/main/actions.component';
-import { ActionCardComponent } from './actions/action-card/action-card.component';
+import {ActionsComponent} from './actions/main/actions.component';
+import {ActionCardComponent} from './actions/action-card/action-card.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import { HistoryStatsGraphComponent } from './history-stats/history-stats-graph/history-stats-graph.component';
-import { HistoryStatsSmallStatsComponent } from './history-stats/history-stats-small-stats/history-stats-small-stats.component';
-import { HistoryStatsTopContentListComponent } from './history-stats/history-stats-top-content-list/history-stats-top-content-list.component';
+import {HistoryStatsGraphComponent} from './history-stats/history-stats-graph/history-stats-graph.component';
+import {
+  HistoryStatsSmallStatsComponent
+} from './history-stats/history-stats-small-stats/history-stats-small-stats.component';
+import {
+  HistoryStatsTopContentListComponent
+} from './history-stats/history-stats-top-content-list/history-stats-top-content-list.component';
 
 registerLocaleData(localeDe);
 

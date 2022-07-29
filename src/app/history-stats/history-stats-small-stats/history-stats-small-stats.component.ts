@@ -81,10 +81,10 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     };
 
     this.playbackApi.callApiWithTimeframe<CountApiResponse>('totalTracks', timeframe)
-      .subscribe(value => this.smallStatCardStats[0].stat.value = value[0].count);
+      .subscribe(value => this.smallStatCardStats[0].stat.value = value[0]?.count);
 
     this.playbackApi.callApiWithTimeframe<CountApiResponse>('totalTracks', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0].count);
+      .subscribe(value => this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0]?.count);
   }
 
   private getUniqueTracksStat(timeframe: Timeframe, prevTimeframe: Timeframe): void {
@@ -100,10 +100,10 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     };
 
     this.playbackApi.callApiWithTimeframe<CountApiResponse>('uniqueTracks', timeframe)
-      .subscribe(value => this.smallStatCardStats[1].stat.value = value[0].count);
+      .subscribe(value => this.smallStatCardStats[1].stat.value = value[0]?.count);
 
     this.playbackApi.callApiWithTimeframe<CountApiResponse>('uniqueTracks', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value[0].count);
+      .subscribe(value => this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value[0]?.count);
   }
 
   private getMostActiveDay(timeframe: Timeframe, prevTimeframe: Timeframe): void {
@@ -119,10 +119,10 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     };
 
     this.playbackApi.callApiWithTimeframe<MostActiveDayApiResponse>('mostActiveDay', timeframe)
-      .subscribe(value => this.smallStatCardStats[5].stat.value = value[0].date + ' (' + value[0].count + ')');
+      .subscribe(value => this.smallStatCardStats[5].stat.value = value[0]?.date + ' (' + value[0]?.count + ')');
 
     this.playbackApi.callApiWithTimeframe<MostActiveDayApiResponse>('mostActiveDay', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value[0].date + ' (' + value[0].count + ')');
+      .subscribe(value => this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value[0]?.date + ' (' + value[0]?.count + ')');
   }
 
   private getStreak(timeframe: Timeframe): void {
@@ -134,7 +134,7 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
         stat: {
           value: value[0].days + ' days',
           prevTimeframe: {start: 10, end: 10},
-          prevValue: new Date(value[0].start).toLocaleDateString() + ' - ' + new Date(value[0].end).toLocaleDateString()
+          prevValue: new Date(value[0]?.start).toLocaleDateString() + ' - ' + new Date(value[0]?.end).toLocaleDateString()
         }
       };
     });

@@ -94,7 +94,6 @@ addEventListener('message', ({data}) => {
   };
 
   return Promise.all([
-    getTopSongs(),
     getTopContexts(),
     getTopArtists(),
     getTopAlbums(),
