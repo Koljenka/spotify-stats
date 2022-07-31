@@ -5,6 +5,7 @@
                              [tracksSource]="this.albumTracksSource.asObservable()"
                              (backgroundColorChanged)="this.backgroundColor = $event"></app-track-list-header>
       <app-track-list [displayedColumns]="['title', 'artist', 'length']"
+                      [scrollContent]="false"
                       [data]="albumTracksSource.asObservable()"></app-track-list>
     </div>
   </ng-scrollbar>

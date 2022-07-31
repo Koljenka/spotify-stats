@@ -121,6 +121,7 @@
   align-items: center;
 
   .artist-portrait {
+    object-fit: cover;
     height: 125px;
     width: 125px;
     border-radius: 50%;

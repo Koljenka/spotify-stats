@@ -1,9 +1,9 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
-import {BehaviorSubject} from 'rxjs';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import {Title} from '@angular/platform-browser';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
   selector: 'app-track-history',
@@ -22,11 +22,13 @@ export class TrackHistoryComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.dataSharing.playbackHistory.toPromise().then(() => {
-      this.playbackHistorySource.next(this.dataSharing.getSavedTracks());
-      this.didLoadTracks = true;
-      this.playbackHistorySource.complete();
-    });
+    this.dataSharing.playbackHistory
+      .then(history => this.dataSharing.getHistoryObjectFull(history))
+      .then(val => {
+        this.playbackHistorySource.next(val);
+        this.didLoadTracks = true;
+        this.playbackHistorySource.complete();
+      });
   }
 }
 

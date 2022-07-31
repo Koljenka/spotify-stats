@@ -1,4 +1,4 @@
-<div class="header" *ngIf="didLoadTracks">
+<div class="header">
   <nav backgroundColor="primary" mat-tab-nav-bar>
     <a [style.opacity]="activeLink === link ? 1: .6" mat-tab-link *ngFor="let link of links"
        (click)="activeLink = link; onLinkChanged()"
@@ -19,7 +19,6 @@
 </div>
 
 <div class="wrapper">
-  <ng-container *ngIf="didLoadTracks">
     <ng-scrollbar appearance="standard">
 
       <div class="top-lists mat-app-background" id="top-lists">
@@ -33,14 +32,9 @@
           [contentList$]="topContexts.asObservable()"></app-history-stats-top-content-list>
       </div>
       <mat-divider></mat-divider>
-      <app-history-stats-small-stats [historyStatsData]="historyStatsData"></app-history-stats-small-stats>
+      <app-history-stats-small-stats [historyStatsData]="historyStatsData.asObservable()"></app-history-stats-small-stats>
       <mat-divider></mat-divider>
-      <app-history-stats-graph [historyStatsData]="historyStatsData"></app-history-stats-graph>
+      <app-history-stats-graph [historyStatsData]="historyStatsData.asObservable()"></app-history-stats-graph>
       <mat-divider></mat-divider>
     </ng-scrollbar>
-  </ng-container>
-  <div class="progress-bar-container" *ngIf="!didLoadTracks">
-    <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
-    <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.2-2'}}%</sub>
-  </div>
 </div>

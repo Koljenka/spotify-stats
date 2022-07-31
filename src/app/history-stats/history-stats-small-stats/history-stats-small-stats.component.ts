@@ -2,9 +2,6 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HistoryStatsData, Timeframe} from '../history-stats.component';
 import {HttpClient} from '@angular/common/http';
-import {environment} from '../../../environments/environment';
-import {StorageService} from '../../storage.service';
-import {ApiPlaybackHistoryObject} from '../../stat-api-util/ApiPlaybackHistoryObject';
 import {StyleManagerService} from '../../style-manager.service';
 import {Option} from '../../option.model';
 import {
@@ -13,6 +10,9 @@ import {
   PlaybackApiService,
   StreakApiResponse
 } from '../../playback-api.service';
+import {environment} from '../../../environments/environment';
+import {StorageService} from '../../storage.service';
+import {ApiPlaybackHistoryObject} from '../../stat-api-util/ApiPlaybackHistoryObject';
 
 @Component({
   selector: 'app-history-stats-small-stats',
@@ -21,6 +21,7 @@ import {
 })
 export class HistoryStatsSmallStatsComponent implements OnInit {
   @Input() historyStatsData: Observable<HistoryStatsData>;
+
   smallStatCardStats: SmallCardStat[] = [];
   theme: Option;
 
@@ -33,6 +34,9 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     this.styleService.currentTheme.subscribe(theme => this.theme = theme);
     this.historyStatsData.subscribe(historyData => {
       this.clearStats();
+      if (historyData === null) {
+        return;
+      }
       this.getSmallStats(historyData);
       this.getStreak(historyData.timeframe);
     });
@@ -51,16 +55,16 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     this.getTotalTracksStat(timeframe, prevTimeframe);
     this.getUniqueTracksStat(timeframe, prevTimeframe);
     this.getMostActiveDay(timeframe, prevTimeframe);
+    const fullHistory = playbackHistory.concat(...prevPlaybackHistory);
     this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/smallStats', {
       accessToken: StorageService.accessToken,
-      playbackHistory: playbackHistory.concat(...prevPlaybackHistory)
+      playbackHistory: fullHistory
         .map(pb => ApiPlaybackHistoryObject.fromSpotifyPlaybackHistoryObject(pb)),
       prevTimeframe,
       timeframe,
 
     })
       .subscribe(response => {
-        console.log(response);
         // @ts-ignore
         for (const stat of response.content) {
           this.smallStatCardStats[stat.id] = stat;

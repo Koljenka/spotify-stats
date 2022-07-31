@@ -37,7 +37,7 @@ export type MostActiveDayApiResponse = Array<{ date: string; count: number }>;
 
 export type StreakApiResponse = Array<{days: number; start: string; end: string}>;
 
-export type TopTracksApiResponse = Array<{trackId: string; count: number }>;
+export type TopApiResponse = Array<{id: string; count: number }>;
 
 interface Body{
   // eslint-disable-next-line @typescript-eslint/naming-convention

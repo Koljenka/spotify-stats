@@ -1,10 +1,8 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {StorageService} from './storage.service';
 import {PlaybackHistory, PlayHistoryObjectFull} from './track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from './api-connection.service';
-import {environment} from '../environments/environment';
+import {PlaybackApiService} from './playback-api.service';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ContextObjectType = SpotifyApi.ContextObjectType;
@@ -18,52 +16,27 @@ import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
 })
 export class DataSharingService {
 
-  public trackMap = new Map();
+  public trackMap: Map<string, TrackObjectFull> = new Map();
+  public artistMap: Map<string, ArtistObjectFull> = new Map();
+  public contextMap: Map<string, ContextObjectFull> = new Map();
+  public audioFeaturesMap: Map<string, AudioFeaturesObject> = new Map();
 
-  private savedTracks: PlayHistoryObjectFull[] = [];
-  private contexts: ContextObjectFull[] = [];
-  private tracks: TrackObjectFull[] = [];
-  private audioFeatures: AudioFeaturesObject[] = [];
-  private uniqueTrackIds: string[] = [];
-  private didStartLoading = false;
-  private playbackHistorySource = new BehaviorSubject(new Array<PlayHistoryObjectFull>());
-  private totalContextCount = 0;
-  private loadedContexts = 0;
+  private playbackHistorySource: PlaybackHistory[] = [];
+  private playbackHistoryPromise: Promise<PlaybackHistory[]> = null;
 
-  constructor(private http: HttpClient, private api: ApiConnectionService) {
+  constructor(private http: HttpClient, private api: ApiConnectionService, private playbackApi: PlaybackApiService) {
   }
 
-
-  get playbackHistory(): Observable<PlayHistoryObjectFull[]> {
-    if ((this.playbackHistorySource.value === null || this.playbackHistorySource.value === undefined ||
-      this.playbackHistorySource.value.length <= 0) && !this.didStartLoading) {
-      this.didStartLoading = true;
-      this.loadPlaybackHistory();
+  get playbackHistory(): Promise<PlaybackHistory[]> {
+    if (this.playbackHistoryPromise === null) {
+      this.playbackHistoryPromise = this.loadPlaybackHistory();
     }
 
-    return this.playbackHistorySource.asObservable();
+    return this.playbackHistoryPromise;
   }
-
-  get historyLoadingProgress(): number {
-    if (this.tracks.length + this.loadedContexts + this.audioFeatures.length === 0) {
-      return 0;
-    } else {
-      return (this.tracks.length + this.loadedContexts + this.audioFeatures.length) /
-        (this.uniqueTrackIds.length * 2 + this.totalContextCount);
-    }
-  }
-
-  get didFinishLoadingHistory(): boolean {
-    return this.historyLoadingProgress === 1;
-  }
-
 
   public static delay(s: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, s * 1000));
-  }
-
-  public getSavedTracks(): PlayHistoryObjectFull[] {
-    return this.savedTracks;
   }
 
   public async getAllUserPlaylists(): Promise<PlaylistObjectSimplified[]> {
@@ -72,86 +45,146 @@ export class DataSharingService {
     return response.items;
   }
 
-  private loadPlaybackHistory(): void {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/history', {access_token: StorageService.accessToken})
-      .subscribe(value => {
-        const playbackHistory = (value as PlaybackHistory[]);
-        this.uniqueTrackIds = this.getUniqueTrackIds(playbackHistory);
-        Promise.all([this.getContexts(playbackHistory), this.getAllTracks(), this.getAllAudioFeatures()]).then(() => {
-          this.matchTracks(playbackHistory);
-        });
+  public async getFullAlbum(id: string, uri: string): Promise<AlbumObjectFull> {
+    if (!this.contextMap.has(uri)) {
+      await this.getAlbums([id]);
+    }
+    return this.contextMap.get(uri).content as AlbumObjectFull;
+  }
+
+  public async getFullTrack(id: string): Promise<TrackObjectFull> {
+    if (this.trackMap.has(id)) {
+      return this.trackMap.get(id);
+    }
+    return this.api.getApi().getTrack(id).then(track => {
+      this.trackMap.set(track.id, track);
+      return track;
+    }).catch(async reason => {
+      if (reason.status === 429) {
+        await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
+        return this.getFullTrack(id);
+      }
+    });
+  }
+
+  public async getFullTracks(ids: string[]): Promise<TrackObjectFull[]> {
+    const missingIds = ids.filter(i => !this.trackMap.has(i));
+    if (missingIds.length > 0) {
+      const uniqueIds = [...new Set(ids)];
+      const promises = [];
+      for (let i = 0; i <= Math.ceil(uniqueIds.length / 50); i++) {
+        const trackIds = uniqueIds.slice(i * 50, (i + 1) * 50);
+        if (trackIds.length > 0) {
+          promises.push(this.putTracksInMap(trackIds));
+        }
+      }
+      await Promise.all(promises);
+    }
+    return ids.map(id => this.trackMap.get(id));
+  }
+
+  public async getFullArtists(ids: string[]): Promise<ArtistObjectFull[]> {
+    const missingIds = ids.filter(i => !this.artistMap.has(i));
+    if (missingIds.length > 0) {
+      const uniqueIds = [...new Set(ids)];
+      const promises = [];
+      if (uniqueIds.length > 50) {
+        for (let i = 0; i <= Math.ceil(uniqueIds.length / 50); i++) {
+          const trackIds = uniqueIds.slice(i * 50, (i + 1) * 50);
+          if (trackIds.length > 0) {
+            promises.push(this.getArtists(trackIds));
+          }
+        }
+      } else {
+        promises.push(this.getArtists(uniqueIds));
+      }
+      await Promise.all(promises);
+    }
+    return ids.map(id => this.artistMap.get(id));
+  }
+
+  public async getFullContextForTrack(track: PlaybackHistory): Promise<ContextObjectFull> {
+    if (!this.contextMap.has(track.contexturi)) {
+      await this.getFullContextsForTracks([track]);
+    }
+    return this.contextMap.get(track.contexturi);
+  }
+
+  public async getFullContextsForTracks(tracks: PlaybackHistory[]): Promise<ContextObjectFull[]> {
+    return this.getFullContexts(tracks.map(t => t.contexturi));
+  }
+
+  public async getFullContexts(contextUris: string[]): Promise<ContextObjectFull[]> {
+    const missingContexts = contextUris.filter(i => !this.contextMap.has(i));
+    if (missingContexts.length > 0) {
+      const uniqueContextUris = [...new Set(missingContexts)];
+      await this.getContexts(uniqueContextUris);
+    }
+    return contextUris.map(uri => this.contextMap.get(uri));
+  }
+
+  public async getFullAudioFeatures(ids: string[]): Promise<AudioFeaturesObject[]> {
+    const missingIds = ids.filter(i => !this.audioFeaturesMap.has(i));
+    if (missingIds.length > 0) {
+      const uniqueIds = [...new Set(missingIds)];
+      const promises = [];
+      for (let i = 0; i <= Math.ceil(uniqueIds.length / 100); i++) {
+        const trackIds = uniqueIds.slice(i * 100, (i + 1) * 100);
+        if (trackIds.length > 0) {
+          promises.push(this.getAudioFeatures(trackIds));
+        }
+      }
+      await Promise.all(promises);
+    }
+    return ids.map(id => this.audioFeaturesMap.get(id));
+  }
+
+  public async getHistoryObjectFull(tracks: PlaybackHistory[]): Promise<PlayHistoryObjectFull[]> {
+    const trackIds = tracks.map(t => t.trackid);
+    await this.getFullTracks(trackIds);
+    //await this.getFullContextsForTracks(tracks);
+    await this.getFullAudioFeatures(trackIds);
+    const playHistoryObjectsFull: PlayHistoryObjectFull[] = [];
+    tracks.forEach(t => {
+      const context: ContextObjectFull = {
+        type: 'context',
+        contextType: null,
+        content: null
+      };
+      playHistoryObjectsFull.push({
+        track: this.trackMap.get(t.trackid),
+        audioFeatures: this.audioFeaturesMap.get(t.trackid),
+        context,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        added_at: t.played_at.toString(10)
       });
-  }
-
-  private getUniqueTrackIds(history: PlaybackHistory[]): string[] {
-    const uniqueTracks = [];
-    history.map(val => val.trackid).forEach(id => {
-      if (!uniqueTracks.includes(id)) {
-        uniqueTracks.push(id);
-      }
     });
-    return uniqueTracks;
+    return playHistoryObjectsFull;
   }
 
-  private matchTracks(history: PlaybackHistory[]): void {
-    const playbackHistoryTracks: PlayHistoryObjectFull[] = [];
-    history.forEach(historyTrack => {
-      const track = this.tracks.find(tr => tr.id === historyTrack.trackid);
-      const audioFeatures = this.audioFeatures.find(af => af != null && af.id === historyTrack.trackid);
-      let context = this.contexts.find(ct => ct.content.uri === historyTrack.contexturi);
-      if (context === undefined) {
-        context = {type: 'context', contextType: null, content: null};
-      }
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      this.savedTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      playbackHistoryTracks.push({audioFeatures, added_at: (historyTrack.played_at * 1000) + '', track, context});
+  private async loadPlaybackHistory(): Promise<PlaybackHistory[]> {
+    return new Promise<PlaybackHistory[]>(resolve => {
+      this.playbackApi.callApi<PlaybackHistory[]>('history').subscribe(value => {
+        value.forEach(t => t.played_at *= 1000);
+        this.playbackHistorySource = value;
+        resolve(value);
+      });
     });
-    this.playbackHistorySource.next(playbackHistoryTracks);
-    if (this.didFinishLoadingHistory) {
-      this.playbackHistorySource.complete();
-    }
   }
 
-  private async getAllTracks(): Promise<TrackObjectFull[]> {
-    const promises = [];
-    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 50); i++) {
-      const trackIds = this.uniqueTrackIds.slice(i * 50, (i + 1) * 50);
-      if (trackIds.length > 0) {
-        promises.push(this.getTracks(trackIds));
-      }
-    }
-    await Promise.all(promises);
-    return this.tracks;
-  }
-
-  private async getAllAudioFeatures(): Promise<AudioFeaturesObject[]> {
-    const promises = [];
-    for (let i = 0; i <= Math.ceil(this.uniqueTrackIds.length / 100); i++) {
-      const trackIds = this.uniqueTrackIds.slice(i * 100, (i + 1) * 100);
-      if (trackIds.length > 0) {
-        promises.push(this.getAudioFeatures(trackIds));
-      }
-    }
-    await Promise.all(promises);
-    return this.audioFeatures;
-  }
-
-  private async getContexts(historyTracks: PlaybackHistory[]): Promise<ContextObjectFull[]> {
+  private async getContexts(contextUri: string[]): Promise<void> {
     const playlists: string[] = [];
     const albums: string[] = [];
     const artists: string[] = [];
     const promises = [];
-    historyTracks.forEach(historyTrack => {
-      if (historyTrack.contexturi?.match(/(?<=spotify:playlist:)\w*/) && !playlists.includes(historyTrack.contexturi)) {
-        playlists.push(historyTrack.contexturi);
-      } else if (historyTrack.contexturi?.match(/(?<=spotify:album:)\w*/) && !albums.includes(historyTrack.contexturi)) {
-        albums.push(historyTrack.contexturi);
-      } else if (historyTrack.contexturi?.match(/(?<=spotify:artist:)\w*/) && !artists.includes(historyTrack.contexturi)) {
-        artists.push(historyTrack.contexturi);
+    contextUri.forEach(uri => {
+      if (uri?.match(/(?<=spotify:playlist:)\w*/) && !playlists.includes(uri)) {
+        playlists.push(uri);
+      } else if (uri?.match(/(?<=spotify:album:)\w*/) && !albums.includes(uri)) {
+        albums.push(uri);
+      } else if (uri?.match(/(?<=spotify:artist:)\w*/) && !artists.includes(uri)) {
+        artists.push(uri);
       }
-      this.totalContextCount = playlists.length + albums.length + artists.length;
     });
 
     for (const playlistUri of playlists) {
@@ -173,20 +206,21 @@ export class DataSharingService {
       }
     }
 
-    return Promise.all(promises).then(() => Promise.resolve(this.contexts));
+    await Promise.all(promises);
   }
 
   private async getArtists(artistIds: string[]): Promise<void> {
     try {
       const response = await this.api.getApi().getArtists(artistIds);
       response.artists.forEach(artist => {
-        this.contexts.push({type: 'context', contextType: 'artist', content: artist});
-        this.loadedContexts = this.contexts.length;
+        const context: ContextObjectFull = {type: 'context', contextType: 'artist', content: artist};
+        this.contextMap.set(artist.uri, context);
+        this.artistMap.set(artist.id, artist);
       });
     } catch (reason) {
       if (reason.status === 429) {
         await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-        return await this.getArtists(artistIds);
+        return this.getArtists(artistIds);
       }
     }
   }
@@ -195,13 +229,13 @@ export class DataSharingService {
     try {
       const response = await this.api.getApi().getAlbums(albumIds);
       response.albums.forEach(album => {
-        this.contexts.push({type: 'context', contextType: 'album', content: album});
-        this.loadedContexts = this.contexts.length;
+        const context: ContextObjectFull = {type: 'context', contextType: 'album', content: album};
+        this.contextMap.set(album.uri, context);
       });
     } catch (reason) {
       if (reason.status === 429) {
         await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-        return await this.getAlbums(albumIds);
+        return this.getAlbums(albumIds);
       }
     }
   }
@@ -209,42 +243,28 @@ export class DataSharingService {
   private async getPlaylist(playlistId: string, playlistUri: string): Promise<void> {
     try {
       const playlist = await this.api.getApi().getPlaylist(playlistId);
-      this.contexts.push({type: 'context', contextType: 'playlist', content: playlist});
-      this.loadedContexts = this.contexts.length;
+      const context: ContextObjectFull = {type: 'context', contextType: 'playlist', content: playlist};
+      this.contextMap.set(playlist.uri, context);
     } catch (reason) {
       if (reason.status === 429) {
-        if (reason.getAllResponseHeaders().toLowerCase().includes('Retry-After')) {
+        if (reason.getAllResponseHeaders().toLowerCase().includes('retry-after')) {
           await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-          return await this.getPlaylist(playlistId, playlistUri);
-        } else {
-          this.totalContextCount--;
+          return this.getPlaylist(playlistId, playlistUri);
         }
-      } else {
-        this.totalContextCount--;
       }
     }
   }
 
-  private async getTracks(ids: string[]): Promise<void> {
+  private async putTracksInMap(ids: string[]): Promise<void> {
     try {
       const tracks = await this.api.getApi().getTracks(ids);
-      this.tracks.push(...tracks.tracks);
       tracks.tracks.forEach(track => {
-        localStorage.removeItem(track.id)
         this.trackMap.set(track.id, track);
       });
     } catch (reason) {
       if (reason.status === 429) {
         await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-        return await this.getTracks(ids);
-      } else if (reason.status === 500) {
-        console.log(reason);
-        console.log(ids);
-        //const promises = [];
-        //ids.forEach(id => promises.push(this.getTracks([id])));
-        //return Promise.all(promises).then(() => Promise.resolve());
-      } else if (reason.status === 503) {
-        console.log(ids);
+        return this.putTracksInMap(ids);
       }
     }
   }
@@ -252,11 +272,13 @@ export class DataSharingService {
   private async getAudioFeatures(ids: string[]): Promise<void> {
     try {
       const response = await this.api.getApi().getAudioFeaturesForTracks(ids);
-      this.audioFeatures.push(...response.audio_features);
+      response.audio_features.forEach(aF => {
+        this.audioFeaturesMap.set(aF.id, aF);
+      });
     } catch (reason) {
       if (reason.status === 429) {
         await DataSharingService.delay(reason.getResponseHeader('Retry-After'));
-        return await this.getAudioFeatures(ids);
+        return this.getAudioFeatures(ids);
       }
     }
   }
@@ -273,15 +295,6 @@ export class DataSharingService {
 
     return paginatedResponse;
   }
-
-  private spotTrackToDbTrack(track: TrackObjectFull): DbTrack {
-    return {
-      id: track.id,
-      name: track.name,
-      albumId: track.album.id,
-      artistIds: track.artists.map(a => a.id),
-    };
-  }
 }
 
 export interface ContextObjectFull {
@@ -293,11 +306,4 @@ export interface ContextObjectFull {
 interface Pagination {
   next?: string;
   items: any[];
-}
-
-interface DbTrack {
-  id: string;
-  name: string;
-  albumId: string;
-  artistIds: string[];
 }

@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {DataSharingService} from '../../data-sharing.service';
 import {EChartsOption} from 'echarts';
 import {HttpClient} from '@angular/common/http';
 import {StyleManagerService} from '../../style-manager.service';
@@ -37,7 +36,10 @@ export class HistoryStatsGraphComponent implements OnInit {
   ngOnInit(): void {
     this.styleService.currentTheme.subscribe(() => this.themeIsDark = this.styleService.isDarkStyleActive());
     this.historyStatsData.subscribe(historyStatsData => {
-      this.isLoadingClockGraph = this.isLoadingAudioFeaturesOverTimeGraphData = this.isLoadingKeyGraphData = true;
+      this.clearStats();
+      if (historyStatsData === null) {
+        return;
+      }
       this.timeframe = historyStatsData.timeframe;
       this.worker.postMessage({
         playHistory: historyStatsData.playbackHistory,
@@ -46,6 +48,10 @@ export class HistoryStatsGraphComponent implements OnInit {
       });
       this.getClockGraphData();
     });
+  }
+
+  private clearStats() {
+    this.isLoadingClockGraph = this.isLoadingAudioFeaturesOverTimeGraphData = this.isLoadingKeyGraphData = true;
   }
 
   private workerCallback(data: any) {

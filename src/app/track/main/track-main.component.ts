@@ -14,6 +14,7 @@ import {ApiAlbum} from '../../stat-api-util/ApiAlbum';
 import {ApiTrack} from '../../stat-api-util/ApiTrack';
 import {BoxStat} from '../stat-slider/stat-slider.component';
 import {StorageService} from '../../storage.service';
+import {DataSharingService} from '../../data-sharing.service';
 
 @Component({
   selector: 'app-track',
@@ -36,7 +37,7 @@ export class TrackMainComponent implements OnInit {
   private backgroundColor: { r: number; g: number; b: number };
 
   constructor(private api: ApiConnectionService, private route: ActivatedRoute, private titleService: Title,
-              private http: HttpClient) {
+              private http: HttpClient, private dataSharing: DataSharingService) {
     this.trackId = this.route.snapshot.params.trackId;
     this.contextUri = this.route.snapshot.params.contextUri;
   }
@@ -69,8 +70,25 @@ export class TrackMainComponent implements OnInit {
           }
         });
     });
-    this.getTrack();
-    this.getAudioFeatures();
+    this.dataSharing.getFullTrack(this.trackId)
+      .then(track => {
+        this.track = track;
+        this.titleService.setTitle(this.track.name + ' - SpotifyStats');
+        this.getBackground();
+        return this.dataSharing.getFullAlbum(track.album.id, track.album.uri);
+      })
+      .then(album => {
+        this.album = album;
+        return this.dataSharing.getFullArtists(this.track.artists.map(a => a.id));
+      })
+      .then(artists => {
+        this.artists = artists;
+        return this.dataSharing.getFullAudioFeatures([this.track.id]);
+      })
+      .then(aF => {
+        this.audioFeatures = aF[0];
+        this.loaded.complete();
+      });
   }
 
   getTextColor(): string {
@@ -79,44 +97,6 @@ export class TrackMainComponent implements OnInit {
     } else {
       return 'unset';
     }
-  }
-
-  private getTrack(): void {
-    this.api.getApi().getTrack(this.trackId).then(value => {
-      this.track = value;
-      this.titleService.setTitle(this.track.name + ' - SpotifyStats');
-      this.getBackground();
-      this.getAlbum();
-      this.getArtists();
-    });
-  }
-
-  private getAlbum(): void {
-    this.api.getApi().getAlbum(this.track.album.id).then(value => {
-      this.album = value;
-      if (this.artists && this.audioFeatures) {
-        this.loaded.complete();
-      }
-    });
-  }
-
-  private getArtists(): void {
-    const ids = this.track.artists.map(value => value.id);
-    this.api.getApi().getArtists(ids).then(value => {
-      this.artists = value.artists;
-      if (this.album && this.audioFeatures) {
-        this.loaded.complete();
-      }
-    });
-  }
-
-  private getAudioFeatures(): void {
-    this.api.getApi().getAudioFeaturesForTrack(this.trackId).then(value => {
-      this.audioFeatures = value;
-      if (this.artists && this.album) {
-        this.loaded.complete();
-      }
-    });
   }
 
   private getBackground(): void {

@@ -26,7 +26,9 @@ export class HomeComponent implements OnInit {
   }
 
   getUserPlaylist(): void {
-    this.dataSharing.getAllUserPlaylists().then(value => this.playlists = value);
+    this.api.waitForApi().then(() => {
+      this.dataSharing.getAllUserPlaylists().then(value => this.playlists = value);
+    });
   }
 
   authorize(): void {

@@ -1,9 +1,8 @@
 <div class="wrapper">
-  <app-track-list [showSpinner]="false"
-                  [displayedColumns]="['title', 'contextUri', 'album', 'artist', 'length', 'played_at']"
-                  [data]="this.playbackHistorySource.asObservable()"></app-track-list>
-  <div class="progress-bar-container" *ngIf="!didLoadTracks">
-    <mat-progress-bar color="primary" [value]="this.dataSharing.historyLoadingProgress * 100"></mat-progress-bar>
-    <sub class="progress-text">{{this.dataSharing.historyLoadingProgress * 100 | number:'1.2-2'}}%</sub>
-  </div>
+  <ng-scrollbar>
+    <app-track-list [showSpinner]="false"
+                    [displayedColumns]="['title', 'contextUri', 'album', 'artist', 'length', 'played_at']"
+                    [data]="this.playbackHistorySource.asObservable()"></app-track-list>
+  </ng-scrollbar>
+  <mat-spinner *ngIf="!didLoadTracks"></mat-spinner>
 </div>

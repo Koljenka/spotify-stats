@@ -2,7 +2,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
+import {PlaybackHistory, PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {HttpClient} from '@angular/common/http';
 import {StorageService} from '../storage.service';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
@@ -19,11 +19,11 @@ import {StyleManagerService} from '../style-manager.service';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
-import {BehaviorSubject, Subject} from 'rxjs';
+import {lastValueFrom, Subject} from 'rxjs';
 import {TopContent} from './history-stats-top-content-list/history-stats-top-content-list.component';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import ImageObject = SpotifyApi.ImageObject;
-import {PlaybackApiService, TopTracksApiResponse} from '../playback-api.service';
+import {PlaybackApiService, TopApiResponse} from '../playback-api.service';
 
 
 @Component({
@@ -43,11 +43,10 @@ import {PlaybackApiService, TopTracksApiResponse} from '../playback-api.service'
 export class HistoryStatsComponent implements OnInit {
   @ViewChild('picker') picker: MatDateRangeInput<Date>;
 
-  playbackHistory: PlayHistoryObjectFull[];
-  historyStatsData = new BehaviorSubject({} as HistoryStatsData);
+  playbackHistory: PlaybackHistory[];
+  historyStatsData = new Subject<HistoryStatsData>();
 
   worker: Worker;
-  didLoadTracks = false;
   topArtists = new Subject<TopContent[]>();
   topAlbums = new Subject<TopContent[]>();
   topTracks = new Subject<TopContent[]>();
@@ -69,7 +68,7 @@ export class HistoryStatsComponent implements OnInit {
   constructor(private http: HttpClient, public dataSharing: DataSharingService,
               private titleService: Title,
               private styleService: StyleManagerService,
-              private playbackApi: PlaybackApiService){
+              private playbackApi: PlaybackApiService) {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker(new URL('./history-stats.worker', import.meta.url), {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
@@ -84,11 +83,11 @@ export class HistoryStatsComponent implements OnInit {
       this.themeIsDark = this.styleService.isDarkStyleActive();
     });
 
-    this.dataSharing.playbackHistory.toPromise().then(() => {
-      this.playbackHistory = this.dataSharing.getSavedTracks();
-      this.didLoadTracks = this.dataSharing.didFinishLoadingHistory;
+    this.dataSharing.playbackHistory.then(history => {
+      this.playbackHistory = history;
       this.onLinkChanged();
     });
+
     this.range.valueChanges.pipe(debounceTime(200)).subscribe(this.onRangeChanged.bind(this));
     this.isInitialized = true;
   }
@@ -99,7 +98,7 @@ export class HistoryStatsComponent implements OnInit {
     this.clearStats();
     switch (this.activeLink) {
       case this.links[3]:
-        timeframe.start = parseInt(this.playbackHistory[this.playbackHistory.length - 1].added_at, 10);
+        timeframe.start = this.playbackHistory[this.playbackHistory.length - 1].played_at;
         timeframe.end = Date.now();
         break;
       case this.links[2]:
@@ -160,6 +159,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   private clearStats(): void {
+    this.historyStatsData.next(null);
     this.topArtists.next([]);
     this.topAlbums.next([]);
     this.topTracks.next([]);
@@ -185,39 +185,61 @@ export class HistoryStatsComponent implements OnInit {
     this.isFirstCallback = false;
   }
 
-  private loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): void {
+  private async loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): Promise<void> {
     const playHistory = this.playbackHistory.filter(
-      v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= from &&
-        new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= to);
+      v => new Date(new Date(v.played_at).toDateString()).valueOf() >= from &&
+        new Date(new Date(v.played_at).toDateString()).valueOf() <= to);
     const prevPlaybackHistory = this.playbackHistory.filter(
-      v => new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() >= previousFrom &&
-        new Date(new Date(parseInt(v.added_at, 10)).toDateString()).valueOf() <= previousTo);
+      v => new Date(new Date(v.played_at).toDateString()).valueOf() >= previousFrom &&
+        new Date(new Date(v.played_at).toDateString()).valueOf() <= previousTo);
     const timeframe = {start: from, end: to};
     const prevTimeframe = {start: previousFrom, end: previousTo};
-    this.historyStatsData.next({playbackHistory: playHistory, prevPlaybackHistory, timeframe, prevTimeframe});
+
+    await this.getTopTracks(timeframe);
+    await this.getTopContexts(timeframe);
+    await this.getTopArtists(timeframe);
+
+    await this.dataSharing.getHistoryObjectFull(playHistory.concat(...prevPlaybackHistory));
+
+    const playbackHistoryFull: PlayHistoryObjectFull[] = await this.dataSharing.getHistoryObjectFull(playHistory);
 
     this.worker.postMessage({
-      playHistory: this.playbackHistory,
+      tracks: playbackHistoryFull.map(t => t.track),
       token: StorageService.accessToken,
+    });
+
+    this.historyStatsData.next({
+      playbackHistory: playbackHistoryFull,
+      prevPlaybackHistory: await this.dataSharing.getHistoryObjectFull(prevPlaybackHistory),
       timeframe,
       prevTimeframe
     });
+  }
 
-    this.playbackApi.callApiWithTimeframe<TopTracksApiResponse>('topTrack', timeframe).subscribe(value => {
-      const topTracks = value.map(v =>
-        this.contentObjectToTopContent(this.playbackHistory.find(t => t.track.id === v.trackId).track, v.count));
-      this.topTracks.next(topTracks);
-    });
+  private async getTopTracks(timeframe: Timeframe): Promise<void> {
+    const topTrackIds = await lastValueFrom(this.playbackApi.callApiWithTimeframe<TopApiResponse>('topTrack', timeframe));
+    await this.dataSharing.getFullTracks(topTrackIds.map(v => v.id));
+    const topTracksContent = topTrackIds.map(v => this.contentObjectToTopContent(this.dataSharing.trackMap.get(v.id), v.count));
+    this.topTracks.next(topTracksContent);
+  }
+
+  private async getTopContexts(timeframe: Timeframe): Promise<void> {
+    const topContextIds = await lastValueFrom(this.playbackApi.callApiWithTimeframe<TopApiResponse>('topContext', timeframe));
+    await this.dataSharing.getFullContexts(topContextIds.map(v => v.id));
+    const topContextContent = topContextIds.map(v => this.contentObjectToTopContent(this.dataSharing.contextMap.get(v.id), v.count));
+    this.topContexts.next(topContextContent);
+  }
+
+  private async getTopArtists(timeframe: Timeframe): Promise<void> {
+    const topArtistIds = await lastValueFrom(this.playbackApi.callApiWithTimeframe<TopApiResponse>('topArtist', timeframe));
+    await this.dataSharing.getFullArtists(topArtistIds.map(v => v.id));
+    const topArtistsContent = topArtistIds.map(v => this.contentObjectToTopContent(this.dataSharing.artistMap.get(v.id), v.count));
+    this.topArtists.next(topArtistsContent);
   }
 
   private workerCallback(data): void {
-
-    const top = data.content.map(v => this.contentObjectToTopContent(v.obj, v.count));
-    if (data.type === 'topTracks') {
-      console.log('worker', top);
-    }
-    this[data.type].next(top);
-
+    const top = data.map(v => this.contentObjectToTopContent(v.obj, v.count));
+    this.topAlbums.next(top);
   }
 
   private contentObjectToTopContent(obj: ContentObject | ContextObjectFull, timesPlayed: number): TopContent {

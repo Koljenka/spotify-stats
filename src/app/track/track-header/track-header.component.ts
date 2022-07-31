@@ -2,12 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
-import {HttpClient} from '@angular/common/http';
 import {Util} from '../../util';
 import {environment} from '../../../environments/environment';
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import {KeyHelper} from '../../key-helper';
-import {StorageService} from '../../storage.service';
 import {CountApiResponse, PlaybackApiService} from '../../playback-api.service';
 
 @Component({

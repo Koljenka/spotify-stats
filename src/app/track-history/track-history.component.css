@@ -1,13 +1,7 @@
-.progress-bar-container{
-  top: calc(50% - 50px);
-  margin: auto;
-  width: 50%;
-  position: relative;
-}
-
-.progress-text {
-  right: 0;
+mat-spinner {
   position: absolute;
+  top: calc(50vh - 50px);
+  left: calc(50vw - 50px);
 }
 .wrapper {
   text-align: center;
