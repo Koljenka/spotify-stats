@@ -146,10 +146,12 @@ export class DataSharingService {
     return ids.map(id => this.audioFeaturesMap.get(id));
   }
 
-  public async getHistoryObjectFull(tracks: PlaybackHistory[]): Promise<PlayHistoryObjectFull[]> {
+  public async getHistoryObjectFull(tracks: PlaybackHistory[], withContexts: boolean = false): Promise<PlayHistoryObjectFull[]> {
     const trackIds = tracks.map(t => t.trackid);
     await this.getFullTracks(trackIds);
-    //await this.getFullContextsForTracks(tracks);
+    if (withContexts) {
+      await this.getFullContextsForTracks(tracks);
+    }
     await this.getFullAudioFeatures(trackIds);
     const playHistoryObjectsFull: PlayHistoryObjectFull[] = [];
     tracks.forEach(t => {
@@ -161,7 +163,7 @@ export class DataSharingService {
       playHistoryObjectsFull.push({
         track: this.trackMap.get(t.trackid),
         audioFeatures: this.audioFeaturesMap.get(t.trackid),
-        context,
+        context: withContexts ? this.contextMap.get(t.contexturi) : context,
         // eslint-disable-next-line @typescript-eslint/naming-convention
         added_at: t.played_at.toString(10)
       });

@@ -269,14 +269,14 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getContextType(context: ContextObjectFull): string {
-    if (context.content == null) {
+    if (context?.content == null) {
       return 'Single';
     }
     return context.content.name;
   }
 
   getContextIcon(context: ContextObjectFull): string {
-    switch (context.contextType) {
+    switch (context?.contextType) {
       case 'album':
         return 'album';
       case 'artist':

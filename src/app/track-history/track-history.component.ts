@@ -23,7 +23,7 @@ export class TrackHistoryComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSharing.playbackHistory
-      .then(history => this.dataSharing.getHistoryObjectFull(history))
+      .then(history => this.dataSharing.getHistoryObjectFull(history, true))
       .then(val => {
         this.playbackHistorySource.next(val);
         this.didLoadTracks = true;

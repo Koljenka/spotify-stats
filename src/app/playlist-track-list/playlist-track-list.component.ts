@@ -34,6 +34,8 @@ export class PlaylistTrackListComponent implements OnInit {
       this.playlistTracksSource.next(this.playlist.tracks.items);
       if (this.playlist.tracks.next != null) {
         this.getALlPlaylistTracks(100, 100);
+      } else {
+        this.playlistTracksSource.complete();
       }
     });
   }

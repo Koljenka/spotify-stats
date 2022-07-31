@@ -79,7 +79,7 @@ export class HistoryStatsGraphComponent implements OnInit {
       for (let i = 0; i < 24; i++) {
         temp[i] = 0;
       }
-      let maxRadius = 15;
+      let maxRadius = 12;
       // @ts-ignore
       value.forEach(val => {
         if (val.count > maxRadius) {
