@@ -52,6 +52,13 @@ export class DataSharingService {
     return this.contextMap.get(uri).content as AlbumObjectFull;
   }
 
+  public async getFullPlaylist(id: string, uri: string): Promise<PlaylistObjectFull> {
+    if (!this.contextMap.has(uri)) {
+      await this.getPlaylist(id, uri);
+    }
+    return this.contextMap.get(uri).content as PlaylistObjectFull;
+  }
+
   public async getFullTrack(id: string): Promise<TrackObjectFull> {
     if (this.trackMap.has(id)) {
       return this.trackMap.get(id);
