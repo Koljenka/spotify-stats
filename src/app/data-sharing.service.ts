@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
-import {PlaybackHistory, PlayHistoryObjectFull} from './track-history/track-history.component';
-import {HttpClient} from '@angular/common/http';
+import {PlayHistoryObjectFull} from './track-history/track-history.component';
 import {ApiConnectionService} from './api-connection.service';
-import {PlaybackApiService} from './playback-api.service';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ContextObjectType = SpotifyApi.ContextObjectType;
@@ -10,6 +8,8 @@ import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
 import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
+import {PlaybackService, PlayHistory} from '@kn685832/spotify-api';
+import {StorageService} from './storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,13 +21,13 @@ export class DataSharingService {
   public contextMap: Map<string, ContextObjectFull> = new Map();
   public audioFeaturesMap: Map<string, AudioFeaturesObject> = new Map();
 
-  private playbackHistorySource: PlaybackHistory[] = [];
-  private playbackHistoryPromise: Promise<PlaybackHistory[]> = null;
+  private playbackHistorySource: PlayHistory[] = [];
+  private playbackHistoryPromise: Promise<PlayHistory[]> = null;
 
-  constructor(private http: HttpClient, private api: ApiConnectionService, private playbackApi: PlaybackApiService) {
+  constructor(private api: ApiConnectionService, private playbackApi: PlaybackService) {
   }
 
-  get playbackHistory(): Promise<PlaybackHistory[]> {
+  get playbackHistory(): Promise<PlayHistory[]> {
     if (this.playbackHistoryPromise === null) {
       this.playbackHistoryPromise = this.loadPlaybackHistory();
     }
@@ -110,15 +110,15 @@ export class DataSharingService {
     return ids.map(id => this.artistMap.get(id));
   }
 
-  public async getFullContextForTrack(track: PlaybackHistory): Promise<ContextObjectFull> {
-    if (!this.contextMap.has(track.contexturi)) {
+  public async getFullContextForTrack(track: PlayHistory): Promise<ContextObjectFull> {
+    if (!this.contextMap.has(track.contextUri)) {
       await this.getFullContextsForTracks([track]);
     }
-    return this.contextMap.get(track.contexturi);
+    return this.contextMap.get(track.contextUri);
   }
 
-  public async getFullContextsForTracks(tracks: PlaybackHistory[]): Promise<ContextObjectFull[]> {
-    return this.getFullContexts(tracks.map(t => t.contexturi));
+  public async getFullContextsForTracks(tracks: PlayHistory[]): Promise<ContextObjectFull[]> {
+    return this.getFullContexts(tracks.map(t => t.contextUri));
   }
 
   public async getFullContexts(contextUris: string[]): Promise<ContextObjectFull[]> {
@@ -146,8 +146,8 @@ export class DataSharingService {
     return ids.map(id => this.audioFeaturesMap.get(id));
   }
 
-  public async getHistoryObjectFull(tracks: PlaybackHistory[], withContexts: boolean = false): Promise<PlayHistoryObjectFull[]> {
-    const trackIds = tracks.map(t => t.trackid);
+  public async getHistoryObjectFull(tracks: PlayHistory[], withContexts: boolean = false): Promise<PlayHistoryObjectFull[]> {
+    const trackIds = tracks.map(t => t.trackId);
     await this.getFullTracks(trackIds);
     if (withContexts) {
       await this.getFullContextsForTracks(tracks);
@@ -161,20 +161,20 @@ export class DataSharingService {
         content: null
       };
       playHistoryObjectsFull.push({
-        track: this.trackMap.get(t.trackid),
-        audioFeatures: this.audioFeaturesMap.get(t.trackid),
-        context: withContexts ? this.contextMap.get(t.contexturi) : context,
+        track: this.trackMap.get(t.trackId),
+        audioFeatures: this.audioFeaturesMap.get(t.trackId),
+        context: withContexts ? this.contextMap.get(t.contextUri) : context,
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        added_at: t.played_at.toString(10)
+        added_at: t.playedAt.toString(10)
       });
     });
     return playHistoryObjectsFull;
   }
 
-  private async loadPlaybackHistory(): Promise<PlaybackHistory[]> {
-    return new Promise<PlaybackHistory[]>(resolve => {
-      this.playbackApi.callApi<PlaybackHistory[]>('history').subscribe(value => {
-        value.forEach(t => t.played_at *= 1000);
+  private async loadPlaybackHistory(): Promise<PlayHistory[]> {
+    return new Promise<PlayHistory[]>(resolve => {
+      this.playbackApi.getPlaybackHistory(StorageService.accessToken).subscribe(value => {
+        value.forEach(t => t.playedAt *= 1000);
         this.playbackHistorySource = value;
         resolve(value);
       });

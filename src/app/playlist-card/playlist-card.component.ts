@@ -9,6 +9,8 @@ import {DataSharingService} from '../data-sharing.service';
 import {Util} from '../util';
 import {StorageService} from '../storage.service';
 import {HttpClient} from '@angular/common/http';
+import {ContextService} from '@kn685832/spotify-api';
+import {lastValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-playlist-card',
@@ -21,7 +23,7 @@ export class PlaylistCardComponent implements OnInit {
   playlistFull: PlaylistObjectFull;
   stats: KeyValue<string, string>[] = [];
 
-  constructor(private router: Router, private api: ApiConnectionService, private http: HttpClient) {
+  constructor(private router: Router, private api: ApiConnectionService, private contextApi: ContextService) {
   }
 
   ngOnInit(): void {
@@ -58,12 +60,8 @@ export class PlaylistCardComponent implements OnInit {
   }
 
   private async getPlayedCount(): Promise<number> {
-    const response = await this.http.post(`${environment.APP_SETTINGS.playbackApiBasePath}/contextPlayedCount`, {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      contextUri: this.playlist.uri
-    }).toPromise();
-    return response[0]?.count ?? 0;
+    return lastValueFrom(this.contextApi.getContextPlayCount(StorageService.accessToken, this.playlist.uri))
+      .then(v => v.count ?? 0);
   }
 
   private async getPlaylist(): Promise<PlaylistObjectFull> {

@@ -5,9 +5,8 @@ import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import {Util} from '../util';
-import {environment} from '../../environments/environment';
-import {HttpClient} from '@angular/common/http';
 import {StorageService} from '../storage.service';
+import {ColorService, ContextService, RGB} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-track-list-header',
@@ -25,9 +24,9 @@ export class TrackListHeaderComponent implements OnInit {
   playedCount = 0;
   playlistLength = '';
 
-  private backgroundColor: { r: number; g: number; b: number };
+  private backgroundColor: RGB;
 
-  constructor(private http: HttpClient) {
+  constructor(private contextApi: ContextService, private colorApi: ColorService) {
   }
 
   ngOnInit() {
@@ -67,9 +66,8 @@ export class TrackListHeaderComponent implements OnInit {
   }
 
   private getBackground(): void {
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/?img=' + this.contextObject.content.images[0].url)
+    this.colorApi.getAverageColor(this.contextObject.content.images[0].url)
       .subscribe(color => {
-        // @ts-ignore
         this.backgroundColor = color;
         this.backgroundColorChanged.emit(`linear-gradient(rgba(${this.backgroundColor.r},
           ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 15%, transparent)`);
@@ -77,14 +75,11 @@ export class TrackListHeaderComponent implements OnInit {
   }
 
   private getPlayedCount(): void {
-    this.http.post(environment.APP_SETTINGS.playbackApiBasePath + '/contextPlayedCount', {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      access_token: StorageService.accessToken,
-      contextUri: this.contextObject.content.uri
-    }).subscribe(value => {
-        this.playedCount = value[0]?.count;
-      }
-    );
+    this.contextApi.getContextPlayCount(StorageService.accessToken, this.contextObject.content.uri)
+      .subscribe(value => {
+          this.playedCount = value.count;
+        }
+      );
   }
 
 }

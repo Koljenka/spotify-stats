@@ -1,8 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {RGBColor} from '../history-stats.component';
-import {environment} from '../../../environments/environment';
-import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {ColorService} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-history-stats-top-content-list',
@@ -15,7 +14,7 @@ export class HistoryStatsTopContentListComponent implements OnInit {
   contentList: TopContent[] = [];
   topContentAvgColor: RGBColor = null;
 
-  constructor(private http: HttpClient) {
+  constructor(private colorApi: ColorService) {
   }
 
   ngOnInit(): void {
@@ -43,7 +42,7 @@ export class HistoryStatsTopContentListComponent implements OnInit {
 
   getTopContentAvgColor(): void {
     if (this.contentList.length > 0) {
-      this.http.get(`${environment.APP_SETTINGS.avgColorApiBasePath}/?img=${this.contentList[0].imageUrl}`)
+      this.colorApi.getAverageColor(this.contentList[0].imageUrl)
         .subscribe(value => {
           this.topContentAvgColor = value as RGBColor;
         });

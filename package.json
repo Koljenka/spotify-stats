@@ -1,6 +1,6 @@
 {
   "name": "spotify-stats",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -24,6 +24,7 @@
     "@angular/platform-browser": "^14.0.5",
     "@angular/platform-browser-dynamic": "^14.0.5",
     "@angular/router": "^14.0.5",
+    "@kn685832/spotify-api": "^2.1.0-angular-14",
     "echarts": "^5.3.3",
     "echarts-gl": "^2.0.9",
     "hammerjs": "^2.0.8",

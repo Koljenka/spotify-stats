@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {BoxStat} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-stat-slider',
@@ -51,10 +52,4 @@ export class StatSliderComponent implements OnInit {
     }
     this.intervalId = setInterval(() => this.slide(1), 10000);
   }
-}
-
-export class BoxStat {
-  title: string;
-  description: string;
-  icon: string;
 }

@@ -23,6 +23,8 @@ stages:
 
 install_dependencies:
   stage: install_dependencies
+  before_script:
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/13088/packages/npm/:_authToken=${CI_JOB_TOKEN}">.npmrc
   script:
     - npm ci
   artifacts:

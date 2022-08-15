@@ -31,14 +31,6 @@ export class TrackHistoryComponent implements OnInit, AfterViewInit {
       });
   }
 }
-
-export interface PlaybackHistory {
-  trackid: string;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  played_at: number;
-  contexturi: string;
-}
-
 export interface PlayHistoryObjectFull extends SavedTrackObject {
   context: ContextObjectFull;
   audioFeatures: AudioFeaturesObject;

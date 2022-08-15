@@ -1,10 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {environment} from '../../../environments/environment';
 import {StorageService} from '../../storage.service';
-import {HttpClient} from '@angular/common/http';
 import {ApiConnectionService} from '../../api-connection.service';
 import {DataSharingService} from '../../data-sharing.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TrackService} from '@kn685832/spotify-api';
+import {lastValueFrom} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-actions',
@@ -17,7 +19,7 @@ export class ActionsComponent implements OnInit {
   private base64Img;
 
   constructor(private http: HttpClient, private api: ApiConnectionService,
-              private dataSharing: DataSharingService, private snackbar: MatSnackBar) {
+              private dataSharing: DataSharingService, private snackbar: MatSnackBar, private trackApi: TrackService) {
   }
 
   ngOnInit(): void {
@@ -26,13 +28,8 @@ export class ActionsComponent implements OnInit {
 
 
   async createMonthlyTopPlaylist(): Promise<void> {
-    const monthlyTopTracks =
-      await this.http.post(`${environment.APP_SETTINGS.playbackApiBasePath}/getTopTracksForEachMonth`, {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        access_token: StorageService.accessToken
-      }).toPromise();
+    const monthlyTopTracks = await lastValueFrom(this.trackApi.getTopTrackForEachMonth(StorageService.accessToken));
 
-    // @ts-ignore
     const monthlyTopTrackIds: string[] = [...new Set(monthlyTopTracks.map(t => 'spotify:track:' + t.trackId))];
     const monthlyTopPlaylistId = await this.getMonthlyTopPlaylistId();
     await this.api.getApi().replaceTracksInPlaylist(monthlyTopPlaylistId, monthlyTopTrackIds);

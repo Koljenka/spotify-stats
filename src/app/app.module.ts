@@ -57,6 +57,7 @@ import {
 import {
   HistoryStatsTopContentListComponent
 } from './history-stats/history-stats-top-content-list/history-stats-top-content-list.component';
+import {ApiModule, Configuration} from '@kn685832/spotify-api';
 
 registerLocaleData(localeDe);
 
@@ -110,6 +111,7 @@ registerLocaleData(localeDe);
     MatNativeDateModule,
     MatDatepickerModule,
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
+    ApiModule.forRoot(() => new Configuration()),
     BrowserAnimationsModule,
     MatListModule,
     MatProgressBarModule,

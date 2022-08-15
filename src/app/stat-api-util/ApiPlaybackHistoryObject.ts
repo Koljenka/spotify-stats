@@ -1,24 +1,12 @@
 import {PlayHistoryObjectFull} from '../track-history/track-history.component';
-import {ApiTrack} from './ApiTrack';
-import {ApiAudioFeatures} from './ApiAudioFeatures';
-
-export class ApiPlaybackHistoryObject {
-  private playedAt: number;
-  private track: ApiTrack;
-  private contextType: string;
-  private audioFeatures: ApiAudioFeatures;
+import {ApiPlaybackHistoryObject} from '@kn685832/spotify-api';
+import {fromSpotifyTrack} from './ApiTrack';
+import {fromSpotifyAudioFeatures} from './ApiAudioFeatures';
 
 
-  constructor(playedAt: number, track: ApiTrack, contextType: string, audioFeatures: ApiAudioFeatures) {
-    this.playedAt = playedAt;
-    this.track = track;
-    this.contextType = contextType;
-    this.audioFeatures = audioFeatures;
-  }
+export const fromSpotifyPlaybackHistoryObject = (p: PlayHistoryObjectFull): ApiPlaybackHistoryObject => ({
+  playedAt: parseInt(p.added_at, 10),
+  track: fromSpotifyTrack(p.track), contextType: p.context.contextType,
+  audioFeatures: fromSpotifyAudioFeatures(p.audioFeatures)
+});
 
-  public static fromSpotifyPlaybackHistoryObject(p: PlayHistoryObjectFull): ApiPlaybackHistoryObject {
-    return new ApiPlaybackHistoryObject(parseInt(p.added_at, 10),
-      ApiTrack.fromSpotifyTrack(p.track), p.context.contextType,
-      ApiAudioFeatures.fromSpotifyAudioFeatures(p.audioFeatures));
-  }
-}

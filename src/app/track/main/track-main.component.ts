@@ -2,19 +2,18 @@ import {Component, OnInit} from '@angular/core';
 import {ApiConnectionService} from '../../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import {Title} from '@angular/platform-browser';
-import {HttpClient} from '@angular/common/http';
 import {environment} from '../../../environments/environment';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import {Util} from '../../util';
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import AudioFeaturesObject = SpotifyApi.AudioFeaturesObject;
-import {BehaviorSubject} from 'rxjs';
-import {ApiAlbum} from '../../stat-api-util/ApiAlbum';
-import {ApiTrack} from '../../stat-api-util/ApiTrack';
-import {BoxStat} from '../stat-slider/stat-slider.component';
+import {BehaviorSubject, lastValueFrom} from 'rxjs';
+import {fromSpotifyAlbum} from '../../stat-api-util/ApiAlbum';
+import {fromSpotifyTrack} from '../../stat-api-util/ApiTrack';
 import {StorageService} from '../../storage.service';
 import {DataSharingService} from '../../data-sharing.service';
+import {BoxStat, ColorService, RGB, StatisticsService} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-track',
@@ -34,41 +33,30 @@ export class TrackMainComponent implements OnInit {
 
   loaded = new BehaviorSubject<void>(null);
 
-  private backgroundColor: { r: number; g: number; b: number };
+  private backgroundColor: RGB;
 
-  constructor(private api: ApiConnectionService, private route: ActivatedRoute, private titleService: Title,
-              private http: HttpClient, private dataSharing: DataSharingService) {
+  constructor(private api: ApiConnectionService, private colorApi: ColorService, private route: ActivatedRoute, private titleService: Title,
+              private dataSharing: DataSharingService, private statsApi: StatisticsService) {
     this.trackId = this.route.snapshot.params.trackId;
     this.contextUri = this.route.snapshot.params.contextUri;
   }
 
   ngOnInit(): void {
     this.loaded.toPromise().then(() => {
-      this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/stats', {
+      this.statsApi.getNormalBoxStats({
         accessToken: StorageService.accessToken,
-        album: ApiAlbum.fromSpotifyAlbum(this.album),
-        track: ApiTrack.fromSpotifyTrack(this.track)
-      })
-        .subscribe(val => {
-          // @ts-ignore
-          if (val.message === 'BoxStatResponse') {
-            // @ts-ignore
-            this.stats.push(...val.content);
-          }
-        });
+        album: fromSpotifyAlbum(this.album),
+        track: fromSpotifyTrack(this.track)
+      }).subscribe(val => {
+        this.stats.push(...val);
+      });
 
-      this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/slowStats', {
+      this.statsApi.getSlowBoxStats({
         accessToken: StorageService.accessToken,
-        album: ApiAlbum.fromSpotifyAlbum(this.album),
-        track: ApiTrack.fromSpotifyTrack(this.track)
-      })
-        .subscribe(val => {
-          // @ts-ignore
-          if (val.message === 'BoxStatResponse') {
-            // @ts-ignore
-            this.stats.push(...val.content);
-          }
-        });
+        track: fromSpotifyTrack(this.track)
+      }).subscribe(val => {
+        this.stats.push(...val);
+      });
     });
     this.dataSharing.getFullTrack(this.trackId)
       .then(track => {
@@ -101,17 +89,25 @@ export class TrackMainComponent implements OnInit {
 
   private getBackground(): void {
     const url = this.track.album.images[this.track.album.images.length - 1].url;
-    this.http.get(environment.APP_SETTINGS.avgColorApiBasePath + '/palette?img=' + url)
-      .subscribe(color => {
-        // @ts-ignore
-        this.backgroundColor = color[0];
-        this.background = `linear-gradient(
+    lastValueFrom(this.colorApi.getColorPalette(url))
+      .then(color => {
+        const fr = new FileReader();
+        fr.onload = e => {
+          // @ts-ignore
+          color = JSON.parse(e.target.result);
+          this.backgroundColor = color[0];
+          this.background = `linear-gradient(
         rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 255) 75%,
         rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 0.3))`;
 
-        this.headerBackground = `linear-gradient(
+          this.headerBackground = `linear-gradient(
         rgb(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}) 50%,
         rgba(${this.backgroundColor.r}, ${this.backgroundColor.g}, ${this.backgroundColor.b}, 0.25))`;
+        };
+        // @ts-ignore
+        fr.readAsText(color);
+
+
       });
   }
 }

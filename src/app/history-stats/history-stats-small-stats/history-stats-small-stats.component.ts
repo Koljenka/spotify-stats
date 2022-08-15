@@ -1,18 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HistoryStatsData, Timeframe} from '../history-stats.component';
-import {HttpClient} from '@angular/common/http';
 import {StyleManagerService} from '../../style-manager.service';
 import {Option} from '../../option.model';
-import {
-  CountApiResponse,
-  MostActiveDayApiResponse,
-  PlaybackApiService,
-  StreakApiResponse
-} from '../../playback-api.service';
-import {environment} from '../../../environments/environment';
 import {StorageService} from '../../storage.service';
-import {ApiPlaybackHistoryObject} from '../../stat-api-util/ApiPlaybackHistoryObject';
+import {SmallStat, SmallStatRequest, SmallStatsService, StatisticsService, TrackService} from '@kn685832/spotify-api';
+import {fromSpotifyPlaybackHistoryObject} from '../../stat-api-util/ApiPlaybackHistoryObject';
 
 @Component({
   selector: 'app-history-stats-small-stats',
@@ -26,7 +19,8 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
   theme: Option;
 
 
-  constructor(private playbackApi: PlaybackApiService, private http: HttpClient, private styleService: StyleManagerService) {
+  constructor(private statsApi: StatisticsService, private smallStatApi: SmallStatsService, private trackApi: TrackService,
+              private styleService: StyleManagerService) {
     this.clearStats();
   }
 
@@ -46,30 +40,34 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
     this.smallStatCardStats = [];
     for (let i = 0; i < 10; i++) {
       this.smallStatCardStats.push({
-        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: 0, value: null}
+        id: i, heading: '', icon: '', stat: {prevTimeframe: {end: 0, start: 0}, prevValue: '0', value: null}
       });
     }
   }
 
   private getSmallStats({playbackHistory, prevPlaybackHistory, prevTimeframe, timeframe}: HistoryStatsData) {
-    this.getTotalTracksStat(timeframe, prevTimeframe);
-    this.getUniqueTracksStat(timeframe, prevTimeframe);
-    this.getMostActiveDay(timeframe, prevTimeframe);
-    const fullHistory = playbackHistory.concat(...prevPlaybackHistory);
-    this.http.post(environment.APP_SETTINGS.songStatApiBasePath + '/smallStats', {
-      accessToken: StorageService.accessToken,
-      playbackHistory: fullHistory
-        .map(pb => ApiPlaybackHistoryObject.fromSpotifyPlaybackHistoryObject(pb)),
+    const sTimeframe = this.msTimeframeToS(timeframe);
+    const prevSTimeframe = this.msTimeframeToS(prevTimeframe);
+    this.getTotalTracksStat(sTimeframe, prevSTimeframe);
+    this.getUniqueTracksStat(sTimeframe, prevSTimeframe);
+    this.getMostActiveDay(sTimeframe, prevSTimeframe);
+    const fullHistory = (playbackHistory.concat(...prevPlaybackHistory)).map(ph => fromSpotifyPlaybackHistoryObject(ph));
+    const smallStatRequest: SmallStatRequest = {
+      playbackHistory: fullHistory,
       prevTimeframe,
       timeframe,
+      accessToken: StorageService.accessToken
+    };
+    this.smallStatApi.getTimeSpent(smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+    this.smallStatApi.getListeningTime(smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+    this.smallStatApi.getUniqueArtistStat(smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+    this.smallStatApi.getAverageFeatureStat('danceability', smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+    this.smallStatApi.getAverageFeatureStat('energy', smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+    this.smallStatApi.getAverageFeatureStat('valence', smallStatRequest).subscribe(this.smallStatObserver.bind(this));
+  }
 
-    })
-      .subscribe(response => {
-        // @ts-ignore
-        for (const stat of response.content) {
-          this.smallStatCardStats[stat.id] = stat;
-        }
-      });
+  private smallStatObserver(stat: SmallStat) {
+    this.smallStatCardStats[stat.id] = stat;
   }
 
   private getTotalTracksStat(timeframe: Timeframe, prevTimeframe: Timeframe): void {
@@ -84,11 +82,11 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
       }
     };
 
-    this.playbackApi.callApiWithTimeframe<CountApiResponse>('totalTracks', timeframe)
-      .subscribe(value => this.smallStatCardStats[0].stat.value = value[0]?.count);
+    this.trackApi.getTotalTracks(StorageService.accessToken, timeframe.start, timeframe.end)
+      .subscribe(value => this.smallStatCardStats[0].stat.value = value.count.toString(10));
 
-    this.playbackApi.callApiWithTimeframe<CountApiResponse>('totalTracks', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value[0]?.count);
+    this.trackApi.getTotalTracks(StorageService.accessToken, prevTimeframe.start, prevTimeframe.end)
+      .subscribe(value => this.smallStatCardStats[0].stat.prevValue = 'vs. ' + value.count);
   }
 
   private getUniqueTracksStat(timeframe: Timeframe, prevTimeframe: Timeframe): void {
@@ -103,11 +101,11 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
       }
     };
 
-    this.playbackApi.callApiWithTimeframe<CountApiResponse>('uniqueTracks', timeframe)
-      .subscribe(value => this.smallStatCardStats[1].stat.value = value[0]?.count);
+    this.trackApi.getUniqueTracks(StorageService.accessToken, timeframe.start, timeframe.end)
+      .subscribe(value => this.smallStatCardStats[1].stat.value = value.count.toString(10));
 
-    this.playbackApi.callApiWithTimeframe<CountApiResponse>('uniqueTracks', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value[0]?.count);
+    this.trackApi.getUniqueTracks(StorageService.accessToken, prevTimeframe.start, prevTimeframe.end)
+      .subscribe(value => this.smallStatCardStats[1].stat.prevValue = 'vs. ' + value.count);
   }
 
   private getMostActiveDay(timeframe: Timeframe, prevTimeframe: Timeframe): void {
@@ -122,39 +120,32 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
       }
     };
 
-    this.playbackApi.callApiWithTimeframe<MostActiveDayApiResponse>('mostActiveDay', timeframe)
-      .subscribe(value => this.smallStatCardStats[5].stat.value = value[0]?.date + ' (' + value[0]?.count + ')');
+    this.statsApi.getMostActiveDay(StorageService.accessToken, timeframe.start, timeframe.end)
+      .subscribe(value => this.smallStatCardStats[5].stat.value = value.date + ' (' + value.count + ')');
 
-    this.playbackApi.callApiWithTimeframe<MostActiveDayApiResponse>('mostActiveDay', prevTimeframe)
-      .subscribe(value => this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value[0]?.date + ' (' + value[0]?.count + ')');
+    this.statsApi.getMostActiveDay(StorageService.accessToken, prevTimeframe.start, prevTimeframe.end)
+      .subscribe(value => this.smallStatCardStats[5].stat.prevValue = 'vs. ' + value.date + ' (' + value.count + ')');
   }
 
   private getStreak(timeframe: Timeframe): void {
-    this.playbackApi.callApiWithTimeframe<StreakApiResponse>('streak', timeframe).subscribe(value => {
+    timeframe = this.msTimeframeToS(timeframe);
+    this.statsApi.getStreak(StorageService.accessToken, timeframe.start, timeframe.end).subscribe(value => {
       this.smallStatCardStats[9] = {
         id: 9,
         heading: 'Longest Streak',
         icon: 'date_range',
         stat: {
-          value: value[0].days + ' days',
+          value: value.days + ' days',
           prevTimeframe: {start: 10, end: 10},
-          prevValue: new Date(value[0]?.start).toLocaleDateString() + ' - ' + new Date(value[0]?.end).toLocaleDateString()
+          prevValue: new Date(value.start).toLocaleDateString() + ' - ' + new Date(value.end).toLocaleDateString()
         }
       };
     });
   }
+
+  private msTimeframeToS(timeframe: Timeframe): Timeframe {
+    return {start: Math.round(timeframe.start / 1000), end: Math.round(timeframe.end / 1000)};
+  }
 }
 
-export interface SmallCardStat {
-  id: number;
-  heading: string;
-  icon: string;
-  stat: {
-    value: number | string;
-    prevTimeframe: {
-      start: number;
-      end: number;
-    };
-    prevValue: number | string;
-  };
-}
+export type SmallCardStat = SmallStat;

@@ -1,36 +1,18 @@
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
-import {ApiTrack} from './ApiTrack';
+import {ApiAlbum} from '@kn685832/spotify-api';
+import AlbumTypeEnum = ApiAlbum.AlbumTypeEnum;
+import {fromSpotifyTrack} from './ApiTrack';
 
 // noinspection JSMismatchedCollectionQueryUpdate
-export class ApiAlbum {
-  private albumType: string;
-  private id: string;
-  private name: string;
-  private label: string;
-  private popularity: number;
-  private releaseDate: string;
-  private totalTracks: number;
-  private tracks: ApiTrack[];
 
 
-  constructor(albumType: string, id: string, name: string, label: string, popularity: number, releaseDate: string, totalTracks: number) {
-    this.albumType = albumType;
-    this.id = id;
-    this.name = name;
-    this.label = label;
-    this.popularity = popularity;
-    this.releaseDate = releaseDate;
-    this.totalTracks = totalTracks;
-  }
+export const fromSpotifyAlbum = (album: AlbumObjectFull): ApiAlbum => {
 
+  const apiAlbum: ApiAlbum = {
+    albumType: album.album_type as AlbumTypeEnum, id: album.id, name: album.name,
+    releaseDate: album.release_date, totalTracks: album.tracks.total
+  };
+  apiAlbum.tracks = album.tracks.items.map(t => fromSpotifyTrack(t));
+  return apiAlbum;
+};
 
-  public static fromSpotifyAlbum(album: AlbumObjectFull): ApiAlbum {
-
-    // @ts-ignore
-    const apiAlbum = new ApiAlbum(album.album_type, album.id, album.name, album.label, album.popularity,
-      // @ts-ignore
-      album.release_date, album.total_tracks);
-    apiAlbum.tracks = album.tracks.items.map(t => ApiTrack.fromSpotifyTrack(t));
-    return apiAlbum;
-  }
-}
