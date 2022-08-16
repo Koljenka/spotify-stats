@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {RGBColor} from '../history-stats.component';
 import {Observable} from 'rxjs';
-import {ColorService} from '@kn685832/spotify-api';
+import {ColorService, RGB} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-history-stats-top-content-list',
@@ -9,10 +8,10 @@ import {ColorService} from '@kn685832/spotify-api';
   styleUrls: ['./history-stats-top-content-list.component.scss']
 })
 export class HistoryStatsTopContentListComponent implements OnInit {
-  @Input() contentList$: Observable<TopContent[]>;
+  @Input() contentList$: Observable<MostListenedContent[]>;
   @Input() circularImage = false;
-  contentList: TopContent[] = [];
-  topContentAvgColor: RGBColor = null;
+  contentList: MostListenedContent[] = [];
+  topContentAvgColor: RGB = null;
 
   constructor(private colorApi: ColorService) {
   }
@@ -24,7 +23,7 @@ export class HistoryStatsTopContentListComponent implements OnInit {
     });
   }
 
-  rgbToString(rgb: RGBColor, a: number = 1) {
+  rgbToString(rgb: RGB, a: number = 1) {
     return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${a})`;
   }
 
@@ -32,25 +31,25 @@ export class HistoryStatsTopContentListComponent implements OnInit {
     return `linear-gradient(${color1}, ${color2})`;
   }
 
-  getImageUrl(content: TopContent) {
+  getImageUrl(content: MostListenedContent) {
     return `url(${content.imageUrl})`;
   }
 
-  topContentTrackBy(index: number, item: TopContent): string {
+  topContentTrackBy(index: number, item: MostListenedContent): string {
     return item.id;
   }
 
   getTopContentAvgColor(): void {
     if (this.contentList.length > 0) {
       this.colorApi.getAverageColor(this.contentList[0].imageUrl)
-        .subscribe(value => {
-          this.topContentAvgColor = value as RGBColor;
+        .subscribe(color => {
+          this.topContentAvgColor = color ;
         });
     }
   }
 }
 
-export interface TopContent {
+export interface MostListenedContent {
   id: string;
   routerLink: any[];
   imageUrl: string;

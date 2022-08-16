@@ -1,3 +1,5 @@
+import {Timeframe} from '@kn685832/spotify-api';
+
 export class Util {
   static toHoursMinutesSeconds(totalSeconds, dotsAsSeparator = true): string {
     const days = Math.floor(totalSeconds / 86400);
@@ -21,5 +23,13 @@ export class Util {
     const brightness = Math.round(((parseInt(r, 10) * 299) +
       (parseInt(g, 10) * 587) + (parseInt(b, 10) * 114)) / 1000);
     return (brightness > 125) ? 'black' : 'white';
+  }
+
+  static multiplyTimeframe(timeframe: Timeframe, factor: number): Timeframe {
+    return {start: Math.round(timeframe.start * factor), end: Math.round(timeframe.end * factor)};
+  }
+
+  static divTimeframe(timeframe: Timeframe, dividend: number): Timeframe {
+    return {start: Math.round(timeframe.start / dividend), end: Math.round(timeframe.end / dividend)};
   }
 }

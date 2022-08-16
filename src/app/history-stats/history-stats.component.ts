@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ContextObjectFull, DataSharingService} from '../data-sharing.service';
+import {ContextObjectFull, DataSharingService, PlayHistoryObjectFull} from '../data-sharing.service';
 import {Title} from '@angular/platform-browser';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {StorageService} from '../storage.service';
 import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
 import {MatDateRangeInput} from '@angular/material/datepicker';
-import {UntypedFormControl, UntypedFormGroup} from '@angular/forms';
+import {FormControl, FormGroup} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
@@ -19,15 +17,14 @@ import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import {lastValueFrom, Subject} from 'rxjs';
-import {TopContent} from './history-stats-top-content-list/history-stats-top-content-list.component';
+import {MostListenedContent} from './history-stats-top-content-list/history-stats-top-content-list.component';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import ImageObject = SpotifyApi.ImageObject;
 import {
-  ApiPlaybackHistoryObject,
   PlayHistory,
-  StatisticsService,
-  Timeframe as ApiTimeFrame
+  StatisticsService, Timeframe
 } from '@kn685832/spotify-api';
+import moment, {Moment} from 'moment';
 
 
 @Component({
@@ -35,7 +32,7 @@ import {
   templateUrl: './history-stats.component.html',
   styleUrls: ['./history-stats.component.css'],
   providers: [
-    {provide: MAT_DATE_LOCALE, useValue: 'de-DE'},
+    {provide: MAT_DATE_LOCALE, useValue: 'de'},
     {
       provide: DateAdapter,
       useClass: MomentDateAdapter,
@@ -51,20 +48,21 @@ export class HistoryStatsComponent implements OnInit {
   historyStatsData = new Subject<HistoryStatsData>();
 
   worker: Worker;
-  topArtists = new Subject<TopContent[]>();
-  topAlbums = new Subject<TopContent[]>();
-  topTracks = new Subject<TopContent[]>();
-  topContexts = new Subject<TopContent[]>();
+  topArtists = new Subject<MostListenedContent[]>();
+  topAlbums = new Subject<MostListenedContent[]>();
+  topTracks = new Subject<MostListenedContent[]>();
+  topContexts = new Subject<MostListenedContent[]>();
   theme: Option;
   themeIsDark = false;
-  range = new UntypedFormGroup({
-    start: new UntypedFormControl(new Date(new Date().getFullYear(), new Date().getMonth(),
-      new Date().getDate() - new Date().getDay() + 1)),
-    end: new UntypedFormControl(new Date())
+  range = new FormGroup({
+    start: new FormControl<Moment>(moment().startOf('isoWeek')),
+    end: new FormControl<Moment>(moment())
   });
   links = ['Last 7 days', 'Last month', 'Last year', 'All time'];
   lastLink = 'latLink';
   activeLink = this.links[0];
+  dateRange: {start: Moment; end: Moment} = null;
+  prevDateRange: {start: Moment; end: Moment} = null;
 
   private isInitialized = false;
   private isFirstCallback = true;
@@ -74,6 +72,7 @@ export class HistoryStatsComponent implements OnInit {
               private styleService: StyleManagerService,
               private statsApi: StatisticsService) {
     if (typeof Worker !== 'undefined') {
+      moment.locale('de');
       this.worker = new Worker(new URL('./history-stats.worker', import.meta.url), {type: 'module'});
       this.worker.onmessage = ({data}) => this.workerCallback(data);
     }
@@ -97,44 +96,41 @@ export class HistoryStatsComponent implements OnInit {
   }
 
   onLinkChanged(): void {
-    const timeframe = {start: 0, end: Date.now()};
-    const prevTimeframe = {start: 0, end: 0};
+    let start = moment();
+    let end = moment();
+    let prevStart = null;
     this.clearStats();
     switch (this.activeLink) {
-      case this.links[3]:
-        timeframe.start = this.playbackHistory[this.playbackHistory.length - 1].playedAt;
-        timeframe.end = Date.now();
-        break;
-      case this.links[2]:
-        timeframe.start = new Date(new Date().getFullYear() - 1, 0, 1).valueOf();
-        timeframe.end = new Date(new Date().getFullYear() - 1, 11, 31, 23, 59, 59).valueOf();
-        prevTimeframe.start = new Date(new Date().getFullYear() - 2, 0, 1).valueOf();
+      case this.links[0]:
+        start.subtract(7, 'days').startOf('day');
+        prevStart = moment(start).subtract(7, 'days');
         break;
       case this.links[1]:
-        timeframe.start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).valueOf();
-        timeframe.end = new Date(new Date().getFullYear(), new Date().getMonth(), 0, 23, 59, 29).valueOf();
-        prevTimeframe.start = new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).valueOf();
+        start.subtract(1, 'month').startOf('month');
+        end = moment(start).endOf('month');
+        prevStart = moment(start).subtract(1, 'month');
         break;
-      case this.links[0]:
-        let start = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7);
-        timeframe.start = start.valueOf();
-        timeframe.end = Date.now();
-        start = new Date(start.valueOf() - 1);
-        prevTimeframe.start = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7).valueOf();
+      case this.links[2]:
+        start.subtract(1, 'year').startOf('year');
+        end = moment(start).endOf('year');
+        prevStart = moment(start).subtract(1, 'year');
+        break;
+      case this.links[3]:
+        start = moment.unix(this.playbackHistory[this.playbackHistory.length - 1].playedAt);
         break;
       case this.lastLink:
-        timeframe.start = this.range.value.start.valueOf();
-        timeframe.end = this.range.value.end.valueOf();
-        prevTimeframe.start = new Date(new Date((timeframe.start - 1) - (timeframe.end - (timeframe.start - 1))).toDateString()).valueOf();
-        if (timeframe.start === timeframe.end) {
-          timeframe.end = timeframe.start + 86399000;
-        }
-        break;
+        this.onRangeChanged(this.range.value);
+        return;
     }
-    if (prevTimeframe.start !== 0) {
-      prevTimeframe.end = timeframe.start - 1;
+    this.dateRange = {start, end};
+    const timeframe: Timeframe = {start: start.unix(), end: end.unix()};
+    const prevTimeframe = {start: 0, end: 0};
+    if (prevStart !== null) {
+      prevTimeframe.start = prevStart.unix();
+      prevTimeframe.end = moment(start).subtract(1, 'minute').unix();
+      this.prevDateRange = {start: prevStart, end: moment(start).subtract(1, 'minute')};
     }
-    this.loadStatsForTimeframe(timeframe.start, timeframe.end, prevTimeframe.start, prevTimeframe.end);
+    this.loadStatsForTimeframe(timeframe, prevTimeframe);
   }
 
   getContextRouterLink(obj: ContentObject): string[] {
@@ -149,19 +145,6 @@ export class HistoryStatsComponent implements OnInit {
     }
   }
 
-  trackByFunction(index, item) {
-    if ('artist' in item) {
-      return item.artist.id;
-    } else if ('album' in item) {
-      return item.album.id;
-    } else if ('track' in item) {
-      return item.track.id;
-    } else if ('context' in item) {
-      return item.context.content.uri;
-    }
-    return index;
-  }
-
   private clearStats(): void {
     this.historyStatsData.next(null);
     this.topArtists.next([]);
@@ -170,38 +153,33 @@ export class HistoryStatsComponent implements OnInit {
     this.topContexts.next([]);
   }
 
-  private onRangeChanged(value): void {
+  private onRangeChanged({start, end}: { start?: Moment; end?: Moment }): void {
     if (this.isInitialized && !this.isFirstCallback &&
-      value.end != null && value.start != null &&
-      // eslint-disable-next-line no-underscore-dangle
-      value.start._isValid && value.end._isValid &&
-      value.start <= value.end) {
+      end != null && start != null &&
+      start.isValid() && end.isValid() &&
+      start.isBefore(end)) {
       this.clearStats();
+      end.endOf('day');
+      const prevDateFrame = {
+        start: moment(start).subtract(end.diff(start, 'days') + 1, 'days'),
+        end: moment(start).subtract(1, 'day').endOf('day')
+      };
       const prevTimeframe = {start: 0, end: 0};
-      prevTimeframe.start = new Date(new Date((value.start - 1) - (value.end - (value.start - 1))).toDateString()).valueOf();
-      prevTimeframe.end = value.start - 1;
-      let end = value.end.valueOf();
-      if (value.start.valueOf() === value.end.valueOf()) {
-        end = value.start.valueOf() + 86399000;
-      }
-      this.loadStatsForTimeframe(value.start.valueOf(), end.valueOf(), prevTimeframe.start, prevTimeframe.end);
+      prevTimeframe.start = prevDateFrame.start.unix();
+      prevTimeframe.end = prevDateFrame.end.unix();
+
+      this.loadStatsForTimeframe({start: start.unix(), end: end.unix()}, prevTimeframe);
     }
     this.isFirstCallback = false;
   }
 
-  private async loadStatsForTimeframe(from: number, to: number, previousFrom: number, previousTo: number): Promise<void> {
-    const playHistory = this.playbackHistory.filter(
-      v => new Date(new Date(v.playedAt).toDateString()).valueOf() >= from &&
-        new Date(new Date(v.playedAt).toDateString()).valueOf() <= to);
-    const prevPlaybackHistory = this.playbackHistory.filter(
-      v => new Date(new Date(v.playedAt).toDateString()).valueOf() >= previousFrom &&
-        new Date(new Date(v.playedAt).toDateString()).valueOf() <= previousTo);
-    const timeframe = {start: from, end: to};
-    const prevTimeframe = {start: previousFrom, end: previousTo};
+  private async loadStatsForTimeframe(timeframe: Timeframe, prevTimeframe: Timeframe): Promise<void> {
+    const playHistory = this.playbackHistory.filter(v => v.playedAt >= timeframe.start && v.playedAt <= timeframe.end);
+    const prevPlaybackHistory = this.playbackHistory.filter(v => v.playedAt >= prevTimeframe.start && v.playedAt <= prevTimeframe.end);
 
-    await this.getTopTracks(this.msTimeframeToS(timeframe));
-    await this.getTopContexts(this.msTimeframeToS(timeframe));
-    await this.getTopArtists(this.msTimeframeToS(timeframe));
+    await this.getTopTracks(timeframe);
+    await this.getTopContexts(timeframe);
+    await this.getTopArtists(timeframe);
 
     await this.dataSharing.getHistoryObjectFull(playHistory.concat(...prevPlaybackHistory));
 
@@ -218,10 +196,6 @@ export class HistoryStatsComponent implements OnInit {
       timeframe,
       prevTimeframe
     });
-  }
-
-  private msTimeframeToS(timeframe: Timeframe): Timeframe {
-    return {start: Math.round(timeframe.start / 1000), end: Math.round(timeframe.end / 1000)};
   }
 
   private async getTopTracks(timeframe: Timeframe): Promise<void> {
@@ -250,8 +224,8 @@ export class HistoryStatsComponent implements OnInit {
     this.topAlbums.next(top);
   }
 
-  private contentObjectToTopContent(obj: ContentObject | ContextObjectFull, timesPlayed: number): TopContent {
-    const top = {} as TopContent;
+  private contentObjectToTopContent(obj: ContentObject | ContextObjectFull, timesPlayed: number): MostListenedContent {
+    const top = {} as MostListenedContent;
     if (obj.type === 'context') {
       obj = obj.content;
     }
@@ -286,15 +260,7 @@ export class HistoryStatsComponent implements OnInit {
   }
 }
 
-export interface RGBColor {
-  r: number;
-  g: number;
-  b: number;
-}
-
 type ContentObject = TrackObjectFull | AlbumObjectFull | ArtistObjectFull | PlaylistObjectFull;
-
-export type Timeframe = ApiTimeFrame;
 
 export interface HistoryStatsData {
   playbackHistory: PlayHistoryObjectFull[];

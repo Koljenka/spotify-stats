@@ -9,17 +9,18 @@ addEventListener('message', ({data}) => {
   api.setAccessToken(data.token);
 
   const playbackHistory: any[] = data.playHistory.filter(val => val.audioFeatures != null);
+  const toDate = (playedAt: number) => new Date(playedAt * 1000);
 
   const getAverageFeaturesOverTime = (): any[] => {
     const result = [];
     for (const item of playbackHistory) {
-      if (result.map(v => v.date).includes(new Date(parseInt(item.added_at, 10)).toDateString())) {
+      if (result.map(v => v.date).includes(toDate(item.playedAt).toDateString())) {
         continue;
       }
-      const tempList = playbackHistory.filter(v => new Date(parseInt(item.added_at, 10)).toDateString() ===
-        new Date(parseInt(v.added_at, 10)).toDateString());
+
+      const tempList = playbackHistory.filter(v => toDate(item.playedAt).toDateString() === toDate(v.playedAt).toDateString());
       result.push({
-        date: new Date(parseInt(item.added_at, 10)).toDateString(),
+        date: toDate(item.playedAt).toDateString(),
         valence: getAverageHappiness(tempList),
         energy: getAverageEnergy(tempList),
         danceability: getAverageDanceability(tempList)
@@ -38,19 +39,19 @@ addEventListener('message', ({data}) => {
     const result = [];
     for (const item of playbackHistory) {
       if (result.map(v => JSON.stringify(v.date)).includes(JSON.stringify({
-        month: new Date(parseInt(item.added_at, 10)).getMonth(),
-        year: new Date(parseInt(item.added_at, 10)).getFullYear()
+        month: toDate(item.playedAt).getMonth(),
+        year: toDate(item.playedAt).getFullYear()
       }))) {
         continue;
       }
       const tempList = playbackHistory.filter(v =>
-        new Date(parseInt(item.added_at, 10)).getMonth() === new Date(parseInt(v.added_at, 10)).getMonth() &&
-        new Date(parseInt(item.added_at, 10)).getFullYear() === new Date(parseInt(v.added_at, 10)).getFullYear()
+        toDate(item.playedAt).getMonth() === toDate(v.playedAt).getMonth() &&
+        toDate(item.playedAt).getFullYear() === toDate(v.playedAt).getFullYear()
       );
       result.push({
         date: {
-          month: new Date(parseInt(item.added_at, 10)).getMonth(),
-          year: new Date(parseInt(item.added_at, 10)).getFullYear()
+          month: toDate(item.playedAt).getMonth(),
+          year: toDate(item.playedAt).getFullYear()
         },
         valence: getAverageHappiness(tempList),
         energy: getAverageEnergy(tempList),
@@ -76,7 +77,7 @@ addEventListener('message', ({data}) => {
     const valence = [];
     const energy = [];
     const danceability = [];
-    const dataSet = (data.timeframe.end - data.timeframe.start <= 2678400000) ?
+    const dataSet = (data.timeframe.end - data.timeframe.start <= 2678400) ?
       getAverageFeaturesOverTime() : getAverageFeaturesOverMonth();
     dataSet.forEach(item => {
       xAxisData.push(item.date);

@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {Option} from './option.model';
-import {environment} from '../environments/environment';
 
 @Injectable()
 export class StyleManagerService {
@@ -18,7 +17,7 @@ export class StyleManagerService {
    */
   setStyle(theme: Option): void {
     getLinkElementForKey('theme')
-      .setAttribute('href', `${environment.APP_SETTINGS.assetsBasePath}${theme.value}.css`);
+      .setAttribute('href', `https://unpkg.com/@angular/material/prebuilt-themes/${theme.value}.css`);
     setThemeColorMetaValue(theme.headingColor);
     this.themeSource.next(theme);
   }
@@ -34,7 +33,7 @@ export class StyleManagerService {
   }
 
   isDarkStyleActive(): boolean {
-    const currentTheme = getLinkElementForKey('theme').getAttribute('href').match(/(?<=assets\/).*/)[0];
+    const currentTheme = this.themeSource.value.value;
     return currentTheme === 'pink-bluegrey.css' || currentTheme === 'purple-green.css';
   }
 }

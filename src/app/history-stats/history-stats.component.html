@@ -15,6 +15,7 @@
         <mat-date-range-picker (opened)="activeLink = lastLink" #picker></mat-date-range-picker>
       </mat-form-field>
     </a>
+    <span>curr: {{dateRange?.start.format('LLL')}} - {{dateRange?.end.format('LLL')}} | prev: {{prevDateRange?.start.format('LLL')}} - {{prevDateRange?.end.format('LLL')}}</span>
   </nav>
 </div>
 

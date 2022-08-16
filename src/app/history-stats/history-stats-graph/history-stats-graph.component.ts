@@ -3,8 +3,8 @@ import {Observable} from 'rxjs';
 import {EChartsOption} from 'echarts';
 import {StyleManagerService} from '../../style-manager.service';
 import {StorageService} from '../../storage.service';
-import {HistoryStatsData, Timeframe} from '../history-stats.component';
-import {StatisticsService} from '@kn685832/spotify-api';
+import {HistoryStatsData} from '../history-stats.component';
+import {StatisticsService, Timeframe} from '@kn685832/spotify-api';
 
 @Component({
   selector: 'app-history-stats-graph',
@@ -68,7 +68,7 @@ export class HistoryStatsGraphComponent implements OnInit {
   }
 
   private getClockGraphData(): void {
-    this.statsApi.getListeningClock(StorageService.accessToken, Math.round(this.timeframe.start / 1000), Math.round(this.timeframe.end / 1000))
+    this.statsApi.getListeningClock(StorageService.accessToken, this.timeframe.start, this.timeframe.end)
       .subscribe(value => {
         const temp = {};
         for (let i = 0; i < 24; i++) {

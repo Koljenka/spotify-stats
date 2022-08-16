@@ -1,10 +1,17 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HistoryStatsData, Timeframe} from '../history-stats.component';
+import {HistoryStatsData} from '../history-stats.component';
 import {StyleManagerService} from '../../style-manager.service';
 import {Option} from '../../option.model';
 import {StorageService} from '../../storage.service';
-import {SmallStat, SmallStatRequest, SmallStatsService, StatisticsService, TrackService} from '@kn685832/spotify-api';
+import {
+  SmallStat,
+  SmallStatRequest,
+  SmallStatsService,
+  StatisticsService,
+  Timeframe,
+  TrackService
+} from '@kn685832/spotify-api';
 import {fromSpotifyPlaybackHistoryObject} from '../../stat-api-util/ApiPlaybackHistoryObject';
 
 @Component({
@@ -144,7 +151,7 @@ export class HistoryStatsSmallStatsComponent implements OnInit {
   }
 
   private msTimeframeToS(timeframe: Timeframe): Timeframe {
-    return {start: Math.round(timeframe.start / 1000), end: Math.round(timeframe.end / 1000)};
+    return {start: Math.round(timeframe.start ), end: Math.round(timeframe.end)};
   }
 }
 

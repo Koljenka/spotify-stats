@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {PlayHistoryObjectFull} from './track-history/track-history.component';
 import {ApiConnectionService} from './api-connection.service';
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
@@ -21,7 +20,6 @@ export class DataSharingService {
   public contextMap: Map<string, ContextObjectFull> = new Map();
   public audioFeaturesMap: Map<string, AudioFeaturesObject> = new Map();
 
-  private playbackHistorySource: PlayHistory[] = [];
   private playbackHistoryPromise: Promise<PlayHistory[]> = null;
 
   constructor(private api: ApiConnectionService, private playbackApi: PlaybackService) {
@@ -164,8 +162,7 @@ export class DataSharingService {
         track: this.trackMap.get(t.trackId),
         audioFeatures: this.audioFeaturesMap.get(t.trackId),
         context: withContexts ? this.contextMap.get(t.contextUri) : context,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        added_at: t.playedAt.toString(10)
+        playedAt: t.playedAt
       });
     });
     return playHistoryObjectsFull;
@@ -174,8 +171,6 @@ export class DataSharingService {
   private async loadPlaybackHistory(): Promise<PlayHistory[]> {
     return new Promise<PlayHistory[]>(resolve => {
       this.playbackApi.getPlaybackHistory(StorageService.accessToken).subscribe(value => {
-        value.forEach(t => t.playedAt *= 1000);
-        this.playbackHistorySource = value;
         resolve(value);
       });
     });
@@ -310,6 +305,13 @@ export interface ContextObjectFull {
   type: 'context';
   contextType: ContextObjectType;
   content: AlbumObjectFull | PlaylistObjectFull | ArtistObjectFull;
+}
+
+export interface PlayHistoryObjectFull {
+  context: ContextObjectFull;
+  audioFeatures: AudioFeaturesObject;
+  track: TrackObjectFull;
+  playedAt: number;
 }
 
 interface Pagination {

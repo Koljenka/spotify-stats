@@ -1,12 +1,12 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 import SavedTrackObject = SpotifyApi.SavedTrackObject;
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
 import {Util} from '../util';
 import {StorageService} from '../storage.service';
 import {ColorService, ContextService, RGB} from '@kn685832/spotify-api';
+import {PlayHistoryObjectFull} from '../data-sharing.service';
 
 @Component({
   selector: 'app-track-list-header',

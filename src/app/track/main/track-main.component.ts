@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {ApiConnectionService} from '../../api-connection.service';
 import {ActivatedRoute} from '@angular/router';
 import {Title} from '@angular/platform-browser';
-import {environment} from '../../../environments/environment';
 import TrackObjectFull = SpotifyApi.TrackObjectFull;
 import {Util} from '../../util';
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;

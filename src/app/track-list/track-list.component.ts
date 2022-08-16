@@ -9,12 +9,11 @@ import {
   ViewChild
 } from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
-import {ContextObjectFull} from '../data-sharing.service';
+import {ContextObjectFull, PlayHistoryObjectFull} from '../data-sharing.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort, Sort} from '@angular/material/sort';
-import {PlayHistoryObjectFull} from '../track-history/track-history.component';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {AlbumTrackObject} from '../album-track-list/album-track-list.component';
 import PlaylistTrackObject = SpotifyApi.PlaylistTrackObject;
@@ -247,7 +246,7 @@ export class TrackListComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
       case 'played_at':
         // @ts-ignore
-        this.dataSource.data.sort((a, b) => (parseInt(a.added_at, 10) - parseInt(b.added_at, 10)) * factor);
+        this.dataSource.data.sort((a, b) => (parseInt(a.playedAt, 10) - parseInt(b.playedAt, 10)) * factor);
         break;
       case 'context':
         this.dataSource.data.sort((a, b) => {
